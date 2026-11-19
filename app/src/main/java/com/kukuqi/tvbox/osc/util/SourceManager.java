@@ -72,13 +72,20 @@ public final class SourceManager {
     public static void readConfig(String url, ContentResult result) {
         IO.execute(() -> {
             String content = null, error = "这个地址没有返回有效的订阅配置";
-            try { content = ConfigCompat.resolve(configResource(url), SourceManager::configResource).toString(); }
+            try {
+                if (!com.kukuqi.tvbox.engine.runtime.NodeRuntime.isConfig(url)) com.kukuqi.tvbox.engine.runtime.NodeRuntime.get().clear();
+                content = ConfigCompat.resolve(configResource(url), SourceManager::configResource).toString();
+            }
             catch (Exception e) { if (e.getMessage() != null) error = e.getMessage(); }
             String ready = content, message = error;
             MAIN.post(() -> result.onResult(ready, ready == null ? message : ""));
         });
     }
     private static ConfigCompat.Resource configResource(String inputUrl) throws Exception {
+        if (com.kukuqi.tvbox.engine.runtime.NodeRuntime.isConfig(inputUrl)) {
+            return new ConfigCompat.Resource(inputUrl, com.kukuqi.tvbox.engine.runtime.NodeRuntime.get().loadConfig(inputUrl));
+        }
+
         String[] parts = inputUrl.split(";pk;", 2);
         String url = parts[0], key = parts.length > 1 ? parts[1] : null;
         String content;

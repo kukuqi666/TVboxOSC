@@ -7,191 +7,176 @@
 
 {"key":"T4_douban","name":"影视推荐(T4)","type":4,"api":"https://t4.饭太硬.ml/vod","searchable":1,"quickSearch":1,"filterable":1},
 
-{"key":"csp_Paper","name":"小纸条〔SP〕","type":3,"api":"csp_Paper","searchable":1,"playerType":1,"quickSearch":1,"filterable":1,"ext": "https://ghproxy.com/https://raw.githubusercontent.com/Pandora2277/box/main/token.txt"},
-
 //{"key":"Gitcafe","name":"小纸条〔ts〕","type":3,"api":"csp_Gitcafe","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/Pandora2277/box/main/token.txt","jar":"./JAR/cs.jar"},
 
 
-{"key":"csp_xBPQ_苹果电影网","name":"苹果电影网","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E8%8B%B9%E6%9E%9C%E7%94%B5%E5%BD%B1%E7%BD%91.json"},
+{"key":"csp_xBPQ_苹果电影网","name":"苹果电影网","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E8%8B%B9%E6%9E%9C%E7%94%B5%E5%BD%B1%E7%BD%91.json"},
 
-{"key":"csp_xBPQ_低端影视","name":"低端影视","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E4%BD%8E%E7%AB%AF%E5%BD%B1%E8%A7%86.json"},
+{"key":"csp_xBPQ_低端影视","name":"低端影视","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E4%BD%8E%E7%AB%AF%E5%BD%B1%E8%A7%86.json"},
 
-{"key":"csp_xBPQ_零零七影视","name":"零零七影视","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E9%9B%B6%E9%9B%B6%E4%B8%83%E5%BD%B1%E8%A7%86.json"},
+{"key":"csp_xBPQ_零零七影视","name":"零零七影视","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E9%9B%B6%E9%9B%B6%E4%B8%83%E5%BD%B1%E8%A7%86.json"},
 
-{"key":"csp_xBPQ_333影视","name":"333影视","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/333%E5%BD%B1%E8%A7%86.json","jar":"./JAR/XBPQ_0111.jar"},
+{"key":"csp_xBPQ_98影院","name":"98影院","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/98%E5%BD%B1%E9%99%A2.json"},
 
-{"key":"csp_xBPQ_98影院","name":"98影院","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/98%E5%BD%B1%E9%99%A2.json"},
+{"key":"csp_xBPQ_布蕾影院","name":"布蕾影院","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%B8%83%E8%95%BE%E5%BD%B1%E9%99%A2.json"},
 
-{"key":"csp_xBPQ_布蕾影院","name":"布蕾影院","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%B8%83%E8%95%BE%E5%BD%B1%E9%99%A2.json"},
+{"key":"csp_xBPQ_天空影视","name":"天空影视","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%A4%A9%E7%A9%BA%E5%BD%B1%E8%A7%86.json"},
 
-{"key":"csp_xBPQ_天空影视","name":"天空影视","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%A4%A9%E7%A9%BA%E5%BD%B1%E8%A7%86.json"},
+{"key":"csp_xBPQ_双十电影","name":"双十电影","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%8F%8C%E5%8D%81%E7%94%B5%E5%BD%B1.json"},
 
-{"key":"csp_xBPQ_双十电影","name":"双十电影","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%8F%8C%E5%8D%81%E7%94%B5%E5%BD%B1.json"},
+{"key":"csp_xBPQ_100影视","name":"100影视","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/100%E5%BD%B1%E8%A7%86.json"},
 
-{"key":"csp_xBPQ_100影视","name":"100影视","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/100%E5%BD%B1%E8%A7%86.json"},
+{"key":"csp_xBPQ_360影视","name":"360影视","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/360%E5%BD%B1%E8%A7%86.json"},
 
-{"key":"csp_xBPQ_360影视","name":"360影视","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/360%E5%BD%B1%E8%A7%86.json"},
+{"key":"csp_xBPQ_番茄影视","name":"番茄影视","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E7%95%AA%E8%8C%84%E5%BD%B1%E8%A7%86.json"},
 
-{"key":"csp_xBPQ_番茄影视","name":"番茄影视","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E7%95%AA%E8%8C%84%E5%BD%B1%E8%A7%86.json"},
+{"key":"乐猪影视","name":"乐猪影视","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E4%B9%90%E7%8C%AA%E5%BD%B1%E8%A7%86.json"},
 
-{"key":"乐猪影视","name":"乐猪影视","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E4%B9%90%E7%8C%AA%E5%BD%B1%E8%A7%86.json"},
+{"key":"csp_xBPQ_厂长资源","name":"厂长资源","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%8E%82%E9%95%BF%E8%B5%84%E6%BA%90.json"},
 
-{"key":"csp_xBPQ_厂长资源","name":"厂长资源","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%8E%82%E9%95%BF%E8%B5%84%E6%BA%90.json"},
+{"key":"csp_xBPQ_口袋影院","name":"口袋影院","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%8F%A3%E8%A2%8B%E5%BD%B1%E9%99%A2.json"},
 
-{"key":"csp_xBPQ_口袋影院","name":"口袋影院","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%8F%A3%E8%A2%8B%E5%BD%B1%E9%99%A2.json"},
+{"key":"csp_xBPQ_花猫TV","name":"花猫TV","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E8%8A%B1%E7%8C%ABTV.json"},
 
-{"key":"csp_xBPQ_花猫TV","name":"花猫TV","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E8%8A%B1%E7%8C%ABTV.json"},
+{"key":"csp_xBPQ_看戏影视","name":"看戏影视","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E7%9C%8B%E6%88%8F%E5%BD%B1%E8%A7%86.json"},
 
-{"key":"csp_xBPQ_看戏影视","name":"看戏影视","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E7%9C%8B%E6%88%8F%E5%BD%B1%E8%A7%86.json"},
-
-{"key":"csp_xBPQ_鸭奈飞影视","name":"鸭奈飞影视","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,
+{"key":"csp_xBPQ_鸭奈飞影视","name":"鸭奈飞影视","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,
 "ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E9%B8%AD%E5%A5%88%E9%A3%9E%E5%BD%B1%E8%A7%86.json"},
 
-{"key":"csp_xBPQ_创意影视","name":"创意影视","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,
+{"key":"csp_xBPQ_创意影视","name":"创意影视","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,
 "ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%88%9B%E6%84%8F%E5%BD%B1%E8%A7%86.json"},
 
-{"key":"csp_xBPQ_诺讯影视","name":"诺讯影视","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E8%AF%BA%E8%AE%AF%E5%BD%B1%E8%A7%86.json"},
+{"key":"csp_xBPQ_诺讯影视","name":"诺讯影视","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E8%AF%BA%E8%AE%AF%E5%BD%B1%E8%A7%86.json"},
 
-{"key":"csp_xBPQ_兰花影院","name":"兰花影院","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%85%B0%E8%8A%B1%E5%BD%B1%E9%99%A2.json"},
+{"key":"csp_xBPQ_兰花影院","name":"兰花影院","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%85%B0%E8%8A%B1%E5%BD%B1%E9%99%A2.json"},
 
-{"key":"csp_xBPQ_映迷影院","name":"映迷影院","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E6%98%A0%E8%BF%B7%E5%BD%B1%E9%99%A2.json"},
+{"key":"csp_xBPQ_映迷影院","name":"映迷影院","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E6%98%A0%E8%BF%B7%E5%BD%B1%E9%99%A2.json"},
 
-{"key":"csp_xBPQ_剧迷线上看","name":"剧迷线上看","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%89%A7%E8%BF%B7%E7%BA%BF%E4%B8%8A%E7%9C%8B.json"},
+{"key":"csp_xBPQ_剧迷线上看","name":"剧迷线上看","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%89%A7%E8%BF%B7%E7%BA%BF%E4%B8%8A%E7%9C%8B.json"},
 
-{"key":"csp_xBPQ_爱酷影视","name":"爱酷影视","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E7%88%B1%E9%85%B7%E5%BD%B1%E8%A7%86.json"},
+{"key":"csp_xBPQ_爱酷影视","name":"爱酷影视","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E7%88%B1%E9%85%B7%E5%BD%B1%E8%A7%86.json"},
 
-{"key":"csp_xBPQ_溪谷影视","name":"溪谷影视","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E6%BA%AA%E8%B0%B7%E5%BD%B1%E8%A7%86.json"},
+{"key":"csp_xBPQ_溪谷影视","name":"溪谷影视","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E6%BA%AA%E8%B0%B7%E5%BD%B1%E8%A7%86.json"},
 
-{"key":"csp_xBPQ_188影视","name":"188影视","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/188%E5%BD%B1%E8%A7%86.json"},
+{"key":"csp_xBPQ_188影视","name":"188影视","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/188%E5%BD%B1%E8%A7%86.json"},
 
-{"key":"csp_xBPQ_在线之家","name":"在线之家","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%9C%A8%E7%BA%BF%E4%B9%8B%E5%AE%B6.json"},
+{"key":"csp_xBPQ_在线之家","name":"在线之家","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%9C%A8%E7%BA%BF%E4%B9%8B%E5%AE%B6.json"},
 
-{"key":"csp_xBPQ_视觉影院","name":"视觉影院","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E8%A7%86%E8%A7%89%E5%BD%B1%E9%99%A2.json"},
+{"key":"csp_xBPQ_视觉影院","name":"视觉影院","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E8%A7%86%E8%A7%89%E5%BD%B1%E9%99%A2.json"},
 
-{"key":"csp_xBPQ_核桃影院","name":"核桃影院","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E6%A0%B8%E6%A1%83%E5%BD%B1%E9%99%A2.json"},
+{"key":"csp_xBPQ_核桃影院","name":"核桃影院","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E6%A0%B8%E6%A1%83%E5%BD%B1%E9%99%A2.json"},
 
-{"key":"csp_xBPQ_UM影院","name":"UM影院","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,
+{"key":"csp_xBPQ_UM影院","name":"UM影院","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,
 "ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/UM%E5%BD%B1%E9%99%A2.json"},
 
-{"key":"石榴电影","name":"石榴电影","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"./xBPQ/石榴电影.json"},
+{"key":"南柯电影网","name":"南柯电影网","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%8D%97%E6%9F%AF%E7%94%B5%E5%BD%B1%E7%BD%91.json"},
 
-{"key":"南柯电影网","name":"南柯电影网","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%8D%97%E6%9F%AF%E7%94%B5%E5%BD%B1%E7%BD%91.json"},
+{"key":"csp_xBPQ_人人影视","name":"人人影视","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E4%BA%BA%E4%BA%BA%E5%BD%B1%E8%A7%86.json"},
 
-{"key":"csp_xBPQ_人人影视","name":"人人影视","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E4%BA%BA%E4%BA%BA%E5%BD%B1%E8%A7%86.json"},
+{"key":"csp_xBPQ_神马影院","name":"神马影院","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E7%A5%9E%E9%A9%AC%E5%BD%B1%E9%99%A2.json"},
 
-{"key":"csp_xBPQ_神马影院","name":"神马影院","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E7%A5%9E%E9%A9%AC%E5%BD%B1%E9%99%A2.json"},
+{"key":"csp_xBPQ_耐看点播","name":"耐看点播","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E8%80%90%E7%9C%8B%E7%82%B9%E6%92%AD.json"},
 
-{"key":"csp_xBPQ_双十电影","name":"双十电影","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%8F%8C%E5%8D%81%E7%94%B5%E5%BD%B1.json"},
-
-{"key":"csp_xBPQ_耐看点播","name":"耐看点播","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E8%80%90%E7%9C%8B%E7%82%B9%E6%92%AD.json"},
-
-{"key":"csp_xBPQ_Nike影视网","name":"Nike影视网","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,
+{"key":"csp_xBPQ_Nike影视网","name":"Nike影视网","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,
 "ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/Nike%E5%BD%B1%E8%A7%86%E7%BD%91.json"},
 
-{"key":"csp_xBPQ_HOHOTV","name":"HOHOTV","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,
+{"key":"csp_xBPQ_HOHOTV","name":"HOHOTV","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,
 "ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/HOHOTV.json"},
 
-{"key":"csp_xBPQ_HDIK","name":"HDIK","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,
+{"key":"csp_xBPQ_HDIK","name":"HDIK","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,
 "ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/HDIK.json"},
 
-{"key":"csp_xBPQ_voflixHD","name":"VOFLIXHD","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/voflixHD.json"},
+{"key":"csp_xBPQ_voflixHD","name":"VOFLIXHD","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/voflixHD.json"},
 
-{"key":"csp_xBPQ_LIBVIO","name":"LIBVIO","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/LIBVIO.json"},
+{"key":"csp_xBPQ_LIBVIO","name":"LIBVIO","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/LIBVIO.json"},
 
-{"key":"csp_xBPQ_爱看影视","name":"爱看影视","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E7%88%B1%E7%9C%8B%E5%BD%B1%E8%A7%86.json"},
+{"key":"csp_xBPQ_爱看影视","name":"爱看影视","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E7%88%B1%E7%9C%8B%E5%BD%B1%E8%A7%86.json"},
 
-{"key":"csp_xBPQ_影视工厂","name":"影视工厂","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"click":"ddys.tv;.vjs-big-play-button","ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%BD%B1%E8%A7%86%E5%B7%A5%E5%8E%82.json"},
+{"key":"csp_xBPQ_影视工厂","name":"影视工厂","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"click":"ddys.tv;.vjs-big-play-button","ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%BD%B1%E8%A7%86%E5%B7%A5%E5%8E%82.json"},
 
-{"key":"csp_xBPQ_不休影院","name":"不休影院","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,
+{"key":"csp_xBPQ_不休影院","name":"不休影院","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,
 "ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E4%B8%8D%E4%BC%91%E5%BD%B1%E9%99%A2.json"},
 
-{"key":"csp_xBPQ_52看剧","name":"52看剧","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,
+{"key":"csp_xBPQ_52看剧","name":"52看剧","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,
 "ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/52%E7%9C%8B%E5%89%A7.json"},
 
-{"key":"csp_xBPQ_七小时影院","name":"七小时影院","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E4%B8%83%E5%B0%8F%E6%97%B6%E5%BD%B1%E9%99%A2.json"},
+{"key":"csp_xBPQ_七小时影院","name":"七小时影院","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E4%B8%83%E5%B0%8F%E6%97%B6%E5%BD%B1%E9%99%A2.json"},
 
-{"key":"csp_xBPQ_F7好看剧","name":"F7好看剧","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,
+{"key":"csp_xBPQ_F7好看剧","name":"F7好看剧","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,
 "ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/F7%E5%A5%BD%E7%9C%8B%E5%89%A7.json"},
 
 
-{"key":"csp_xBPQ_干饭影视","name":"干饭影视","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%B9%B2%E9%A5%AD%E5%BD%B1%E8%A7%86.json"},
+{"key":"csp_xBPQ_干饭影视","name":"干饭影视","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%B9%B2%E9%A5%AD%E5%BD%B1%E8%A7%86.json"},
 
-{"key":"csp_xBPQ_真不卡影院","name":"真不卡影院","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E7%9C%9F%E4%B8%8D%E5%8D%A1%E5%BD%B1%E9%99%A2.json"},
+{"key":"csp_xBPQ_真不卡影院","name":"真不卡影院","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E7%9C%9F%E4%B8%8D%E5%8D%A1%E5%BD%B1%E9%99%A2.json"},
 
-{"key":"csp_xBPQ-饭团影院","name":"饭团影院","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E9%A5%AD%E5%9B%A2%E5%BD%B1%E9%99%A2.json"},
+{"key":"csp_xBPQ-饭团影院","name":"饭团影院","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E9%A5%AD%E5%9B%A2%E5%BD%B1%E9%99%A2.json"},
 
-{"key":"csp_xBPQ-饭团影视HD","name":"饭团影视HD","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E9%A5%AD%E5%9B%A2%E5%BD%B1%E8%A7%86HD.json"},
+{"key":"csp_xBPQ-饭团影视HD","name":"饭团影视HD","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E9%A5%AD%E5%9B%A2%E5%BD%B1%E8%A7%86HD.json"},
 
-{"key":"csp_xBPQ_片吧影院","name":"片吧影院","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E7%89%87%E5%90%A7%E5%BD%B1%E9%99%A2.json"},
+{"key":"csp_xBPQ_片吧影院","name":"片吧影院","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E7%89%87%E5%90%A7%E5%BD%B1%E9%99%A2.json"},
 
-{"key":"csp_xBPQ_大米星球","name":"大米星球","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,
+{"key":"csp_xBPQ_大米星球","name":"大米星球","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,
 "ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%A4%A7%E7%B1%B3%E6%98%9F%E7%90%83.json"},
 
-{"key":"csp_xBPQ_歪片星球","name":"歪片星球️","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E6%AD%AA%E7%89%87%E6%98%9F%E7%90%83.json"},
+{"key":"csp_xBPQ_歪片星球","name":"歪片星球️","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E6%AD%AA%E7%89%87%E6%98%9F%E7%90%83.json"},
 
-{"key":"csp_xBPQ_达达龟","name":"达达龟","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E8%BE%BE%E8%BE%BE%E9%BE%9F.json"},
+{"key":"csp_xBPQ_达达龟","name":"达达龟","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E8%BE%BE%E8%BE%BE%E9%BE%9F.json"},
 
-{"key":"csp_xBPQ_TVB云播","name":"TVB云播","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,
+{"key":"csp_xBPQ_TVB云播","name":"TVB云播","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,
 "ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/TVB%E4%BA%91%E6%92%AD.json"},
 
-{"key":"csp_xBPQ_APP影院","name":"APP影院","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/APP%E5%BD%B1%E9%99%A2.json"},
+{"key":"csp_xBPQ_APP影院","name":"APP影院","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/APP%E5%BD%B1%E9%99%A2.json"},
 
-{"key":"csp_xBPQ_疯狗电影","name":"疯狗电影","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E7%96%AF%E7%8B%97%E7%94%B5%E5%BD%B1.json"},
+{"key":"csp_xBPQ_疯狗电影","name":"疯狗电影","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E7%96%AF%E7%8B%97%E7%94%B5%E5%BD%B1.json"},
 
-{"key":"csp_xBPQ_城市电影","name":"城市电影","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%9F%8E%E5%B8%82%E7%94%B5%E5%BD%B1.json"},
+{"key":"csp_xBPQ_城市电影","name":"城市电影","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%9F%8E%E5%B8%82%E7%94%B5%E5%BD%B1.json"},
 
-{"key":"csp_xBPQ_莫扎兔","name":"莫扎兔","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E8%8E%AB%E6%89%8E%E5%85%94.json"},
+{"key":"csp_xBPQ_莫扎兔","name":"莫扎兔","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E8%8E%AB%E6%89%8E%E5%85%94.json"},
 
-{"key":"csp_xBPQ_农民影视","name":"农民影视","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%86%9C%E6%B0%91%E5%BD%B1%E8%A7%86.json"},
+{"key":"csp_xBPQ_农民影视","name":"农民影视","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%86%9C%E6%B0%91%E5%BD%B1%E8%A7%86.json"},
 
-{"key":"csp_xBPQ_热播库","name":"热播库","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E7%83%AD%E6%92%AD%E5%BA%93.json"},
+{"key":"csp_xBPQ_热播库","name":"热播库","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E7%83%AD%E6%92%AD%E5%BA%93.json"},
 
-{"key":"csp_xBPQ_快看影视","name":"快看影视","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%BF%AB%E7%9C%8B%E5%BD%B1%E8%A7%86.json"},
+{"key":"csp_xBPQ_快看影视","name":"快看影视","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%BF%AB%E7%9C%8B%E5%BD%B1%E8%A7%86.json"},
 
-{"key":"csp_xBPQ_胖虎影视","name":"胖虎影视","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E8%83%96%E8%99%8E%E5%BD%B1%E8%A7%86.json"},
+{"key":"csp_xBPQ_胖虎影视","name":"胖虎影视","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E8%83%96%E8%99%8E%E5%BD%B1%E8%A7%86.json"},
 
-{"key":"csp_xBPQ_黑狐影院","name":"黑狐影院","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E9%BB%91%E7%8B%90%E5%BD%B1%E9%99%A2.json"},
+{"key":"csp_xBPQ_黑狐影院","name":"黑狐影院","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E9%BB%91%E7%8B%90%E5%BD%B1%E9%99%A2.json"},
 
-{"key":"csp_xBPQ_番茄影视","name":"番茄影视","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,
-"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E7%95%AA%E8%8C%84%E5%BD%B1%E8%A7%86.json"},
+{"key":"csp_xBPQ_看了么","name":"看了么","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E7%9C%8B%E4%BA%86%E4%B9%88.json"},
 
-{"key":"csp_xBPQ_看了么","name":"看了么","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E7%9C%8B%E4%BA%86%E4%B9%88.json"},
+{"key":"csp_xBPQ_万能影院","name":"万能影院","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E4%B8%87%E8%83%BD%E5%BD%B1%E9%99%A2.json"},
 
-{"key":"csp_xBPQ_万能影院","name":"万能影院","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E4%B8%87%E8%83%BD%E5%BD%B1%E9%99%A2.json"},
+{"key":"csp_xBPQ-宝仙HD","name":"宝仙HD️","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%AE%9D%E4%BB%99HD.json"},
 
-{"key":"csp_xBPQ-宝仙HD","name":"宝仙HD️","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%AE%9D%E4%BB%99HD.json"},
+{"key":"csp_xBPQ_奇优影院","name":"奇优影院","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%A5%87%E4%BC%98%E5%BD%B1%E9%99%A2.json"},
 
-{"key":"csp_xBPQ_奇优影院","name":"奇优影院","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%A5%87%E4%BC%98%E5%BD%B1%E9%99%A2.json"},
+{"key":"csp_xBPQ_红领巾影院","name":"红领巾影院","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E7%BA%A2%E9%A2%86%E5%B7%BE%E5%BD%B1%E9%99%A2.json"},
 
-{"key":"csp_xBPQ_红领巾影院","name":"红领巾影院","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E7%BA%A2%E9%A2%86%E5%B7%BE%E5%BD%B1%E9%99%A2.json"},
+{"key":"csp_xBPQ_星辰影院","name":"星辰影院","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E6%98%9F%E8%BE%B0%E5%BD%B1%E9%99%A2.json"},
 
-{"key":"csp_xBPQ_星辰影院","name":"星辰影院","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E6%98%9F%E8%BE%B0%E5%BD%B1%E9%99%A2.json"},
+{"key":"csp_xBPQ_子子影视","name":"子子影视","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%AD%90%E5%AD%90%E5%BD%B1%E8%A7%86.json"},
 
-{"key":"csp_xBPQ_子子影视","name":"子子影视","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%AD%90%E5%AD%90%E5%BD%B1%E8%A7%86.json"},
+{"key":"csp_xBPQ_喵喵电影","name":"喵喵电影","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%96%B5%E5%96%B5%E7%94%B5%E5%BD%B1.json"},
 
-{"key":"csp_xBPQ_喵喵电影","name":"喵喵电影","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%96%B5%E5%96%B5%E7%94%B5%E5%BD%B1.json"},
+{"key":"csp_xBPQ_美剧网","name":"美剧网","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E7%BE%8E%E5%89%A7%E7%BD%91.json"},
 
-{"key":"csp_xBPQ_美剧网","name":"美剧网","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E7%BE%8E%E5%89%A7%E7%BD%91.json"},
+{"key":"csp_xBPQ_搜狗影院","name":"搜狗影院","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E6%90%9C%E7%8B%97%E5%BD%B1%E9%99%A2.json"},
 
-{"key":"csp_xBPQ_豆角网","name":"豆角网","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E8%B1%86%E8%A7%92%E7%BD%91.json","jar":"./JAR/XBPQ_0111.jar"},
+{"key":"csp_xBPQ_六度影视","name":"六度影视","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%85%AD%E5%BA%A6%E5%BD%B1%E8%A7%86.json"},
 
-{"key":"csp_xBPQ_秋霞影视","name":"秋霞影视","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E7%A7%8B%E9%9C%9E%E5%BD%B1%E8%A7%86.json","jar":"./JAR/XBPQ_0111.jar"},
+{"key":"csp_xBPQ_冷曦影视","name":"冷曦影视","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%86%B7%E6%9B%A6%E5%BD%B1%E8%A7%86.json"},
 
-{"key":"csp_xBPQ_搜狗影院","name":"搜狗影院","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E6%90%9C%E7%8B%97%E5%BD%B1%E9%99%A2.json"},
+{"key":"csp_xBPQ_纽约影院","name":"纽约影院","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E7%BA%BD%E7%BA%A6%E5%BD%B1%E9%99%A2.json"},
 
-{"key":"csp_xBPQ_六度影视","name":"六度影视","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%85%AD%E5%BA%A6%E5%BD%B1%E8%A7%86.json"},
+{"key":"csp_xBPQ_量子影视","name":"量子影视","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E9%87%8F%E5%AD%90%E5%BD%B1%E8%A7%86.json"},
 
-{"key":"csp_xBPQ_冷曦影视","name":"冷曦影视","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%86%B7%E6%9B%A6%E5%BD%B1%E8%A7%86.json"},
+{"key":"csp_xBPQ_托乌视频","name":"托乌视频","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E6%89%98%E4%B9%8C%E8%A7%86%E9%A2%91.json"},
 
-{"key":"csp_xBPQ_纽约影院","name":"纽约影院","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E7%BA%BD%E7%BA%A6%E5%BD%B1%E9%99%A2.json"},
+{"key":"csp_xBPQ_555电影","name":"555电影","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/555%E7%94%B5%E5%BD%B1.json"},
 
-{"key":"csp_xBPQ_量子影视","name":"量子影视","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E9%87%8F%E5%AD%90%E5%BD%B1%E8%A7%86.json"},
-
-{"key":"csp_xBPQ_托乌视频","name":"托乌视频","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E6%89%98%E4%B9%8C%E8%A7%86%E9%A2%91.json"},
-
-{"key":"csp_xBPQ_555电影","name":"555电影","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/555%E7%94%B5%E5%BD%B1.json"},
-
-{"key":"csp_xBPQ_听书网","name":"听书网️","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%90%AC%E4%B9%A6%E7%BD%91.json"},
+{"key":"csp_xBPQ_听书网","name":"听书网️","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%90%AC%E4%B9%A6%E7%BD%91.json"},
 
 {"key":"csp_Alist1","name":"网盘合集(SP)","type":3,"api":"csp_AList","searchable":1,"quickSearch":1,"filterable":1,"jumpDetail":0,"reversePlay":0,"enable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/Alist1.json"},
 
@@ -201,9 +186,7 @@
 
 {"key":"csp_UpYun","name":"Up云搜","type":3,"api":"csp_UpYun","searchable":1,"playerType":1,"quickSearch":1,"filterable":1,"ext": "https://ghproxy.com/https://raw.githubusercontent.com/Pandora2277/box/main/token.txt"},
 
-{"key":"csp_Zhaozy","name":"找资源","type":3,"api":"csp_Zhaozy","searchable":1,"playerType":1,"quickSearch":1,"filterable":1,"ext": "https://ghproxy.com/https://raw.githubusercontent.com/Pandora2277/box/main/token.txt"},
-
-{"key":"push_agent","name":"推送|云盘|磁力","type":3,"api":"csp_PushAgent","playerType":1,"searchable":0,"quickSearch":0,"filterable":0,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/Pandora2277/box/main/token.txt","jar":"./JAR/cs.jar"}
+{"key":"csp_Zhaozy","name":"找资源","type":3,"api":"csp_Zhaozy","searchable":1,"playerType":1,"quickSearch":1,"filterable":1,"ext": "https://ghproxy.com/https://raw.githubusercontent.com/Pandora2277/box/main/token.txt"}
 ],
 
 "parses":[

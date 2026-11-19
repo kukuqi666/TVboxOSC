@@ -25,6 +25,9 @@ class RuntimeCatalogTest(unittest.TestCase):
             apk.write_bytes(('signed-' + name).encode())
             code, version = (3, '1.0.2') if name in ('python', 'quickjs') else (2, '1.0.1')
             (self.root / f'runtime/{name}/build.gradle').write_text(f"versionCode {code}\nversionName '{version}'\n")
+            manifest = self.root / f'runtime/{name}/src/main/AndroidManifest.xml'
+            manifest.parent.mkdir(parents=True)
+            manifest.write_text(f'<manifest xmlns:android="http://schemas.android.com/apk/res/android"><application><meta-data android:name="tvbox.runtime.contract" android:value="tvbox-{name}-v2" /></application></manifest>')
         self.out = self.root / 'dist'
         self.args = ['runtime_catalog.py', '--variant', 'release', '--base-url', 'https://example.org/releases/download/v3.0.5/',
                      '--output', str(self.out), '--host-apk', str(self.host), '--aapt', 'aapt', '--apksigner', 'apksigner']
@@ -62,6 +65,21 @@ class RuntimeCatalogTest(unittest.TestCase):
         self.run_catalog()
         result = json.loads((self.out / 'catalog.json').read_text())
         self.assertEqual({'python', 'quickjs', 'thunder', 'nodejs', 'bdj'}, {m['id'] for m in result['modules']})
+
+    def test_repair_cannot_replace_old_host_with_incompatible_modules(self):
+        baseline = self.root / 'published-catalog.json'
+        baseline.write_text(json.dumps({'schema': 1, 'modules': [{'id': name, 'compatibilityId': f'tvbox-{name}-v2'} for name in ['python', 'quickjs', 'thunder', 'nodejs', 'bdj']]}))
+        catalog.verify_repair_contracts(self.root, baseline)
+        data = json.loads(baseline.read_text())
+        data['modules'][0]['compatibilityId'] = 'tvbox-python-v1'
+        baseline.write_text(json.dumps(data))
+        with self.assertRaises(ValueError): catalog.verify_repair_contracts(self.root, baseline)
+
+    def test_explicit_native_version_overrides_shared_default(self):
+        (self.root / 'runtime/native.gradle').write_text("versionCode 2\nversionName '1.0.1'\n")
+        (self.root / 'runtime/nodejs/build.gradle').write_text("apply from: rootProject.file('runtime/native.gradle')\nversionCode 4\nversionName '1.1.0'\n")
+        self.assertEqual((4, '1.1.0'), catalog.module_version(self.root, 'nodejs'))
+        self.assertEqual('tvbox-nodejs-v2', catalog.module_contract(self.root, 'nodejs'))
 
     def test_all_checkout_module_versions_can_be_resolved(self):
         checkout = Path(__file__).resolve().parents[1]

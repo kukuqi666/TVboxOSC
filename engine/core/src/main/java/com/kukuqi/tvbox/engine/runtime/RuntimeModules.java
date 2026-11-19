@@ -40,6 +40,55 @@ public final class RuntimeModules {
         }
     }
     private RuntimeModules() {}
+    public static void install() {
+        com.github.catvod.utils.RuntimeModule.install(new com.github.catvod.utils.RuntimeModule.Provider() {
+            private RuntimeModule module(String id) { return RuntimeModule.valueOf(id.toUpperCase(java.util.Locale.ROOT)); }
+            @Override public PackageInfo installed(String id) throws Exception { return RuntimeModules.installed(com.github.catvod.Runtime.context(), module(id)); }
+            @Override public PackageInfo validate(String id, File apk) throws Exception {
+                Context host = com.github.catvod.Runtime.context();
+                PackageInfo info = host.getPackageManager().getPackageArchiveInfo(apk.getPath(), PackageManager.GET_META_DATA | PackageManager.GET_SIGNATURES);
+                if (info == null) throw new SecurityException("模块 APK 无效");
+                verify(host, module(id), info); return info;
+            }
+            @Override public ClassLoader loader(String id) { return RuntimeModules.loader(com.github.catvod.Runtime.context(), module(id)); }
+            @Override public Context context(String id) {
+                loader(id);
+                synchronized (RuntimeModules.class) { return loaded.get(module(id)).context; }
+            }
+            @Override public Object create(String id) { return RuntimeModules.create(com.github.catvod.Runtime.context(), module(id)); }
+        });
+    }
+
+
+    /** 仅清除已废弃的模块提取目录及旧版生成文件，不触碰订阅、令牌与用户脚本。 */
+    public static void cleanLegacyCaches(Context host) {
+        try {
+            for (String id : new String[]{"quickjs", "python", "nodejs"}) {
+                removeLegacy(new File(host.getCodeCacheDir(), "runtimes/" + id), host.getCodeCacheDir());
+                removeLegacy(new File(host.getNoBackupFilesDir(), "runtimes/" + id), host.getNoBackupFilesDir());
+            }
+            removeLegacy(new File(host.getFilesDir(), "nodejs/server.cjs"), host.getFilesDir());
+        } catch (java.io.IOException error) {
+            android.util.Log.w("RuntimeModules", "旧模块缓存清理失败，下次启动重试", error);
+        }
+    }
+    private static void removeLegacy(File target, File root) throws java.io.IOException {
+        // 不跟随缓存中的软链接，避免清理越过本应用目录。
+        java.nio.file.Path path = target.toPath();
+        if (!path.toAbsolutePath().normalize().startsWith(root.toPath().toAbsolutePath().normalize()))
+            throw new java.io.IOException("缓存路径越界");
+        java.nio.file.Path parent = root.toPath();
+        for (java.nio.file.Path part : root.toPath().relativize(path.getParent())) {
+            parent = parent.resolve(part);
+            if (java.nio.file.Files.isSymbolicLink(parent)) throw new java.io.IOException("缓存父目录是软链接");
+        }
+        if (java.nio.file.Files.isDirectory(path, java.nio.file.LinkOption.NOFOLLOW_LINKS)) {
+            File[] files = target.listFiles();
+            if (files == null) throw new java.io.IOException("无法读取缓存目录");
+            for (File file : files) removeLegacy(file, root);
+        }
+        java.nio.file.Files.deleteIfExists(path);
+    }
 
     @SuppressWarnings("deprecation")
     public static void verify(Context host, RuntimeModule module, PackageInfo info) throws Exception {

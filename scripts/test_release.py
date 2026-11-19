@@ -162,22 +162,48 @@ class WebsiteAuditTest(unittest.TestCase):
         config = self.root / 'tvbox.json'
         config.write_text('{"ext":"' + self.audit.CONFIG_RAW + 'missing.json"}')
         with redirect_stdout(io.StringIO()):
-            self.assertEqual(1, self.audit.audit(write=True, accept_missing=True))
+            self.assertEqual(1, self.audit.audit(write=True))
             (self.root / 'script.js').write_text('const value = 1;')
             config.write_text('{"ext":"' + self.audit.CONFIG_RAW + 'script.js;md5;' + '0' * 32 + '"}')
-            self.assertEqual(1, self.audit.audit(write=True, accept_missing=True))
+            self.assertEqual(1, self.audit.audit(write=True))
 
-    def test_only_explicitly_recorded_upstream_missing_is_accepted(self):
+    def test_recording_missing_dependency_never_bypasses_validation(self):
         from contextlib import redirect_stdout
         import io
         config = self.root / 'tvbox.json'
-        config.write_text('{"ext":"./missing.js"}')
+        config.write_text('{"sites":[],"ext":"./missing.js"}')
+        (self.root / 'catalog.json').write_text(json.dumps({'upstream_missing': [{'file': 'tvbox.json', 'reference': './missing.js'}]}))
         with redirect_stdout(io.StringIO()):
             self.assertEqual(1, self.audit.audit(write=True))
-            self.assertEqual(0, self.audit.audit(write=True, accept_missing=True))
-            self.assertEqual(0, self.audit.audit())
-            config.write_text('{"ext":"./another-missing.js"}')
-            self.assertEqual(1, self.audit.audit(write=True))
+            self.assertEqual(1, self.audit.audit())
+
+    def test_schema_and_source_keys_are_checked(self):
+        from contextlib import redirect_stdout
+        import io
+        (self.root / 'config.json').write_text('{"sites":{"data":[{"key":"a","api":"https://example.test/one"},{"key":"a","api":"https://example.test/two"}]}}')
+        with redirect_stdout(io.StringIO()): self.assertEqual(1, self.audit.audit(write=True))
+        (self.root / 'config.json').write_text('{"sites":{"data":[{"key":"a","api":"https://example.test/one"}]}}')
+        with redirect_stdout(io.StringIO()): self.assertEqual(0, self.audit.audit(write=True))
+
+    def test_js_imports_ignore_comments_and_template_examples(self):
+        source = "// import x from './missing.js'\n const example=`import y from './also-missing.js'`; import a from './real.js'; const b=require('../lib.js');"
+        self.assertEqual({'./real.js', '../lib.js'}, self.audit.js_imports(source))
+
+    def test_probe_preserves_failure_and_uses_bounded_read(self):
+        import io
+        import urllib.error
+        response = unittest.mock.MagicMock()
+        response.__enter__.return_value = response
+        response.status = 200
+        response.read.return_value = b'{"sites":[]}'
+        with patch.object(self.audit.urllib.request, 'urlopen', return_value=response) as request:
+            result = self.audit.probe_urls(['https://example.test/a.json', 'https://example.test/a.json'], 3)
+            self.assertEqual(1, len(result))
+            self.assertEqual('configuration-json', result[0]['format'])
+            response.read.assert_called_once_with(2 * 1024 * 1024 + 1)
+            self.assertEqual(3, request.call_args.kwargs['timeout'])
+        with patch.object(self.audit.urllib.request, 'urlopen', side_effect=urllib.error.HTTPError('https://example.test', 403, 'denied', {}, None)):
+            self.assertEqual(403, self.audit.probe_urls(['https://example.test'])[0]['status'])
 
 
 if __name__ == '__main__':

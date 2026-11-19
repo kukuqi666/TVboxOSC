@@ -27,8 +27,10 @@ public class RuntimeModuleRegressionTest extends InstrumentationTestCase {
     /** 目录声明必须与素材 APK 完全一致；-1 表示从素材读取真实 versionCode。 */
     private int catalogVersion = -1;
     private boolean productionCatalog;
+    private volatile boolean corruptNode;
     @Override protected void setUp() throws Exception {
         super.setUp(); host = getInstrumentation().getTargetContext();
+        for (RuntimeModule module : RuntimeModule.values()) assertTrue("缺少回归素材：" + fixture(module), fixture(module).isFile());
         File[] staged = new File(host.getCacheDir(), "runtime-downloads").listFiles();
         if (staged != null) for (File file : staged) assertTrue(file.delete());
         server = new NanoHTTPD("127.0.0.1", 0) {
@@ -38,7 +40,13 @@ public class RuntimeModuleRegressionTest extends InstrumentationTestCase {
                         catalogRequests.incrementAndGet();
                         return newFixedLengthResponse(Response.Status.OK, "application/json", catalog().toString());
                     }
-                    if (session.getUri().equals("/source.cjs")) return newFixedLengthResponse(Response.Status.OK, "text/javascript", "module.exports={home:async()=>({list:[{vod_name:'remote-node-ready'}]})};");
+                    if (session.getUri().startsWith("/bundle/")) {
+                        String path = session.getUri();
+                        String value = path.contains("index.config.js") ? "module.exports={};" : nodeBundle();
+                        if (path.endsWith(".md5")) value = corruptNode ? "0".repeat(32) : com.github.catvod.utils.Crypto.md5(value);
+                        if (path.endsWith(".json")) return newFixedLengthResponse(Response.Status.NOT_FOUND, "text/plain", "missing");
+                        return newFixedLengthResponse(Response.Status.OK, "text/javascript", value);
+                    }
                     RuntimeModule requested = java.util.Arrays.stream(RuntimeModule.values()).filter(module -> session.getUri().equals("/" + module.id + ".apk")).findFirst().orElseThrow();
                     File file = fixture(requested);
                     apkRequests.incrementAndGet();
@@ -75,8 +83,12 @@ public class RuntimeModuleRegressionTest extends InstrumentationTestCase {
         if (info == null) throw new IllegalStateException("回归素材不可读: " + module.id);
         return info.versionCode;
     }
-    /** 素材 APK 与目录必须完全一致：versionCode 来自素材本身，versionName 固定 1.0.2。 */
-    private String fixtureVersionName() { return "1.0.2"; }
+    /** 目录版本必须来自实际素材，避免模块升级后误报不兼容。 */
+    private String fixtureVersionName(RuntimeModule module) {
+        PackageInfo info = host.getPackageManager().getPackageArchiveInfo(fixture(module).getAbsolutePath(), 0);
+        if (info == null) throw new IllegalStateException("回归素材不可读: " + module.id);
+        return info.versionName;
+    }
     private JSONObject catalog() throws Exception {
         JSONArray modules = new JSONArray();
         for (RuntimeModule module : RuntimeModule.values()) {
@@ -87,7 +99,7 @@ public class RuntimeModuleRegressionTest extends InstrumentationTestCase {
             JSONObject artifact = new JSONObject().put("abi", "arm64-v8a").put("minSdk", 24).put("size", file.length())
                     .put("sha256", corruptHash ? "0".repeat(64) : sha.toString()).put("url", base + "/" + module.id + ".apk");
             modules.put(new JSONObject().put("id", module.id).put("packageName", productionCatalog ? "com.kukuqi.tvbox.runtime." + module.id : module.packageName(host)).put("compatibilityId", module.contract())
-                    .put("versionCode", catalogVersion > 0 ? catalogVersion : fixtureVersionCode(module)).put("versionName", fixtureVersionName()).put("artifacts", new JSONArray().put(artifact)));
+                    .put("versionCode", catalogVersion > 0 ? catalogVersion : fixtureVersionCode(module)).put("versionName", fixtureVersionName(module)).put("artifacts", new JSONArray().put(artifact)));
         }
         return new JSONObject().put("schema", 1).put("modules", modules);
     }
@@ -213,7 +225,7 @@ public class RuntimeModuleRegressionTest extends InstrumentationTestCase {
             boolean ready = false;
             for (int i = 0; i < 150 && !ready; i++) {
                 android.view.accessibility.AccessibilityNodeInfo root = getInstrumentation().getUiAutomation().getRootInActiveWindow();
-                ready = root != null && !root.findAccessibilityNodeInfosByText("QuickJS · 已安装 1.0.2").isEmpty();
+                ready = root != null && !root.findAccessibilityNodeInfosByText("QuickJS · 已安装 " + fixtureVersionName(RuntimeModule.QUICKJS)).isEmpty();
                 if (!ready) Thread.sleep(100);
             }
             assertTrue("Explicit version check did not finish and refresh installed status", ready);
@@ -312,7 +324,7 @@ public class RuntimeModuleRegressionTest extends InstrumentationTestCase {
                 android.view.accessibility.AccessibilityNodeInfo root = getInstrumentation().getUiAutomation().getRootInActiveWindow();
                 // 安装成功后界面必须由"点击下载"变为已装态。若本进程先前加载过旧模块，
                 // 应用会如实提示"已更新 · 重启应用生效"，两种都是"安装已生效"的正确表示。
-                if (root != null && (!root.findAccessibilityNodeInfosByText("Python · 已安装 1.0.2").isEmpty()
+                if (root != null && (!root.findAccessibilityNodeInfosByText("Python · 已安装 " + fixtureVersionName(RuntimeModule.PYTHON)).isEmpty()
                         || !root.findAccessibilityNodeInfosByText("Python · 已更新 · 重启应用生效").isEmpty())) break;
                 if (i == 99) {
                     StringBuilder seen = new StringBuilder();
@@ -335,7 +347,7 @@ public class RuntimeModuleRegressionTest extends InstrumentationTestCase {
     }
     public void testInstalledModulesShareHostApiAndLoadNativeThunder() throws Exception {
         for (RuntimeModule module : RuntimeModule.values()) {
-            assertEquals("已安装 1.0.2", RuntimeModules.status(host, module));
+            assertEquals("已安装 " + fixtureVersionName(module), RuntimeModules.status(host, module));
             assertTrue(RuntimeModules.installed(host, module).applicationInfo.icon != 0);
             assertNotNull(host.getPackageManager().getApplicationIcon(module.packageName(host)));
             ClassLoader loader = RuntimeModules.loader(host, module);
@@ -354,31 +366,91 @@ public class RuntimeModuleRegressionTest extends InstrumentationTestCase {
         assertEquals(1, media.size());
         RuntimeModules.call(thunder, "exit", new Class<?>[0]);
     }
-    public void testNodeSourcesExecuteCommonJsEsmAndBinaryProxy() throws Exception {
-        File source = new File(host.getFilesDir(), "node-validation.cjs");
-        java.nio.file.Files.writeString(source.toPath(), "const {createHash}=require('node:crypto'); let ext; module.exports={init:async e=>{ext=e}, home:async()=>({class:[{type_id:'1',type_name:ext}],node:process.versions.node,hash:createHash('sha256').update('ok').digest('hex')}),category:async(tid,pg,filter,extra)=>({list:[{vod_id:tid,vod_name:pg+extra.q}]}),detail:async ids=>({list:ids.map(id=>({vod_id:id}))}),search:async(k,q,pg)=>({list:[{vod_name:k+pg}]}),play:async(f,id)=>({parse:0,url:id}),proxy:async p=>[200,'application/octet-stream',Buffer.from([0,255,65]),{'X-Fixture':'yes'}]};");
-        com.kukuqi.tvbox.engine.api.loader.BaseLoader loader = com.kukuqi.tvbox.engine.api.loader.BaseLoader.get();
+    private String nodeBundle() {
+        return """
+                const {createHash}=require('node:crypto');
+                const http=require('node:http');
+                let ext='';
+                async function message(action,opt={}) {
+                  return new Promise((resolve,reject)=>{
+                    const body=JSON.stringify({action,opt});
+                    const req=http.request({host:'127.0.0.1',port:global.catDartServerPort(),path:'/msg',method:'POST'},res=>{
+                      let value='';res.on('data',chunk=>value+=chunk);res.on('end',()=>resolve(JSON.parse(value)));
+                    });req.on('error',reject);req.end(body);
+                  });
+                }
+                module.exports={async start(){
+                  const os=await import('node:os');
+                  global.catServerFactory(async(req,res)=>{
+                    try {
+                      let input='';for await(const chunk of req)input+=chunk;
+                      const body=input?JSON.parse(input):{};
+                      const path=req.url.split('?')[0];
+                      res.setHeader('Content-Type','application/json');
+                      let result={};
+                      if(path==='/config')result={video:{sites:[{key:'nodejs_fixture',name:'fixture',api:'/fixture',type:3}]}};
+                      else if(path==='/fixture/init')ext=body.ext;
+                      else if(path==='/fixture/home')result={class:[{type_id:'1',type_name:ext}],node:process.versions.node,arch:os.arch(),hash:createHash('sha256').update('ok').digest('hex'),host:await message('getUserAgent')};
+                      else if(path==='/fixture/category')result={list:[{vod_id:body.id,vod_name:body.page+body.filters.q}]};
+                      else if(path==='/fixture/detail')result={list:[{vod_id:body.id}]};
+                      else if(path==='/fixture/search')result={list:[{vod_name:body.wd+body.page}]};
+                      else if(path==='/fixture/play')result={parse:0,url:body.id,info:await message('getPlayInfo')};
+                      else if(path==='/fixture/proxy'){res.setHeader('Content-Type','application/octet-stream');return res.end(Buffer.from([0,255,65]));}
+                      else {res.statusCode=404;}
+                      res.end(JSON.stringify(result));
+                    }catch(error){res.statusCode=500;res.end(JSON.stringify({error:String(error)}));}
+                  }).listen(0);
+                }};
+                """;
+    }
+    public void testLegacyCacheCleanupPreservesUserFiles() throws Exception {
+        File oldCache = new File(host.getCodeCacheDir(), "runtimes/quickjs/old/payload.so");
+        assertTrue(oldCache.getParentFile().mkdirs() || oldCache.getParentFile().isDirectory());
+        try (java.io.FileOutputStream output = new java.io.FileOutputStream(oldCache)) { output.write("obsolete".getBytes(java.nio.charset.StandardCharsets.UTF_8)); }
+        File userFile = new File(host.getFilesDir(), "runtime-user-source.py");
+        try (java.io.FileOutputStream output = new java.io.FileOutputStream(userFile)) { output.write("user source".getBytes(java.nio.charset.StandardCharsets.UTF_8)); }
         try {
-            com.github.catvod.crawler.Spider spider = loader.getSpider("node-validation", "nodejs:" + source.getAbsolutePath(), "node-ready", "");
+            RuntimeModules.cleanLegacyCaches(host);
+            assertFalse(oldCache.exists());
+            try (java.io.FileInputStream input = new java.io.FileInputStream(userFile)) {
+                byte[] content = new byte[64];
+                int length = input.read(content);
+                assertEquals("user source", new String(content, 0, length, java.nio.charset.StandardCharsets.UTF_8));
+            }
+        } finally { userFile.delete(); }
+    }
+    public void testNodeSourcesExecuteCommonJsEsmAndBinaryProxy() throws Exception {
+        com.kukuqi.tvbox.engine.api.loader.BaseLoader loader = new com.kukuqi.tvbox.engine.api.loader.BaseLoader();
+        com.kukuqi.tvbox.engine.runtime.NodeRuntime runtime = com.kukuqi.tvbox.engine.runtime.NodeRuntime.get();
+        try {
+            JSONObject config = new JSONObject(runtime.loadConfig(base + "/bundle/index.js.md5"));
+            assertEquals("node:/fixture", config.getJSONArray("sites").getJSONObject(0).getString("api"));
+            com.github.catvod.crawler.Spider spider = loader.getSpider("node-validation", "node:/fixture", "node-ready", "");
             JSONObject home = new JSONObject(spider.homeContent(true));
             assertEquals("node-ready", home.getJSONArray("class").getJSONObject(0).getString("type_name"));
             assertTrue(home.getString("node").startsWith("24."));
+            assertFalse(home.getString("arch").isEmpty());
             assertEquals(64, home.getString("hash").length());
+            assertTrue(home.getJSONObject("host").getBoolean("success"));
+            assertFalse(home.getJSONObject("host").getString("ua").isEmpty());
             assertEquals("2value", new JSONObject(spider.categoryContent("a", "2", true, new java.util.HashMap<>(java.util.Map.of("q", "value")))).getJSONArray("list").getJSONObject(0).getString("vod_name"));
             assertEquals("id", new JSONObject(spider.detailContent(java.util.List.of("id"))).getJSONArray("list").getJSONObject(0).getString("vod_id"));
             assertEquals("keyword3", new JSONObject(spider.searchContent("keyword", false, "3")).getJSONArray("list").getJSONObject(0).getString("vod_name"));
-            assertEquals("https://example.org/video.mp4", new JSONObject(spider.playerContent("", "https://example.org/video.mp4", java.util.List.of())).getString("url"));
-            loader.setRecent("node-validation", "nodejs:" + source.getAbsolutePath(), "");
+            JSONObject play = new JSONObject(spider.playerContent("fixture", "https://example.org/video.mp4", java.util.List.of()));
+            assertEquals("https://example.org/video.mp4", play.getString("url"));
+            assertEquals("fixture", play.getJSONObject("info").getString("flag"));
+            assertEquals("https://example.org/video.mp4", play.getJSONObject("info").getString("id"));
+            loader.setRecent("node-validation", "node:/fixture", "");
             Object[] proxy = loader.proxy(new java.util.HashMap<>(java.util.Map.of("do", "nodejs")));
             assertEquals(200, proxy[0]);
             try (java.io.InputStream input = (java.io.InputStream) proxy[2]) { assertEquals(0,input.read());assertEquals(255,input.read());assertEquals(65,input.read()); }
-            File esm = new File(host.getFilesDir(), "node-validation.mjs");
-            java.nio.file.Files.writeString(esm.toPath(), "export default {home:async()=>({list:[{vod_name:'esm-ready'}]})};");
-            assertTrue(loader.getSpider("node-esm", esm.getAbsolutePath(), "", "").homeContent(false).contains("esm-ready"));
-            assertTrue(loader.getSpider("node-remote", "nodejs:" + base + "/source.cjs", "", "").homeContent(false).contains("remote-node-ready"));
-            loader.clear();
-            assertTrue(loader.getSpider("node-restart", "nodejs:" + base + "/source.cjs", "", "").homeContent(false).contains("remote-node-ready"));
-        } finally { loader.clear(); source.delete(); }
+            loader.clear(); runtime.clear();
+            runtime.loadConfig(base + "/bundle/index.js.md5");
+            assertTrue(loader.getSpider("node-restart", "node:/fixture", "restarted", "").homeContent(false).contains("restarted"));
+            loader.clear(); runtime.clear(); corruptNode = true;
+            try { runtime.loadConfig(base + "/bundle/index.js.md5"); fail("错误校验和不得启动 bundle"); }
+            catch (java.io.IOException expected) {}
+        } finally { loader.clear(); runtime.clear(); }
     }
     public void testBdjRuntimePreparesJreAndLoadsJvm() throws Exception {
         String home = com.kukuqi.tvbox.engine.runtime.BdjSupport.prepare();

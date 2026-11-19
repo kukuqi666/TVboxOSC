@@ -160,6 +160,20 @@ public class ScriptSdkRegressionTest extends InstrumentationTestCase {
         assertEquals("sdk", SiteApi.homeContent(VodConfig.get().getSite("sdk-" + language)).getTypes().get(0).getTypeName());
         assertEquals(2, SiteApi.action("sdk-" + language, "login").getWeb().getAsJsonArray("cookie").get(0).getAsJsonObject().getAsJsonArray("keys").size());
     }
+    public void testSharedSdkJsEvalAndIndependentSourceSessions() throws Exception {
+        try (com.github.catvod.utils.Js js = new com.github.catvod.utils.Js()) {
+            assertEquals(42, JsonParser.parseString(js.eval("6 * 7")).getAsInt());
+        }
+        com.kukuqi.tvbox.engine.api.loader.BaseLoader first = new com.kukuqi.tvbox.engine.api.loader.BaseLoader();
+        com.kukuqi.tvbox.engine.api.loader.BaseLoader second = new com.kukuqi.tvbox.engine.api.loader.BaseLoader();
+        try {
+            com.github.catvod.crawler.Spider running = first.getSpider("active-js", base + "/source.js", base, "");
+            assertTrue(running.homeContent(false).contains("sdk"));
+            second.getSpider("bench-js", base + "/source.js", base, "");
+            second.clear();
+            assertTrue(running.homeContent(false).contains("sdk"));
+        } finally { second.clear(); first.clear(); }
+    }
     public void testQuickJsDestroyPromiseIsBounded() throws Exception {
         script("js"); long start = android.os.SystemClock.elapsedRealtime();
         com.kukuqi.tvbox.engine.api.loader.BaseLoader.get().clear();
@@ -180,9 +194,9 @@ public class ScriptSdkRegressionTest extends InstrumentationTestCase {
     }
     private String py() {
         return "from base.spider import Spider as Base\nclass Spider(Base):\n def init(self,extend=''):\n  self.base=extend\n  self.local.set('init',{'ok':True})\n"
-                + " def homeContent(self,filter):\n  assert self.local.get('init')['ok']\n  url=self.base+'/data'\n  data=self.net.json(url)\n  assert len(self.net.batch([{url},{url}]))==2\n"
-                + "  self.net.clearCache()\n  assert self.net.cached('k',{'ttl':10000},lambda: {'n':1})=={'n':1}\n  assert self.net.cachedText('k',{},lambda: 'bad')=='{\"n\": 1}'\n"
-                + "  a=self.net.session()\n  b=self.net.session()\n  a.http(self.base+'/cookie')\n  assert 'isolated' in a.getCookie(self.base) and b.getCookie(self.base)==''\n  a.close()\n  b.close()\n"
+                + " def homeContent(self,filter):\n  assert self.local.get('init')['ok']\n  url=self.base+'/data'\n  assert self.net.getUserAgent()\n  assert self.net.setCookie(self.base,'sdk_py_host=1; Path=/')\n  assert 'sdk_py_host=1' in self.net.getCookie(self.base)\n  data=self.net.json(url)\n  assert len(self.net.batch([{'url':url},{'url':url}]))==2\n"
+                + "  self.net.clearCache()\n  assert self.net.cached('k',{'ttl':10000},lambda: {'n':1})=={'n':1}\n  assert self.net.cached('k',{'ttl':10000},lambda: {'n':2})=={'n':1}\n"
+                + "  a=self.net.session()\n  b=self.net.session()\n  a.req(self.base+'/cookie')\n  assert 'isolated' in a.getCookie(self.base) and b.getCookie(self.base)==''\n  a.close()\n  b.close()\n"
                 + "  return {'class':[{'type_id':'1','type_name':data['title']}]}\n def homeVideoContent(self): return {'list':[]}\n"
                 + " def action(self,action): return {'web':{'url':self.base+'/login','cookie':[{'keys':['sid','token']}]}}\n def destroy(self): pass\n";
     }

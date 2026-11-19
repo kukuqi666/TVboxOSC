@@ -289,7 +289,7 @@
       "filterable": 1
     },
     {
-      "key": "f951be46-17fa-5f4f-9f41-ff25d21e8d74",
+      "key": "f951be46-17fa-5f4f-9f41-ff25d21e8d74_01615375",
       "name": "花椒",
       "type": 0,
       "api": "https://apihjzy.com/api.php/provide/vod/at/xml/",
@@ -370,7 +370,7 @@
       "filterable": 0
     },
     {
-      "key": "54658e47-58bb-5221-bec2-82b8a3be2ec4",
+      "key": "54658e47-58bb-5221-bec2-82b8a3be2ec4_639c6e53",
       "name": "草莓",
       "type": 0,
       "api": "https://caiji.caomeiapi.com/inc/api.php",
@@ -397,7 +397,7 @@
       "filterable": 0
     },
     {
-      "key": "34cd623c-0b62-5426-a653-9c1db4a850e8",
+      "key": "34cd623c-0b62-5426-a653-9c1db4a850e8_9b208e7f",
       "name": "秀色",
       "type": 0,
       "api": "https://api.xiuseapi.com/api.php/provide/vod/at/xml",
@@ -406,7 +406,7 @@
       "filterable": 0
     },
     {
-      "key": "cee0fca9-1808-5017-9a69-0d9013f95b47",
+      "key": "cee0fca9-1808-5017-9a69-0d9013f95b47_862c278b",
       "name": "芒果",
       "type": 0,
       "api": "https://www.mgav1.cc/api.php/provide/vod/at/xml/",
@@ -415,7 +415,7 @@
       "filterable": 0
     },
     {
-      "key": "f951be46-17fa-5f4f-9f41-ff25d21e8d74",
+      "key": "f951be46-17fa-5f4f-9f41-ff25d21e8d74_52b4244a",
       "name": "花椒",
       "type": 0,
       "api": "https://cj.apihjzy.com/inc/api.php",
@@ -640,15 +640,6 @@
       "filterable": 1
     },
     {
-      "key": "青楼资源",
-      "name": "青楼资源",
-      "type": 1,
-      "api": "https://qlzy.tv/api.php/provide/vod/?ac=list",
-      "searchable": 1,
-      "quickSearch": 1,
-      "filterable": 1
-    },
-    {
       "key": "蛋蛋视频",
       "name": "蛋蛋视频",
       "type": 1,
@@ -703,7 +694,7 @@
       "filterable": 1
     },
     {
-      "key": "蛋蛋视频",
+      "key": "蛋蛋视频_3cf3da47",
       "name": "蛋蛋视频",
       "type": 1,
       "api": "http://156.249.29.8/inc/apijson_vod.php",
@@ -716,33 +707,6 @@
       "name": "雪豹资源",
       "type": 1,
       "api": "https://api.xbapi.cc/api.php/provide/vod/?ac=list",
-      "searchable": 1,
-      "quickSearch": 1,
-      "filterable": 1
-    },
-    {
-      "key": "好片资源",
-      "name": "好片资源",
-      "type": 1,
-      "api": "https://haopianapi.com/api.php/provide/vod/?ac=list",
-      "searchable": 1,
-      "quickSearch": 1,
-      "filterable": 1
-    },
-    {
-      "key": "奥斯卡资源",
-      "name": "奥斯卡资源",
-      "type": 1,
-      "api": "https://aosikazy.com/api.php/provide/vod/?ac=list",
-      "searchable": 1,
-      "quickSearch": 1,
-      "filterable": 1
-    },
-    {
-      "key": "花魁资源",
-      "name": "花魁资源",
-      "type": 1,
-      "api": "https://caiji.huakuiapi.com/inc/apijson_vod.php",
       "searchable": 1,
       "quickSearch": 1,
       "filterable": 1
@@ -766,19 +730,10 @@
       "filterable": 0
     },
     {
-      "key": "滴滴资源",
+      "key": "滴滴资源_7382b9cc",
       "name": "滴滴资源",
       "type": 0,
       "api": "https://api.ddapi.cc/api.php/provide/vod/at/xml",
-      "searchable": 1,
-      "quickSearch": 1,
-      "filterable": 0
-    },
-    {
-      "key": "蛋蛋视频",
-      "name": "蛋蛋视频",
-      "type": 1,
-      "api": "https://156.249.29.8/inc/apijson_vod.php",
       "searchable": 1,
       "quickSearch": 1,
       "filterable": 0
@@ -793,7 +748,7 @@
       "filterable": 0
     },
     {
-      "key": "番号资源",
+      "key": "番号资源_fee0acd2",
       "name": "番号资源",
       "type": 1,
       "api": "http://fhapi9.com/api.php/provide/vod/",
@@ -802,7 +757,7 @@
       "filterable": 0
     },
     {
-      "key": "葡萄资源",
+      "key": "葡萄资源_ff4dcccf",
       "name": "葡萄资源",
       "type": 0,
       "api": "https://putaozy19.com/inc/api.php",
@@ -838,19 +793,10 @@
       "filterable": 0
     },
     {
-      "key": "色鸭资源",
+      "key": "色鸭资源_d1193b30",
       "name": "色鸭资源",
       "type": 1,
       "api": "https://api.seyavod.com/api.php/provide/vod/",
-      "searchable": 1,
-      "quickSearch": 1,
-      "filterable": 0
-    },
-    {
-      "key": "天美AV",
-      "name": "天美AV",
-      "type": 1,
-      "api": "https://tmav.art/api.php/provide/vod/",
       "searchable": 1,
       "quickSearch": 1,
       "filterable": 0

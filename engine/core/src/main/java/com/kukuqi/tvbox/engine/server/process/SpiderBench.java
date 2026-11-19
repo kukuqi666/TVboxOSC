@@ -92,12 +92,15 @@ public class SpiderBench implements Process {
             throw new IllegalArgumentException("api 需为 csp_ 类名、.py 或 .js 路径");
         String siteKey = "bench_" + id;
         long started = System.nanoTime();
-        // A fresh loader entry guarantees the edited jar or script is the one under test.
-        BaseLoader.get().clear();
-        if (!jar.isEmpty()) BaseLoader.get().parseJar(jar, false);
-        Spider spider = BaseLoader.get().getSpider(siteKey, api, ext, jar);
+        // 每个测试会话独享加载器，重新加载不影响正在播放的正式来源。
+        BaseLoader loader = new BaseLoader();
+        Spider spider;
+        try {
+            if (!jar.isEmpty()) loader.parseJar(jar, false);
+            spider = loader.getSpider(siteKey, api, ext, jar);
+        } catch (Throwable failure) { loader.clear(); throw failure; }
         long loadMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started);
-        Session previous = sessions.put(id, new Session(api, jar, ext, spider));
+        Session previous = sessions.put(id, new Session(api, jar, ext, spider, loader));
         if (previous != null) previous.close();
         JSONObject result = new JSONObject();
         result.put("api", api);
@@ -246,7 +249,7 @@ public class SpiderBench implements Process {
     }
 
     private static boolean isNode(String api) {
-        return api.startsWith("nodejs_") || api.startsWith("node_");
+        return com.kukuqi.tvbox.engine.api.loader.NodeLoader.accepts(api);
     }
 
     private static final class Session {
@@ -255,9 +258,11 @@ public class SpiderBench implements Process {
         final String jar;
         final String ext;
         final Spider spider;
+        final BaseLoader loader;
         final Map<String, Method> resolved = new ConcurrentHashMap<>();
 
-        Session(String api, String jar, String ext, Spider spider) {
+        Session(String api, String jar, String ext, Spider spider, BaseLoader loader) {
+            this.loader = loader;
             this.api = api;
             this.jar = jar;
             this.ext = ext;
@@ -273,6 +278,7 @@ public class SpiderBench implements Process {
         void close() {
             // 释放来源时同步结束它留下的网络追踪，避免容器泄漏
             NetTrace.end("bench:" + api);
+            loader.clear();
         }
     }
 

@@ -34,7 +34,7 @@
 {"key":"csp_xpath_135kan","name":"135看看(XP)","type":3,"api":"csp_XPath","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XP/135kan.json"},
 {"key":"csp_xpath_miaomiao","name":"喵喵(XPF)","type":3,"api":"csp_XPathMacFilter","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XP/miaomiao.json"},
 {"key":"csp_xpath_hyingku","name":"海影库(XPF)","type":3,"api":"csp_XPathMacFilter","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XP/hyingku.json"},
-{"key":"csp_xpath_蚂蚁影视","name":"蚂蚁影视(XPF)️","type":3,"api":"csp_XPathMacFilter","searchable":1,"quickSearch":1,"filterable":1,"ext":"./XP/myys.json"},
+{"key":"csp_xpath_蚂蚁影视","name":"蚂蚁影视(XPF)️","type":3,"api":"csp_XPathMacFilter","searchable":1,"quickSearch":1,"filterable":1,"ext":"./XP/MYYS.json"},
 {"key":"csp_xpath_电影迷","name":"电影迷(XPF)️","type":3,"api":"csp_XPathMacFilter","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XP/dym8.json"},
 {"key":"csp_xpath_meiju56","name":"美剧网(XPF)","type":3,"api":"csp_XPathFilter","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XP/meiju56.json"},
 {"key":"csp_xpath_555dy","name":"555影视(XPF)","type":3,"api":"csp_XPathMacFilter","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XP/555dy.json"},
@@ -42,9 +42,7 @@
 {"key":"csp_xpath_bidiys","name":"哔嘀影视(XP)","type":3,"api":"csp_XPath","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XP/bidiys.json"},
 {"key":"csp_xpath_xfeiji","name":"小小影视(XP)","type":3,"api":"csp_XPath","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XP/xfeiji.json"},
 {"key":"csp_xpath_dmd","name":"动漫岛(XPF)","type":3,"api":"csp_XPathMacFilter","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XP/dmd.json"},
-{"key":"csp_xpath_dm84","name":"动漫巴士(XP)","type":3,"api":"csp_XPathFilter","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XP/dm84.json"},
-
-{"key":"push_agent","name":"推送","type":3,"api":"csp_PushAgent","searchable":1,"playerType":1,"quickSearch":1,"filterable":1,"ext": "57a6d0febcba41c480eb14be6cfcb6f7"}
+{"key":"csp_xpath_dm84","name":"动漫巴士(XP)","type":3,"api":"csp_XPathFilter","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XP/dm84.json"}
 
 ],
 "parses":[

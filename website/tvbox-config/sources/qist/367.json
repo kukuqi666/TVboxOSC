@@ -542,7 +542,7 @@
             "changeable": 1
         },
         {
-            "key": "贱贱",
+            "key": "贱贱_2ac3748a",
             "name": "🐭贱贱┃P2P┃纯净",
             "type": 3,
             "searchable": 1,
@@ -665,7 +665,7 @@
             "ext": "http://我不是.摸鱼儿.top/api/moyu.php?file=55"
         },
         {
-            "key": "雨滴",
+            "key": "雨滴_7166114b",
             "name": "🌿雨滴┃蓝光┃无广",
             "type": 3,
             "api": "csp_Xdai",
@@ -945,7 +945,7 @@
             }
         },
         {
-            "key": "有声小说js",
+            "key": "有声小说js_7fc0e321",
             "name": "📚有声┃小说┃娱乐",
             "type": 3,
             "api": "https://gitlab.com/fantaiying/ext/-/raw/main/drpy2.min.js",

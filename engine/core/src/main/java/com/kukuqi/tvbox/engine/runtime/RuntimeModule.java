@@ -5,7 +5,7 @@ public enum RuntimeModule {
     PYTHON("python", "Python", "com.kukuqi.tvbox.engine.python.Loader"),
     QUICKJS("quickjs", "QuickJS", "com.kukuqi.tvbox.engine.quickjs.crawler.Loader"),
     THUNDER("thunder", "Thunder", "com.kukuqi.tvbox.runtime.thunder.ThunderRuntime"),
-    NODEJS("nodejs", "Node.js", "com.kukuqi.tvbox.runtime.nodejs.NodeRuntime"),
+    NODEJS("nodejs", "Node.js", "com.kukuqi.nodejs.RuntimeEntry"),
     BDJ("bdj", "BD-J", "com.kukuqi.tvbox.runtime.bdj.BdjRuntime");
 
     public final String id, title, entry;
@@ -16,5 +16,5 @@ public enum RuntimeModule {
         return "com.kukuqi.tvbox.runtime." + id +
                 (host.getPackageName().endsWith(".corevalidation") ? ".corevalidation" : "");
     }
-    public String contract() { return "tvbox-" + id + "-v1"; }
+    public String contract() { return "tvbox-" + id + (this == QUICKJS || this == NODEJS || this == PYTHON ? "-v2" : "-v1"); }
 }

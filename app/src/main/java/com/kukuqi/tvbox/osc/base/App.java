@@ -88,6 +88,7 @@ public class App extends com.kukuqi.tvbox.engine.App {
         // Hawk
         com.orhanobut.hawk.HawkCompat.init(this);
         com.kukuqi.tvbox.osc.util.RuntimeDownload.migrateCatalog();
+        com.kukuqi.tvbox.engine.runtime.RuntimeModules.cleanLegacyCaches(this);
         Hawk.put(HawkConfig.DEBUG_OPEN, false);
 
         com.kukuqi.tvbox.osc.util.HomeRecommendationSettings.migrate(); // 1=站点推荐, 2=关闭；旧模式自动迁移

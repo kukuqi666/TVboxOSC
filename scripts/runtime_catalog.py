@@ -21,11 +21,31 @@ def module_version(root, name):
     # Native modules declare their defaults in the applied shared script.
     if re.search(r"apply\s+from:\s*rootProject\.file\(['\"]runtime/native\.gradle['\"]\)", source):
         source = (root / 'runtime/native.gradle').read_text(encoding='utf-8') + '\n' + source
-    code = re.search(r"\bversionCode\s+(\d+)\b", source)
-    version = re.search(r"\bversionName\s+['\"]([0-9]+\.[0-9]+\.[0-9]+)['\"]", source)
-    if not code or not version or int(code[1]) <= 0:
+    codes = re.findall(r"\bversionCode\s+(\d+)\b", source)
+    versions = re.findall(r"\bversionName\s+['\"]([0-9]+\.[0-9]+\.[0-9]+)['\"]", source)
+    code = codes[-1] if codes else None
+    version = versions[-1] if versions else None
+    if not code or not version or int(code) <= 0:
         raise ValueError(f'Invalid declared module version: {name}')
-    return int(code[1]), version[1]
+    return int(code), version
+
+
+def module_contract(root, name):
+    import xml.etree.ElementTree as ET
+    manifest = ET.parse(root / 'runtime' / name / 'src/main/AndroidManifest.xml')
+    ns = '{http://schemas.android.com/apk/res/android}'
+    for item in manifest.findall('application/meta-data'):
+        if item.get(ns + 'name') == 'tvbox.runtime.contract': return item.get(ns + 'value')
+    raise ValueError('模块缺少兼容性声明：' + name)
+
+
+def verify_repair_contracts(root, baseline):
+    """修复旧版附件时不能改变旧主包所需的模块接口。"""
+    published = json.loads(Path(baseline).read_text(encoding='utf-8'))
+    contracts = {item['id']: item.get('compatibilityId') for item in published.get('modules', [])}
+    for name in ['python', 'quickjs', 'thunder', 'nodejs', 'bdj']:
+        if contracts.get(name) != module_contract(root, name):
+            raise ValueError('模块 ' + name + ' 的接口已改变，必须随新主包发布，不能覆盖旧版附件')
 
 
 def main():
@@ -76,7 +96,7 @@ def main():
         shutil.copyfile(source, destination)
         modules.append(dict(id=name,
                             packageName=package,
-                            compatibilityId=f'tvbox-{name}-v1', versionCode=version_code, versionName=version_name,
+                            compatibilityId=module_contract(root, name), versionCode=version_code, versionName=version_name,
                             artifacts=[dict(abi='arm64-v8a', minSdk=24, size=destination.stat().st_size,
                                             sha256=hashlib.sha256(destination.read_bytes()).hexdigest(),
                                             url=urljoin(args.base_url.rstrip('/') + '/', filename))]))

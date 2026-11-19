@@ -12,7 +12,7 @@ import java.util.List;
 public final class SourceDescriptor {
     public final String url;
     public final JsonElement content;
-    public SourceDescriptor(String url, String json) { this.url = url; content = JsonParser.parseString(json); }
+    public SourceDescriptor(String url, String json) { this.url = url; content = JsonParser.parseString(json); if (content.isJsonObject()) ConfigCompat.normalizeSchema(content.getAsJsonObject()); }
     public boolean hasVod() { return content.isJsonObject() && array(content.getAsJsonObject(), "sites").size() > 0; }
     private static JsonArray array(JsonObject object, String key) {
         return object.has(key) && object.get(key).isJsonArray() ? object.getAsJsonArray(key) : new JsonArray();

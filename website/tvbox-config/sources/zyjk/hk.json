@@ -1,11 +1,11 @@
 {
 "wallpaper":"http://maoyingshi.cc/api.php",
 
-"spider" : "./JAR/海阔推送.jar",
+
 
 "lives":[{"group":"redirect","channels":[{"name":"redirect","urls":["proxy://do=live&type=txt&ext=./TV/live.txt"]}]}],
 
-"sites": [ {"key": "push_agent","name": "📽海阔推送","type": 3,"api":"csp_PushAgent","ext": "4b43fe34515644d3927901d66ba45640"}],
+"sites": [],
 
   "parses": [
     {"name": "聚合️","type": 3,"url": "Demo"},

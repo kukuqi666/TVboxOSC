@@ -1,1 +1,8 @@
 apply from: rootProject.file('runtime/native.gradle')
+
+android.defaultConfig { versionCode 4; versionName '1.1.0' }
+
+dependencies {
+    compileOnly project(':source-runtime')
+    implementation libs.nanohttpd
+}

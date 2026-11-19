@@ -1095,7 +1095,7 @@
             "filterable": 1
         },
         {
-            "key": "芒果",
+            "key": "芒果_c228ac93",
             "name": "🥇芒果",
             "type": 0,
             "api": "https://mgzyz1.com/api.php/provide/vod/at/xml/",
@@ -1351,7 +1351,7 @@
             "filterable": 1
         },
         {
-            "key": "葡萄",
+            "key": "葡萄_c13a710e",
             "name": "🥈葡萄",
             "type": 1,
             "api": "http://api.putaozy.net/inc/apijson_vod.php",
@@ -1388,7 +1388,7 @@
             "filterable": 0
         },
         {
-            "key": "酷豆",
+            "key": "酷豆_8311103b",
             "name": "🥈酷豆",
             "type": 1,
             "api": "https://kudouzy.com/api.php/provide/vod/",

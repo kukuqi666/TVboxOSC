@@ -2,38 +2,98 @@ package com.kukuqi.tvbox.engine.python;
 
 import android.content.Context;
 
+import androidx.annotation.Keep;
+
 import com.chaquo.python.PyObject;
-import com.github.catvod.utils.Path;
-import com.github.catvod.utils.UriUtil;
-import com.github.catvod.utils.Util;
+import com.github.catvod.net.Net;
+import com.github.catvod.utils.Local;
 import com.google.gson.Gson;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class Spider extends com.github.catvod.crawler.Spider {
 
+    private static final Gson GSON = new Gson();
+
     private final PyObject app;
     private final PyObject obj;
-    private final String api;
-    private final Gson gson;
+    private final Net.Cookies cookies;
+    private final UserAgent userAgent;
+    private final Streams streams = new Streams();
+    private boolean closed;
+    private boolean destroyed;
 
     public Spider(PyObject app, PyObject obj, String api) {
-        this.gson = new Gson();
+        this(app, obj, api, null);
+    }
+
+    public Spider(PyObject app, PyObject obj, String api, Net.Cookies cookies) {
+        this(app, obj, api, cookies, null);
+    }
+
+    public Spider(PyObject app, PyObject obj, String api, Net.Cookies cookies, Supplier<String> userAgent) {
+        this(app, obj, api, cookies, userAgent, null);
+    }
+
+    public Spider(PyObject app, PyObject obj, String api, Net.Cookies cookies, Supplier<String> userAgent, Net net) {
+        this.cookies = cookies;
+        this.userAgent = new UserAgent(userAgent);
         this.app = app;
         this.obj = obj;
-        this.api = api;
+        this.net = net;
     }
 
     @Override
     public void init(Context context, String extend) {
-        PyObject dependence = app.callAttr("getDependence", obj);
-        if (dependence != null) for (PyObject item : dependence.asList()) download(item + ".py");
-        obj.put("siteKey", siteKey);
-        app.callAttr("bind", obj, net, local);
-        app.callAttr("init", obj, extend);
+        if (net == null) net = new Net(cookies, siteKey);
+        local = new Local(siteKey);
+        try {
+            obj.put("siteKey", siteKey);
+            app.callAttr("bindNet", obj, net, userAgent, local, streams, js);
+            app.callAttr("init", obj, extend);
+        } catch (RuntimeException | Error e) {
+            closeSpider(e);
+            try {
+                app.callAttr("release", obj);
+            } catch (RuntimeException | Error error) {
+                if (e != error) e.addSuppressed(error);
+            }
+            throw e;
+        }
+    }
+
+    private Throwable closeResources(Throwable failure) {
+        try {
+            js.close();
+        } catch (RuntimeException | Error error) {
+            if (failure == null) failure = error;
+            else if (error != failure) failure.addSuppressed(error);
+        }
+        try {
+            streams.close();
+        } catch (RuntimeException | Error error) {
+            if (failure == null) failure = error;
+            else if (error != failure) failure.addSuppressed(error);
+        }
+        try {
+            if (net != null) net.close();
+        } catch (RuntimeException | Error error) {
+            if (failure == null) failure = error;
+            else if (error != failure) failure.addSuppressed(error);
+        }
+        return failure;
     }
 
     @Override
@@ -48,12 +108,12 @@ public class Spider extends com.github.catvod.crawler.Spider {
 
     @Override
     public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) {
-        return app.callAttr("categoryContent", obj, tid, pg, filter, gson.toJson(extend)).toString();
+        return app.callAttr("categoryContent", obj, tid, pg, filter, GSON.toJson(extend)).toString();
     }
 
     @Override
     public String detailContent(List<String> ids) {
-        return app.callAttr("detailContent", obj, gson.toJson(ids)).toString();
+        return app.callAttr("detailContent", obj, GSON.toJson(ids)).toString();
     }
 
     @Override
@@ -68,7 +128,7 @@ public class Spider extends com.github.catvod.crawler.Spider {
 
     @Override
     public String playerContent(String flag, String id, List<String> vipFlags) {
-        return app.callAttr("playerContent", obj, flag, id, gson.toJson(vipFlags)).toString();
+        return app.callAttr("playerContent", obj, flag, id, GSON.toJson(vipFlags)).toString();
     }
 
     @Override
@@ -88,15 +148,16 @@ public class Spider extends com.github.catvod.crawler.Spider {
 
     @Override
     public Object[] proxy(Map<String, String> params) throws Exception {
-        List<PyObject> list = app.callAttr("localProxy", obj, gson.toJson(params)).asList();
-        boolean base64 = list.size() > 4 && list.get(4).toInt() == 1;
-        boolean header = list.size() > 3 && list.get(3) != null;
-        Object[] result = new Object[4];
-        result[0] = list.get(0).toInt();
-        result[1] = list.get(1).toString();
-        result[2] = getStream(list.get(2), base64);
-        result[3] = header ? getHeader(list.get(3)) : null;
-        return result;
+        List<PyObject> list = app.callAttr("proxy", obj, GSON.toJson(params)).asList();
+        if (list.size() < 3) throw new IllegalArgumentException("Proxy response requires status, MIME and body");
+        InputStream stream = proxyBody(list.get(2));
+        try {
+            boolean header = list.size() > 3 && list.get(3) != null;
+            return new Object[]{proxyCode(list.get(0)), proxyMime(list.get(1)), stream, header ? getHeader(list.get(3)) : null};
+        } catch (RuntimeException | Error error) {
+            closeProxyStream(stream, error);
+            throw error;
+        }
     }
 
     @Override
@@ -105,34 +166,141 @@ public class Spider extends com.github.catvod.crawler.Spider {
     }
 
     @Override
-    public void destroy() {
+    public AutoCloseable danmaku(String id, Consumer<JSONObject> emit) {
+        Emitter emitter = new Emitter(emit);
+        PyObject stop;
+        try {
+            stop = app.callAttr("danmaku", obj, id, emitter);
+        } catch (RuntimeException | Error error) {
+            emitter.close();
+            throw error;
+        }
+        return () -> {
+            if (emitter.close()) stop.call();
+        };
+    }
+
+    @Override
+    public synchronized void close() {
+        throwFailure(closeSpider(null));
+    }
+
+    private synchronized Throwable closeSpider(Throwable failure) {
+        if (closed) return failure;
+        closed = true;
+        closeDialog();
+        failure = closeResources(failure);
+        try {
+            app.callAttr("close_dialog", obj);
+        } catch (RuntimeException | Error error) {
+            if (failure == null) failure = error;
+            else if (failure != error) failure.addSuppressed(error);
+        }
+        return failure;
+    }
+
+    @Override
+    public synchronized void destroy() {
+        if (destroyed) return;
+        destroyed = true;
+        throwFailure(destroyPython(closeSpider(null)));
+    }
+
+    private void throwFailure(Throwable failure) {
+        if (failure instanceof RuntimeException error) throw error;
+        if (failure instanceof Error error) throw error;
+    }
+
+    private Throwable destroyPython(Throwable failure) {
         try {
             app.callAttr("destroy", obj);
-        } catch (Exception ignored) {
+        } catch (RuntimeException | Error error) {
+            if (failure == null) failure = error;
+            else if (failure != error) failure.addSuppressed(error);
         }
+        return failure;
     }
 
     private Map<String, String> getHeader(PyObject obj) {
+        Map<String, String> header = new HashMap<>();
+        for (Map.Entry<PyObject, PyObject> entry : obj.asMap().entrySet()) header.put(headerString(entry.getKey()), headerValue(entry.getValue()));
+        return header;
+    }
+
+    private String headerString(PyObject value) {
+        if (value == null) throw new IllegalArgumentException("Invalid proxy response header");
+        return value.toJava(String.class);
+    }
+
+    private String headerValue(PyObject value) {
         try {
-            Map<String, String> header = new HashMap<>();
-            for (Map.Entry<PyObject, PyObject> entry : obj.asMap().entrySet()) header.put(entry.getKey().toString(), entry.getValue().toString());
-            return header;
-        } catch (Exception e) {
-            return null;
+            return headerString(value);
+        } catch (ClassCastException error) {
+            String[] values = value.toJava(String[].class);
+            for (String part : values) if (part == null) throw new IllegalArgumentException("Invalid proxy response header");
+            return String.join(", ", values);
         }
     }
 
-    private ByteArrayInputStream getStream(PyObject o, boolean base64) {
-        if (o == null) return null;
-        if (o.type().toString().contains("bytes")) return new ByteArrayInputStream(o.toJava(byte[].class));
-        String content = o.toString();
-        if (base64 && content.contains("base64,")) content = content.split("base64,")[1];
-        return new ByteArrayInputStream(base64 ? Util.decode(content) : content.getBytes());
+    private void closeProxyStream(InputStream stream, Throwable error) {
+        try {
+            stream.close();
+        } catch (IOException | RuntimeException | Error failure) {
+            if (failure != error) error.addSuppressed(failure);
+        }
     }
 
-    private void download(String name) {
-        String path = Path.py(name).getAbsolutePath();
-        String url = UriUtil.resolve(api, name);
-        app.callAttr("download", path, url);
+    private int proxyCode(PyObject value) {
+        if (value == null) throw new IllegalArgumentException("Proxy response status requires an integer from 100 to 599");
+        int code = value.toInt();
+        if (code < 100 || code > 599) throw new IllegalArgumentException("Proxy response status requires an integer from 100 to 599");
+        return code;
+    }
+
+    private String proxyMime(PyObject value) {
+        if (value == null) throw new IllegalArgumentException("Proxy response MIME requires a string");
+        return value.toJava(String.class);
+    }
+
+    private InputStream proxyBody(PyObject body) {
+        if (body == null) throw new IllegalArgumentException("Proxy body requires text, bytes or InputStream");
+        Object value = body.toJava(Object.class);
+        if (value instanceof InputStream stream) return stream;
+        if (value instanceof byte[] bytes) return new ByteArrayInputStream(bytes);
+        if (value instanceof String text) return new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8));
+        throw new IllegalArgumentException("Proxy body requires text, bytes or InputStream");
+    }
+
+    @Keep
+    public static final class Emitter {
+
+        private final AtomicReference<Consumer<JSONObject>> listener;
+
+        private Emitter(Consumer<JSONObject> listener) {
+            this.listener = new AtomicReference<>(listener);
+        }
+
+        public void emit(String json) throws JSONException {
+            Consumer<JSONObject> current = listener.get();
+            if (current != null) current.accept(new JSONObject(json));
+        }
+
+        private boolean close() {
+            return listener.getAndSet(null) != null;
+        }
+    }
+
+    public static final class UserAgent {
+
+        private final Supplier<String> supplier;
+
+        private UserAgent(Supplier<String> supplier) {
+            this.supplier = supplier;
+        }
+
+        @Keep
+        public String getUserAgent() {
+            return supplier == null ? "" : supplier.get();
+        }
     }
 }

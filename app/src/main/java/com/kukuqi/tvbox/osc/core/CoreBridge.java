@@ -26,7 +26,7 @@ public final class CoreBridge {
 
     /** 由宿主接入网页、Cookie 和 UA，独立运行时通过共享 Host 接口调用。 */
     public static void installScriptHost() {
-        com.kukuqi.tvbox.engine.api.loader.JsLoader.setHost(new com.fongmi.quickjs.host.Host() {
+        com.kukuqi.tvbox.engine.api.loader.JsLoader.setHost(new com.kukuqi.quickjs.host.Host() {
             @Override public long getCallTimeout() {
                 return com.kukuqi.tvbox.engine.Constant.TIMEOUT_VOD;
             }
@@ -79,6 +79,69 @@ public final class CoreBridge {
                 return com.github.catvod.Runtime.dialog(options, callback);
             }
         });
+        com.kukuqi.tvbox.engine.runtime.NodeRuntime.get().setCallback(new com.github.catvod.runtime.NodeRuntimeApi.Callback() {
+            @Override public String onMessage(String action, JsonObject options) {
+                com.kukuqi.quickjs.host.Host host = com.kukuqi.tvbox.engine.api.loader.JsLoader.host();
+                JsonObject response = new JsonObject();
+                boolean success = true;
+                try {
+                    switch (action) {
+                        case "toast" -> {
+                            String message = com.kukuqi.tvbox.osc.util.SourceDescriptor.string(options, "message");
+                            if (!message.isEmpty()) MAIN.post(() -> com.blankj.utilcode.util.ToastUtils.showShort(message));
+                        }
+                        case "openWeb", "openInternalWebview" -> success = host.openWeb(options.toString());
+                        case "getCookie" -> response.addProperty("cookie", host.getCookie(com.kukuqi.tvbox.osc.util.SourceDescriptor.string(options, "url")));
+                        case "setCookie" -> success = host.setCookie(com.kukuqi.tvbox.osc.util.SourceDescriptor.string(options, "url"), com.kukuqi.tvbox.osc.util.SourceDescriptor.string(options, "cookie"));
+                        case "getUserAgent" -> response.addProperty("ua", host.getUserAgent());
+                        case "getPlayInfo" -> { return nodePlaybackInfo(); }
+                        default -> success = false;
+                    }
+                } catch (RuntimeException error) {
+                    success = false;
+                    com.kukuqi.tvbox.osc.util.LOG.e("Node 宿主消息执行失败", error);
+                }
+                response.addProperty("success", success);
+                response.addProperty("code", success ? 0 : -1);
+                return response.toString();
+            }
+            @Override public void onPlayInfo(String flag, String id) {
+                nodePlayFlag = flag == null ? "" : flag;
+                nodePlayId = id == null ? "" : id;
+            }
+        });
+    }
+    private static volatile String nodePlayFlag = "", nodePlayId = "";
+    private static volatile java.lang.ref.WeakReference<com.kukuqi.tvbox.osc.player.CorePlayer> activePlayer = new java.lang.ref.WeakReference<>(null);
+    public static void bindPlayer(com.kukuqi.tvbox.osc.player.CorePlayer player) { activePlayer = new java.lang.ref.WeakReference<>(player); }
+    public static void unbindPlayer(com.kukuqi.tvbox.osc.player.CorePlayer player) {
+        if (activePlayer.get() == player) { activePlayer.clear(); nodePlayFlag = ""; nodePlayId = ""; }
+    }
+    private static String nodePlaybackInfo() {
+        java.util.concurrent.FutureTask<String> read = new java.util.concurrent.FutureTask<>(() -> {
+            JsonObject result = new JsonObject();
+            com.kukuqi.tvbox.osc.bean.VodInfo vod = com.kukuqi.tvbox.osc.base.App.getInstance().getVodInfo();
+            String episode = "";
+            if (vod != null && vod.seriesMap.get(vod.playFlag) != null && vod.playIndex >= 0
+                    && vod.playIndex < vod.seriesMap.get(vod.playFlag).size()) episode = vod.seriesMap.get(vod.playFlag).get(vod.playIndex).name;
+            result.addProperty("title", vod == null ? "" : vod.name);
+            result.addProperty("episodeName", episode);
+            result.addProperty("flag", nodePlayFlag); result.addProperty("id", nodePlayId);
+            String fileName = android.net.Uri.parse(nodePlayId).getLastPathSegment();
+            result.addProperty("fileName", fileName == null ? "" : fileName);
+            com.kukuqi.tvbox.osc.player.CorePlayer current = activePlayer.get();
+            com.kukuqi.tvbox.engine.player.PlayerManager player = current == null ? null : current.manager();
+            boolean active = player != null && !player.isReleased();
+            result.addProperty("url", active && player.getUrl() != null ? player.getUrl() : "");
+            result.addProperty("key", active && player.getKey() != null ? player.getKey() : "");
+            result.addProperty("position", active ? Math.max(0, player.getPosition()) : 0);
+            result.addProperty("duration", active ? Math.max(0, player.getDuration()) : 0);
+            return result.toString();
+        });
+        if (Looper.myLooper() == Looper.getMainLooper()) read.run(); else MAIN.post(read);
+        try { return read.get(1500, java.util.concurrent.TimeUnit.MILLISECONDS); }
+        catch (InterruptedException interrupted) { Thread.currentThread().interrupt(); read.cancel(false); return "{}"; }
+        catch (Exception failure) { read.cancel(false); return "{}"; }
     }
 
     public static void loadConfig(String url, String home, JsonObject document, ApiConfig.LoadConfigCallback callback) {

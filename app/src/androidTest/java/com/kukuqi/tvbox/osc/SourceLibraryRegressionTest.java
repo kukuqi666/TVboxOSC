@@ -44,7 +44,7 @@ public class SourceLibraryRegressionTest extends InstrumentationTestCase {
         assertEquals(SourceDefaults.LIVE, Hawk.get(HawkConfig.LIVE_URL));
         assertEquals(SourceDefaults.WALLPAPER, Hawk.get(HawkConfig.WALLPAPER_URL));
         assertEquals("custom", Hawk.get("wallpaper_mode"));
-        assertEquals(2, Hawk.<ArrayList<Subscription>>get(HawkConfig.SUBSCRIPTIONS).size());
+        assertEquals(3, Hawk.<ArrayList<Subscription>>get(HawkConfig.SUBSCRIPTIONS).size());
         assertEquals(1, Hawk.<ArrayList<Subscription>>get(HawkConfig.SUBSCRIPTIONS).stream().filter(Subscription::isChecked).count());
         assertEquals(2, SourceLibrary.list(SourceLibrary.LIVE).size());
         assertEquals(2, SourceLibrary.list(SourceLibrary.WALLPAPER).size());
@@ -55,6 +55,28 @@ public class SourceLibraryRegressionTest extends InstrumentationTestCase {
         assertEquals(custom, Hawk.get(HawkConfig.API_URL));
         assertEquals(custom, Hawk.get(HawkConfig.LIVE_URL));
         assertEquals(custom, Hawk.get(HawkConfig.WALLPAPER_URL));
+    }
+    public void testRemovedPackagedSourcesMigrateWithoutLosingCustomSubscriptions() {
+        for (String removed : new String[]{"assets://subscriptions/r18.json", "assets://subscriptions/18cn.json"}) {
+            Hawk.put("source_defaults_20261009_v1", true);
+            String custom = "https://example.test/my.json";
+            Hawk.put(HawkConfig.SUBSCRIPTIONS, new ArrayList<>(Arrays.asList(
+                    new Subscription("旧内置", removed).setBuiltIn(true).setChecked(true),
+                    new Subscription("我的源", custom))));
+            Hawk.put(HawkConfig.API_URL, removed);
+            SourceDefaults.applyOnce();
+            SourceDefaults.applyOnce();
+            ArrayList<Subscription> items = Hawk.get(HawkConfig.SUBSCRIPTIONS);
+            assertEquals(3, items.size());
+            assertEquals(2, items.stream().filter(Subscription::isBuiltIn).count());
+            assertEquals(1, items.stream().filter(Subscription::isChecked).count());
+            assertEquals(SourceDefaults.VOD, Hawk.get(HawkConfig.API_URL));
+            assertTrue(items.stream().anyMatch(item -> custom.equals(item.getUrl())));
+            assertFalse(items.stream().anyMatch(item -> removed.equals(item.getUrl())));
+            Hawk.put(HawkConfig.API_URL, SourceDefaults.SECOND_VOD);
+            SourceDefaults.applyOnce();
+            assertEquals(SourceDefaults.SECOND_VOD, Hawk.get(HawkConfig.API_URL));
+        }
     }
     public void testLegacyFollowBecomesIndependentWithoutChangingVodOrReenablingRemovedSources() {
         String custom = "https://example.test/my-vod.json";

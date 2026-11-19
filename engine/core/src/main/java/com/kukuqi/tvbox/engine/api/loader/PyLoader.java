@@ -4,7 +4,6 @@ import com.kukuqi.tvbox.engine.App;
 import com.kukuqi.tvbox.engine.runtime.RuntimeModule;
 import com.kukuqi.tvbox.engine.runtime.RuntimeModules;
 import com.github.catvod.crawler.Spider;
-import com.github.catvod.crawler.SpiderNull;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,8 +34,7 @@ public class PyLoader {
         return spiders.computeIfAbsent(key, k -> {
             Spider spider = null;
             try {
-                spider = (Spider) RuntimeModules.call(loader, "spider", new Class<?>[]{String.class}, api);
-                spider.prepare(key);
+                spider = (Spider) RuntimeModules.call(loader, "spider", new Class<?>[]{String.class, String.class, com.github.catvod.net.Net.Cookies.class, java.util.function.Supplier.class}, api, key, JsLoader.host(), (java.util.function.Supplier<String>) JsLoader.host()::getUserAgent);
                 spider.init(App.get(), ext);
                 return spider;
             } catch (Throwable e) {

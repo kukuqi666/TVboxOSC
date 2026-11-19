@@ -64,11 +64,6 @@
         "伦理片"
       ]
     },
-//
-//
-//
-//
-{"key":"s00json","name":"🐝🐝json1🐝🐝‍","type":0,"api":"","searchable":0,"quickSearch":0},
 {"name":"51smt4水蜜桃","key":"11水蜜桃","type":1,"api":"http://51smt4.xyz/api.php/provide/vod/","searchable":1,"quickSearch":1,"filterable":1},
 {"name":"523zyw523资源","key":"11523资源","type":1,"api":"https://caiji.523zyw.com/inc/apijson_vod.php","searchable":1,"quickSearch":1,"filterable":1},
 {"name":"888dav抖阴","key":"11抖阴","type":1,"api":"https://www.888dav.com/api.php/provide/vod/","searchable":1,"quickSearch":1,"filterable":1},
@@ -128,11 +123,6 @@
 {"name":"ykapi影库资源","key":"11影库资源","type":1,"api":"https://api.ykapi.net/api.php/provide/vod/","searchable":1,"quickSearch":1,"filterable":1},
 {"name":"ykapi影库资源","key":"11影库资源3","type":1,"api":"https://api.ykapi.net/api.php/provide/vod/?ac=list","searchable":1,"quickSearch":1,"filterable":1},
 {"name":"ykapi影库资源","key":"11影库资源2","type":1,"api":"https://api.ykapi.net/api.php/provide/vod/from/ykm3u8/","searchable":1,"quickSearch":1,"filterable":1},
-
-//
-//
-//
-{"key":"s00XYQH","name":"🧪🧪XYQH🧪🧪‍","type":0,"api":"","searchable":0,"quickSearch":0},
 {"key":"csp_XYQHiker_300分类","name":"300分类","type":3,"api":"csp_XYQHiker","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/2hacc/TVBox/main/h/XYQHiker/300分类.json"},
 
 {"key":"18AV1","name":"18AV","type":3,"api":"csp_Eighteen","searchable":1,"quickSearch":1,"filterable":1},
@@ -165,10 +155,6 @@
 {"key":"csp_XYQHiker_水果派","name":"ayay32(XYQH)","type":3,"api":"csp_XYQHiker","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/2hacc/TVBox/main/h/XYQHiker/水果派.json"},
     {"key":"csp_XYQHiker_猫咪","name":"猫咪(XYQH)","type":3,"api":"csp_XYQHiker","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/00/main/ext/猫咪XYQH.json"},
     {"key":"csp_XBiu_猫咪","name":"🍁猫咪(XBB)","type":3,"api":"csp_XBiubiu","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/00/main/ext/猫咪XBB.json"},
-
-//
-//
-{"key":"s00XBiubiu","name":"🧪🧪XBiubiu🧪🧪‍","type":0,"api":"","searchable":0,"quickSearch":0},
     {"key":"csp_XBiu_香蕉","name":"🍁香蕉(XB)️","type":3,"api":"csp_XBiubiu","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/2hacc/TVBox/main/h/XB/香蕉.json"},
     {"key":"csp_XBiu_小丑撸","name":"🍁小丑撸(XB)","type":3,"api":"csp_XBiubiu","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/2hacc/TVBox/main/h/XB/小丑撸.json"},
     {"key":"csp_XBiu_国产传媒","name":"🍁国产传媒(XB)","type":3,"api":"csp_XBiubiu","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/2hacc/TVBox/main/h/XB/国产传媒.json"},
@@ -178,11 +164,6 @@
     {"key":"csp_XBiu_爱看影院","name":"🍁爱看影院(XB)","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/2hacc/TVBox/main/h/XB/爱看影院.json"},
     {"key":"csp_XBiu_GAOAA","name":"🍁GAOAA(XB)","type":3,"api":"csp_XBiubiu","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/2hacc/TVBox/main/h/XB/GAOAA.json"},
     {"key":"csp_XBiu_黄仓库","name":"🍁黄仓库(XB)","type":3,"api":"csp_XBiubiu","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/2hacc/TVBox/main/h/XB/黄仓库.json"},
-
-
-//
-//
-{"key":"s00xBPQ","name":"🧪🧪xBPQ🧪🧪‍","type":0,"api":"","searchable":0,"quickSearch":0},
     {"key":"csp_xBPQ-四虎","name":"🏆四虎","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/2hacc/TVBox/main/h/xBPQ/四虎.json"},
     {"key":"csp_xBPQ_香蕉AV解说","name":"🏆香蕉解说","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/2hacc/TVBox/main/h/xBPQ/香蕉解说.json"},
     {"key":"csp_xBPQ_香蕉资源","name":"🏆香蕉资源","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/2hacc/TVBox/main/h/xBPQ/香蕉资源.json"},
@@ -206,16 +187,12 @@
     {"key":"csp_xBPQ_黄瓜","name":"🏆黄瓜","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/2hacc/TVBox/main/h/xBPQ/黄瓜.json"},
 {"key":"0091色色","name":"91sesex(规则)","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/00/main/xBPQ/%E5%A5%87%E7%91%9E.json"},
 {"key":"测试","name":"CABLEAV","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/00/main/xBPQ/qq.json"},
-
-//
-//
-{"key":"s00xBPQx","name":"🧪🧪xBPQx🧪🧪‍","type":0,"api":"","searchable":0,"quickSearch":0},
 {"key":"吉利","name":"吉利(xBPQ)","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://ghproxy.com/https://agit.ai/xiaohewanwan/jar/raw/branch/main/shaokaochedui/%e5%90%89%e5%88%a9.json"},
 {"key":"奇瑞","name":"奇瑞(xBPQ)","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://ghproxy.com/https://agit.ai/xiaohewanwan/jar/raw/branch/main/shaokaochedui/%e5%a5%87%e7%91%9e.json"},
 {"key":"长城","name":"长城(xBPQ)","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://ghproxy.com/https://agit.ai/xiaohewanwan/jar/raw/branch/main/shaokaochedui/%e9%95%bf%e5%9f%8e.json"},
 
 {"key":"淫大代表","name":"淫大代表(xBPQ)","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/00/main/ext/yddb.json"},
-{"key":"csp_xBPQ_AVideo","name":"AVideo","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/TVBOXZY/main/xBPQ/AVideo.json"},
+{"key":"csp_xBPQ_AVideo_701a3190","name":"AVideo","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/TVBOXZY/main/xBPQ/AVideo.json"},
 {"key":"csp_xBPQ_banan","name":"banan","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/TVBOXZY/main/xBPQ/banan.json"},
 {"key":"csp_xBPQ_GAOAA","name":"GAOAA","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/TVBOXZY/main/xBPQ/GAOAA.json"},
 {"key":"csp_xBPQ_天天直播","name":"天天直播","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/TVBOXZY/main/xBPQ/天天直播.json"},
@@ -225,15 +202,15 @@
 {"key":"csp_xBPQ-四虎影院","name":"四虎影院️","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/TVBOXZY/main/xBPQ/四虎影院.json"},
 {"key":"csp_xBPQ_左临右射","name":"左临右射","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/TVBOXZY/main/xBPQ/左临右射.json"},
 {"key":"csp_xBPQ_色花堂","name":"色花堂","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/TVBOXZY/main/xBPQ/色花堂.json"},
-{"key":"csp_xBPQ_西瓜影视","name":"西瓜影视","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/TVBOXZY/main/xBPQ/西瓜影视.json"},
+{"key":"csp_xBPQ_西瓜影视_d4fa50c0","name":"西瓜影视","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/TVBOXZY/main/xBPQ/西瓜影视.json"},
 {"key":"csp_xBPQ_实时直播","name":"实时直播","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/TVBOXZY/main/xBPQ/实时直播.json"},
-{"key":"csp_xBPQ_性欲轮回","name":"性欲轮回","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/TVBOXZY/main/xBPQ/性欲轮回.json"},
-{"key":"csp_xBPQ_性欲轮回[分类]","name":"性欲轮回[分类]","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/TVBOXZY/main/xBPQ/性欲轮回[分类].json"},
+{"key":"csp_xBPQ_性欲轮回_b9d0ea5c","name":"性欲轮回","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/TVBOXZY/main/xBPQ/性欲轮回.json"},
+{"key":"csp_xBPQ_性欲轮回[分类]_6be53191","name":"性欲轮回[分类]","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/TVBOXZY/main/xBPQ/性欲轮回[分类].json"},
 {"key":"csp_xBPQ_香蕉视频","name":"香蕉视频","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/TVBOXZY/main/xBPQ/香蕉视频.json"},
 {"key":"csp_xBPQ_掏爱撸","name":"掏爱撸","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/TVBOXZY/main/xBPQ/掏爱撸.json"},
-{"key":"csp_xBPQ_麻豆映画","name":"麻豆映画","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/TVBOXZY/main/xBPQ/麻豆映画.json" },
+{"key":"csp_xBPQ_麻豆映画_33571884","name":"麻豆映画","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/TVBOXZY/main/xBPQ/麻豆映画.json" },
 {"key":"csp_xBPQ_黄瓜TV","name":"黄瓜TV️","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/TVBOXZY/main/xBPQ/黄瓜TV.json"},
-{"key":"csp_xBPQ_黄仓库","name":"黄仓库","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/TVBOXZY/main/xBPQ/黄仓库.json"},
+{"key":"csp_xBPQ_黄仓库_2231e8b3","name":"黄仓库","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/TVBOXZY/main/xBPQ/黄仓库.json"},
 {"key":"csp_xBPQ_新香蕉AV解说","name":"新香蕉AV解说","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/TVBOXZY/main/xBPQ/新香蕉AV解说.json"},
 {"key":"csp_xBPQ_新香蕉久久热","name":"新香蕉久久热","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/TVBOXZY/main/xBPQ/新香蕉久久热.json"},
 {"key":"csp_xBPQ_新香蕉中文字幕","name":"新香蕉中文字幕","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/TVBOXZY/main/xBPQ/新香蕉中文字幕.json"},
@@ -252,11 +229,7 @@
 {"key":"csp_xBPQ_聚优超清资源","name":"聚优超清资源","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/TVBOXZY/main/xBPQ/聚优超清资源.json" },
 {"key":"csp_xBPQ_聚优废柴网资源","name":"聚优废柴网资源","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/TVBOXZY/main/xBPQ/聚优废柴网资源.json" },
 {"key":"csp_xBPQ_爱污传媒","name":"爱污传媒","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/TVBOXZY/main/xBPQ/爱污传媒.json" },
-{"key":"csp_xBPQ-爱看影院","name":"爱看影院️","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/TVBOXZY/main/xBPQ/爱看影院.json"},
-
-//
-//
-{"key":"s00Drpy","name":"🧪🧪js🧪🧪‍","type":0,"api":"","searchable":0,"quickSearch":0},
+{"key":"csp_xBPQ-爱看影院_317537ae","name":"爱看影院️","type":3,"api":"csp_xBPQx","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/TVBOXZY/main/xBPQ/爱看影院.json"},
 
 {"key":"dr_猫了个咪","name":"猫了个咪(drpy)","type":3,"api":"https://github.com/c120487/dr_py/raw/master/libs/drpy.min.js","searchable":2,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/00/main/ext/猫了个咪.js"},
 {"key":"dr_18av","name":"18av(drpy)","type":3,"api":"https://github.com/c120487/dr_py/raw/master/libs/drpy.min.js","searchable":2,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/00/main/ext/18av.js"},
@@ -267,15 +240,6 @@
 {"key":"dr_吸瓜","name":"吸瓜(drpy)","type":3,"api":"https://github.com/c120487/dr_py/raw/master/libs/drpy.min.js","searchable":2,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/00/main/ext/吸瓜.js"},
 {"key":"dr_朱古力","name":"朱古力(drpy)","type":3,"api":"https://github.com/c120487/dr_py/raw/master/libs/drpy.min.js","searchable":2,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/00/main/ext/朱古力.js"},
 {"key":"dr_玩偶姐姐","name":"玩偶姐姐(drpy)","type":3,"api":"https://github.com/c120487/dr_py/raw/master/libs/drpy.min.js","searchable":2,"quickSearch":1,"filterable":1,"ext":"https://ghproxy.com/https://raw.githubusercontent.com/c120487/00/main/ext/玩偶姐姐.js"},
-
-
-
-
-//
-//
-//
-//
-{"key":"s00xml","name":"🐞🐞xml0🐞🐞","type":0,"api":"","searchable":0,"quickSearch":0},
 {"name":"11bat","key":"00api.11bat.com","type":0,"api":"http://api.11bat.com/api.php/provide/vod/at/xml","searchable":1,"quickSearch":1,"filterable":1},
 {"name":"11bat辣椒","key":"00辣椒","type":0,"api":"http://api.11bat.com/api.php/provide/vod/at/xml/","searchable":1,"quickSearch":1,"filterable":1},
 {"name":"523zyw523av","key":"00523","type":0,"api":"https://caiji.523zyw.com/inc/api.php","searchable":1,"quickSearch":1,"filterable":1},
@@ -340,14 +304,7 @@
 {"name":"xjjzyapi小姐姐","key":"00xjiejie","type":0,"api":"https://xjjzyapi.com/home/cjapi/askl/mc10/vod/xml","searchable":1,"quickSearch":1,"filterable":1},
 {"name":"xrbsp淫水机资源","key":"00淫水机资源","type":0,"api":"https://www.xrbsp.com/api/xml.php","searchable":1,"quickSearch":1,"filterable":1},
 {"name":"xx55zyapi点点点","key":"00点点点","type":0,"api":"https://xx55zyapi.com/home/cjapi/ascf/mc/vod/xml","searchable":1,"quickSearch":1,"filterable":1},
-{"name":"xx55zyapi点点","key":"00点点","type":0,"api":"https://xx55zyapi.com/home/cjapi/ascf/mc10/vod/xml","searchable":1,"quickSearch":1,"filterable":1},
-
-
-//
-//
-//
-//End, search, recommendation and summary
-{"key":"1212_Search","name":"🔍🔍Search🔍🔍","type":0,"api":"","searchable":0,"quickSearch":0,"filterable":1},  
+{"name":"xx55zyapi点点","key":"00点点","type":0,"api":"https://xx55zyapi.com/home/cjapi/ascf/mc10/vod/xml","searchable":1,"quickSearch":1,"filterable":1},  
 
 {"key":"T4Demo","name":"🔍T4 Demo‍","type":4,"api":"https://t4.secan.icu/vod","searchable":0,"quickSearch":0,"filterable":1},
 {"key":"T4Backup","name":"🔍T4 Backup‍","type":4,"api":"https://t4.run.goorm.io/vod","searchable":0,"quickSearch":0,"filterable":1},

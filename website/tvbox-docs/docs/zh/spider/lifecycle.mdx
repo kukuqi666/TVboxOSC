@@ -25,6 +25,12 @@ import { Flow, FlowNode, Arrow } from '@theme/components/Flow';
 | `action` | 自订操作 | 可由 Result 解析的结果 | Java JSON 字串／Python、QuickJS 物件 |
 | `destroy` | 重新载入或清除 | 释放执行绪与连线；QuickJS 清理 hook 最长 5 秒 | 无 |
 
+## 会话隔离与清理
+
+JavaScript 和 Python 的每个来源实例分别持有模块状态和网络会话。同名文件或相同脚本的不同配置不得共用全局变量；初始化失败会释放本次资源，不应清空其他来源。Python 支持相对导入，并在来源关闭时撤销该实例的模块命名空间与缓存目录。
+
+测试台采用独立 `BaseLoader`。关闭测试会话只释放该会话，不清空主程序正在使用的加载器。
+
 ## 流程
 
 <Flow>

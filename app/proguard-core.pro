@@ -3,8 +3,8 @@
 # 崩溃收集的公开诊断接口供宿主和设备回归共同访问。
 -keep class cat.ereza.customactivityoncrash.** { *; }
 # 独立 QuickJS 模块链接宿主提供的共享接口，名称和默认方法必须保持稳定。
--keep interface com.fongmi.quickjs.host.Host { *; }
--keep class com.fongmi.quickjs.host.Host$* { *; }
+-keep interface com.kukuqi.quickjs.host.Host { *; }
+-keep class com.kukuqi.quickjs.host.Host$* { *; }
 -keep class com.kukuqi.tvbox.engine.App { *; }
 -keep class com.kukuqi.tvbox.engine.bean.** { *; }
 -keep class com.kukuqi.tvbox.engine.runtime.** { *; }

@@ -210,7 +210,6 @@ dependencies {
     implementation libs.jsoup
     implementation libs.commons.io
     implementation libs.juniversalchardet
-    implementation files('libs/commons-lang3-3.12.0.jar')
     implementation(libs.xstream) {
         exclude group: 'xmlpull', module: 'xmlpull'
     }

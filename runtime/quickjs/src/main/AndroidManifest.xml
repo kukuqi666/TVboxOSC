@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application android:icon="@drawable/runtime_icon_quickjs" android:roundIcon="@drawable/runtime_icon_quickjs" android:label="TVbox quickjs 模块" android:hasCode="true" android:allowBackup="false" android:extractNativeLibs="true">
-        <meta-data android:name="tvbox.runtime.contract" android:value="tvbox-quickjs-v1" />
+        <meta-data android:name="tvbox.runtime.contract" android:value="tvbox-quickjs-v2" />
         <meta-data android:name="tvbox.runtime.abi" android:value="arm64-v8a" />
     </application>
 </manifest>

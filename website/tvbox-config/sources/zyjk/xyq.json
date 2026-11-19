@@ -5,30 +5,7 @@
 
 "sites":[
 
-{"key":"T4_douban","name":"影视推荐(T4)","type":4,"api":"https://t4.饭太硬.ml/vod","searchable":1,"quickSearch":1,"filterable":1},
-
-{"key":"csp_XYQBiu_万能影视","name":"万能影视(XYQ)","type":3,"api":"csp_XYQBiu","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XYQ/%E4%B8%87%E8%83%BD%E5%BD%B1%E8%A7%86.json"},
-
-{"key":"csp_XYQBiu_凌云影视","name":"凌云影视(XYQ)","type":3,"api":"csp_XYQBiu","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XYQ/%E5%87%8C%E4%BA%91%E5%BD%B1%E8%A7%86.json"},
-{"key":"csp_XYQBiu_555影视","name":"555影视(XYQ)","type":3,"api":"csp_XYQBiu","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XYQ/555%E5%BD%B1%E8%A7%86.json"},
-{"key":"csp_XYQBiu_大米星球","name":"大米星球(XYQ)","type":3,"api":"csp_XYQBiu","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XYQ/%E5%A4%A7%E7%B1%B3%E6%98%9F%E7%90%83.json"},
-{"key":"csp_XYQBiu_影视工厂","name":"影视工厂(XYQ)","type":3,"api":"csp_XYQBiu","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XYQ/%E5%BD%B1%E8%A7%86%E5%B7%A5%E5%8E%82.json"},
-{"key":"csp_XYQBiu_片吧影院","name":"片吧影院(XYQ)","type":3,"api":"csp_XYQBiu","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XYQ/%E7%89%87%E5%90%A7%E5%BD%B1%E9%99%A2.json"},
-{"key":"csp_XYQBiu_vofix","name":"VOFIX(XYQ)","type":3,"api":"csp_XYQBiu","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XYQ/vofix.json"},
-{"key":"csp_XYQBiu_莫扎兔","name":"莫扎兔(XYQ)","type":3,"api":"csp_XYQBiu","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XYQ/%E8%8E%AB%E6%89%8E%E5%85%94.json"},
-{"key":"csp_XYQBiu_聚合电影","name":"聚合电影(XYQ)","type":3,"api":"csp_XYQBiu","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XYQ/%E8%81%9A%E5%90%88%E7%94%B5%E5%BD%B1.json"},
-{"key":"csp_XYQBiu_剧荒","name":"剧荒TV(XYQ)","type":3,"api":"csp_XYQBiu","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XYQ/%E5%89%A7%E8%8D%92.json"},
-{"key":"csp_XYQ_动视影视","name":"动视影视(XYQ)","type":3,"api":"csp_XYQBiu","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XYQ/%E5%8A%A8%E8%A7%86%E5%BD%B1%E8%A7%86.json"},
-{"key":"csp_XYQBiu_斗鱼直播","name":"斗鱼直播(XYQ)","type":3,"api":"csp_XYQBiu","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XYQ/%E6%96%97%E9%B1%BC%E7%9B%B4%E6%92%AD.json"},
-{"key":"csp_XYQBiu_虎牙直播","name":"虎牙直播(XYQ)","type":3,"api":"csp_XYQBiu","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XYQ/%E8%99%8E%E7%89%99%E7%9B%B4%E6%92%AD.json"},
-{"key":"csp_XYQBiu_网易CC直播","name":"网易CC直播(XYQ)","type":3,"api":"csp_XYQBiu","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XYQ/%E7%BD%91%E6%98%93CC%E7%9B%B4%E6%92%AD.json"},
-{"key":"csp_XYQBiu_17klive","name":"体育直播(XYQ)","type":3,"api":"csp_XYQBiu","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XYQ/17klive.json"},
-{"key":"csp_XYQBiu_萌番组","name":"萌番组(XYQ)","type":3,"api":"csp_XYQBiu","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XYQ/%E8%90%8C%E7%95%AA%E7%BB%84.json"},
-{"key":"csp_XYQBiu_酷狗MV","name":"酷狗MV(XYQ)","type":3,"api":"csp_XYQBiu","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XYQ/%E9%85%B7%E7%8B%97MV.json"},
-{"key":"csp_XYQBiu_酷奇MV","name":"酷奇MV(XYQ)","type":3,"api":"csp_XYQBiu","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XYQ/%E9%85%B7%E5%A5%87MV.json"},
-{"key":"csp_XYQBiu_好恐怖磁力","name":"好恐怖磁力(XYQ)","type":3,"api":"csp_XYQBiu","searchable":1,"quickSearch":1,"filterable":0,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XYQ/%E5%A5%BD%E6%81%90%E6%80%96%E7%A3%81%E5%8A%9B.json"},
-
-{"key":"push_agent","name":"推送","type":3,"api":"csp_PushAgent","searchable":1,"playerType":1,"quickSearch":1,"filterable":1,"ext": "57a6d0febcba41c480eb14be6cfcb6f7"}
+{"key":"T4_douban","name":"影视推荐(T4)","type":4,"api":"https://t4.饭太硬.ml/vod","searchable":1,"quickSearch":1,"filterable":1}
 
 ],
 "parses":[

@@ -1,179 +1,120 @@
-import re
-import os
 import json
-import time
-import requests
-from lxml import etree
+from urllib.parse import urlencode
+
 from com.github.catvod import Proxy
-from com.chaquo.python import Python
-from abc import abstractmethod, ABCMeta
-from importlib.machinery import SourceFileLoader
+from com.github.catvod.crawler import Spider as JavaSpider
 
 
-class Spider(metaclass=ABCMeta):
+class Spider:
     _instance = None
 
     def __init__(self):
-            self.extend = ''
+        self.extend = ""
 
     def __new__(cls, *args, **kwargs):
-        if cls._instance:
-            return cls._instance
-        else:
+        if cls.__dict__.get("_instance") is None:
             cls._instance = super().__new__(cls)
-            return cls._instance
+        return cls._instance
 
-    def _bind_sdk(self, net, local):
-        from base.sdk import Net, Local
-        self.net = Net(net)
-        self.local = Local(local)
-
-    def getActivity(self):
-        from java import jclass
-        return jclass('com.github.catvod.Runtime').activity()
-
-    @staticmethod
-    def link(name, target):
-        from urllib.parse import quote
-        import html
-        value = json.dumps(target, ensure_ascii=False, separators=(',', ':'))
-        return '<a href="catvod://' + quote(value, safe='') + '">' + html.escape(str(name)) + '</a>'
-
-    @abstractmethod
     def init(self, extend=""):
         pass
 
-    @staticmethod
-    def page(items, pg=1, size=20):
-        items = items if isinstance(items, list) else []
-        try:
-            pg = max(1, int(pg))
-        except (TypeError, ValueError):
-            pg = 1
-        try:
-            size = max(1, int(size))
-        except (TypeError, ValueError):
-            size = 20
-        return {'page': pg, 'pagecount': (len(items) + size - 1) // size,
-                'limit': size, 'total': len(items), 'list': items[(pg - 1) * size:pg * size]}
-
     def homeContent(self, filter):
-        pass
+        return {"class": []}
 
     def homeVideoContent(self):
-        pass
+        return {"list": []}
 
     def categoryContent(self, tid, pg, filter, extend):
-        pass
+        return {"list": []}
 
     def detailContent(self, ids):
-        pass
+        return {"list": []}
 
     def searchContent(self, key, quick, pg="1"):
-        pass
+        return {"list": []}
 
     def playerContent(self, flag, id, vipFlags):
-        pass
+        return {}
 
     def liveContent(self, url):
-        pass
+        return ""
 
-    def localProxy(self, param):
-        pass
+    def proxy(self, params):
+        return [404, "text/plain", ""]
 
     def isVideoFormat(self, url):
-        pass
+        return False
 
     def manualVideoCheck(self):
-        pass
+        return False
 
     def action(self, action):
-        pass
+        return {}
+
+    def danmaku(self, id, emit):
+        raise NotImplementedError("Spider does not support live danmaku")
 
     def destroy(self):
         pass
 
-    def getName(self):
-        pass
+    def getActivity(self):
+        from com.github.catvod import Runtime
+
+        return Runtime.activity()
 
     def getDependence(self):
         return []
 
     def loadSpider(self, name):
-        return self.loadModule(name).Spider()
+        spider = self.runtime.spider(name)
+        if hasattr(self, "net"):
+            spider.net = self.net
+            spider.local = self.local
+            spider.js = self.js
+        if hasattr(self, "dialog"):
+            spider.dialog = self.dialog
+        return spider
 
     def loadModule(self, name):
-        cache_dir = Python.getPlatform().getApplication().getCacheDir().getAbsolutePath()
-        path = os.path.join(os.path.join(cache_dir, 'py'),  f'{name}.py')
-        return SourceFileLoader(name, path).load_module()
+        return self.runtime.load_reference(name)
 
-    def regStr(self, reg, src, group=1):
-        m = re.search(reg, src)
-        src = ''
-        if m:
-            src = m.group(group)
-        return src
+    def proxyUrl(self, params=None, local=True):
+        params = {} if params is None else params
+        if not isinstance(params, dict) or any(not isinstance(key, str) or not isinstance(value, str) for key, value in params.items()):
+            raise TypeError("Proxy parameters require a dict with string keys and values")
+        if not isinstance(local, bool):
+            raise TypeError("Proxy local flag requires a boolean")
+        if "do" in params or "siteKey" in params:
+            raise ValueError("Reserved proxy parameter")
+        url = str(Proxy.getUrl(local))
+        query = urlencode({"do": "py", "siteKey": self.siteKey, **params})
+        return url + "?" + query
 
-    def removeHtmlTags(self, src):
-        clean = re.compile('<.*?>')
-        return re.sub(clean, '', src)
-
-    def cleanText(self, src):
-        clean = re.sub('[\U0001F600-\U0001F64F\U0001F300-\U0001F5FF\U0001F680-\U0001F6FF\U0001F1E0-\U0001F1FF]', '', src)
-        return clean
-
-    def fetch(self, url, params=None, cookies=None, headers=None, timeout=5, verify=True, stream=False, allow_redirects = True):
-        rsp = requests.get(url, params=params, cookies=cookies, headers=headers, timeout=timeout, verify=verify, stream=stream, allow_redirects=allow_redirects)
-        rsp.encoding = 'utf-8'
-        return rsp
-
-    def post(self, url, params=None, data=None, json=None, cookies=None, headers=None, timeout=5, verify=True, stream=False, allow_redirects = True):
-        rsp = requests.post(url, params=params, data=data, json=json, cookies=cookies, headers=headers, timeout=timeout, verify=verify, stream=stream, allow_redirects=allow_redirects)
-        rsp.encoding = 'utf-8'
-        return rsp
-
-    def html(self, content):
-        return etree.HTML(content)
-
-    def str2json(str):
-        return json.loads(str)
-
-    def json2str(str):
-        return json.dumps(str, ensure_ascii=False)
-
-    def getProxyUrl(self, local=True):
-        return f'{Proxy.getUrl(local)}?do=py'
+    def danmakuUrl(self, id):
+        return str(JavaSpider.danmakuUrl(self.siteKey, id))
 
     def log(self, msg):
-        if isinstance(msg, dict) or isinstance(msg, list):
+        if isinstance(msg, (dict, list)):
             print(json.dumps(msg, ensure_ascii=False))
         else:
-            print(f'{msg}')
+            print(f"{msg}")
 
-    def getCache(self, key):
-        value = self.fetch(f'http://127.0.0.1:{Proxy.getPort()}/cache?do=get&key={key}', timeout=5).text
-        if len(value) > 0:
-            if value.startswith('{') and value.endswith('}') or value.startswith('[') and value.endswith(']'):
-                value = json.loads(value)
-                if type(value) == dict:
-                    if not 'expiresAt' in value or value['expiresAt'] >= int(time.time()):
-                        return value
-                    else:
-                        self.delCache(key)
-                        return None
-            return value
-        else:
-            return None
+    @staticmethod
+    def link(name, target):
+        if not isinstance(target, dict):
+            raise TypeError("link requires a target dict")
+        target = json.dumps(target, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
+        return f"[a=cr:{target}/]{name!s}[/a]"
 
-    def setCache(self, key, value):
-        if type(value) in [int, float]:
-            value = str(value)
-        if len(value) > 0:
-            if type(value) == dict or type(value) == list:
-                value = json.dumps(value, ensure_ascii=False)
-        r = self.post(f'http://127.0.0.1:{Proxy.getPort()}/cache?do=set&key={key}', data={"value": value}, timeout=5)
-        return 'succeed' if r.status_code == 200 else 'failed'
-
-    def delCache(self, key):
-        r = self.fetch(f'http://127.0.0.1:{Proxy.getPort()}/cache?do=del&key={key}', timeout=5)
-        return 'succeed' if r.status_code == 200 else 'failed'
+    @staticmethod
+    def page(items, pg, limit, total=None):
+        pg = max(1, int(pg))
+        if isinstance(limit, bool) or not isinstance(limit, int) or limit < 1:
+            raise ValueError("page requires a positive limit")
+        if total is None:
+            total = len(items)
+            items = items[(pg - 1) * limit : pg * limit]
+        if isinstance(total, bool) or not isinstance(total, int) or total < 0:
+            raise ValueError("page requires a nonnegative total")
+        return {"list": items, "page": pg, "pagecount": max(1, (total + limit - 1) // limit), "limit": limit, "total": total}

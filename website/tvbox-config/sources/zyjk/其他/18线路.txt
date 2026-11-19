@@ -1,71 +1,64 @@
 {
-"storeHouse": 
-[
-
-{ "sourceName":"🔞H-Adult","sourceUrl":"https://raw.githubusercontent.com/TopCircle/TVBox_Resource/main/H-boy/line.txt" }
-
-]
+  "urls": [
+    {
+      "name": "🔞H-Adult",
+      "url": "https://raw.githubusercontent.com/TopCircle/TVBox_Resource/main/H-boy/line.txt"
+    },
+    {
+      "url": "http://shuyuan.miaogongzi.net/shuyuan/1665283016.txt",
+      "name": "🔞猫公子线路1"
+    },
+    {
+      "url": "http://shuyuan.miaogongzi.net/shuyuan/1663651243.txt",
+      "name": "🔞猫公子线路2"
+    },
+    {
+      "url": "https://ghproxy.com/https://raw.githubusercontent.com/tv-player/tvbox-line/main/tv/fuli.json",
+      "name": "🔞tvbox-line"
+    },
+    {
+      "url": "https://cdn.staticaly.com/gh/mmtekamu/tvbox/main/jiekou/18.json",
+      "name": "🔞GGTV-18"
+    },
+    {
+      "url": "https://raw.fastgit.org/chengxueli818913/maoTV/main/%E7%A6%8F%E5%88%A9%E6%8E%A5%E5%8F%A3.txt",
+      "name": "🔞chengxueli-1"
+    },
+    {
+      "url": "https://raw.fastgit.org/chengxueli818913/maoTV/main/18.json",
+      "name": "🔞chengxueli-2"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/zhanghong1983/TVBOXZY/main/18.json",
+      "name": "TVBOXZY"
+    },
+    {
+      "url": "https://agit.ai/guot54/ygbh/raw/branch/master/plus/PRO.json",
+      "name": "🔞guot54"
+    },
+    {
+      "url": "https://guot55.github.io/gg1/qh.json",
+      "name": "🔞guot55"
+    },
+    {
+      "url": "https://ghproxy.com/https://raw.githubusercontent.com/franksun1211/TVBOX/main/fuli.json",
+      "name": "🔞franksun1211"
+    },
+    {
+      "url": "https://ghproxy.com/https://raw.githubusercontent.com/Guard-H/tvbox/main/cr/cr.json",
+      "name": "🔞Guard-H"
+    },
+    {
+      "url": "http://152.136.125.181:81/MM/dianbos/yeshijieC.json",
+      "name": "🔞dianbos夜世界"
+    },
+    {
+      "url": "http://zb-iptv.tk/18.json",
+      "name": "🔞zb-iptv"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/2hacc/TVBox/main/H/h",
+      "name": "🔞2Hacc"
+    }
+  ]
 }
-
-
-
-{
-    "urls": [
-        {
-          "url":"http://shuyuan.miaogongzi.net/shuyuan/1665283016.txt",
-          "name":"🔞猫公子线路1"
-        },
-        {
-          "url":"http://shuyuan.miaogongzi.net/shuyuan/1663651243.txt",
-          "name":"🔞猫公子线路2"
-        },
-        {
-          "url":"https://ghproxy.com/https://raw.githubusercontent.com/tv-player/tvbox-line/main/tv/fuli.json",
-          "name":"🔞tvbox-line"
-        },
-        {
-          "url":"https://cdn.staticaly.com/gh/mmtekamu/tvbox/main/jiekou/18.json",
-          "name":"🔞GGTV-18"
-        },
-        {
-          "url":"https://raw.fastgit.org/chengxueli818913/maoTV/main/%E7%A6%8F%E5%88%A9%E6%8E%A5%E5%8F%A3.txt",
-          "name":"🔞chengxueli-1"
-        },
-        {
-          "url":"https://raw.fastgit.org/chengxueli818913/maoTV/main/18.json",
-          "name":"🔞chengxueli-2"
-        },
-        {
-          "url":"https://raw.githubusercontent.com/zhanghong1983/TVBOXZY/main/18.json",
-          "name":"TVBOXZY"
-        },
-        {
-          "url":"https://agit.ai/guot54/ygbh/raw/branch/master/plus/PRO.json",
-          "name":"🔞guot54"
-        },
-        {
-          "url":"https://guot55.github.io/gg1/qh.json",
-          "name":"🔞guot55"
-        },
-        {
-          "url": "https://ghproxy.com/https://raw.githubusercontent.com/franksun1211/TVBOX/main/fuli.json",
-          "name": "🔞franksun1211"
-        },
-        {
-          "url": "https://ghproxy.com/https://raw.githubusercontent.com/Guard-H/tvbox/main/cr/cr.json",
-          "name": "🔞Guard-H"
-        },
-        {
-           "url": "http://152.136.125.181:81/MM/dianbos/yeshijieC.json",
-           "name":"🔞dianbos夜世界"
-        },
-        {
-          "url":"http://zb-iptv.tk/18.json",
-          "name":"🔞zb-iptv"
-        },
-        {
-           "url": "https://raw.githubusercontent.com/2hacc/TVBox/main/H/h",
-           "name":"🔞2Hacc"
-        }      
-     ]
-   }

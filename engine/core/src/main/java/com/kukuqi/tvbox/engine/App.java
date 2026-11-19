@@ -77,6 +77,7 @@ public class App extends Application implements Application.ActivityLifecycleCal
         super.attachBaseContext(base);
         Init.set(base);
         com.github.catvod.Runtime.set(base);
+        com.kukuqi.tvbox.engine.runtime.RuntimeModules.install();
         com.github.catvod.Runtime.setActivity(App::activity);
         com.github.catvod.Runtime.setToast(text -> post(() -> android.widget.Toast.makeText(get(), text, android.widget.Toast.LENGTH_LONG).show()));
     }

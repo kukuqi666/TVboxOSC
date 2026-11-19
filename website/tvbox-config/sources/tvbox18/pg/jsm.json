@@ -573,30 +573,6 @@
       "timeout": 60
     },
     {
-      "key": "drpy_js_hotcat",
-      "name": "热剧猫[js]",
-      "type": 3,
-      "api": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/tvbox18/pg/lib/drpy2.min.js",
-      "ext": "./js/hotcat.js",
-      "quickSearch": 1,
-      "changeable": 1,
-      "timeout": 30
-    },
-    {
-      "key": "csp_Sp360",
-      "name": "360影视┃弹幕",
-      "type": 3,
-      "api": "csp_Sp360",
-      "searchable": 1,
-      "quickSearch": 1,
-      "filterable": 1,
-      "changeable": 1,
-      "ext": {
-        "danmu": true
-      },
-      "timeout": 30
-    },
-    {
       "key": "csp_Jiohub",
       "name": "JOJO影视┃弹幕",
       "type": 3,
@@ -753,7 +729,7 @@
       "ext": "0$$$"
     },
     {
-      "key": "星星",
+      "key": "星星_5b335696",
       "name": "星星 | 海外",
       "type": 3,
       "api": "csp_Star",
@@ -918,16 +894,6 @@
       "changeable": 0
     },
     {
-      "key": "drpy_js_Alist",
-      "name": "网盘 | Alist[js]",
-      "type": 3,
-      "api": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/tvbox18/pg/lib/alist.min.js",
-      "searchable": 1,
-      "filterable": 1,
-      "changeable": 1,
-      "ext": "./js/alist.json"
-    },
-    {
       "key": "ext_live_protocol",
       "name": "关注公众号“肥猫宝贝”",
       "type": 3,
@@ -976,15 +942,6 @@
       "name": "live.ipv6.m3u",
       "type": 0,
       "url": "https://live.fanmingming.com/tv/m3u/ipv6.m3u",
-      "playerType": 1,
-      "ua": "okhttp/3.15",
-      "epg": "http://epg.112114.xyz/?ch={name}&date={date}",
-      "logo": "https://epg.112114.xyz/logo/{name}.png"
-    },
-    {
-      "name": "live.ipv6.local",
-      "type": 0,
-      "url": "./lib/live.ipv6.txt",
       "playerType": 1,
       "ua": "okhttp/3.15",
       "epg": "http://epg.112114.xyz/?ch={name}&date={date}",

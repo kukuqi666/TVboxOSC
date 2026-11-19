@@ -1,8 +1,6 @@
 {
   "spider": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/jar/spider-b4886fad7b.jar;md5;decb609b673019e18512dc3a96b6a252",
-  "lives": [
-    {"name": "live","boot": false,"type": 0,"url": "./tv.txt","playerType": 2,"ua": "okhttp/3.8.1","timeout": 20,"epg": "https://epg.cdn.loc.cc/?ch={name}&date={date}","logo": "https://logo.wyfc.qzz.io/{name}.png"}
-  ],
+  "lives": [],
   "wallpaper": "https://wallpaper-1tg.pages.dev/",
   "danmaku": "http://127.0.0.1:9978/proxy?do=danmaku&name={name}&episode={episode}",
   "sites": [

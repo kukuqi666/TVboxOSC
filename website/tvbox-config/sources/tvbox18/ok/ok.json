@@ -7,7 +7,6 @@
 {"key":"应用商店","name":"应用商店","type":3,"api":"csp_Market","searchable":0,"changeable":0,"ext":"https://fm.t4tv.hz.cz/json/market.json","style":{"type":"rect","ratio":1}},    
 {"key":"玩偶弹幕版","name":"玩偶哥哥弹幕|4K","type":3,"api":"csp_Wogg","searchable":1,"filterable":1,"changeable":1,"ext":{"token":"file://TV/ali_token.txt","danmu":true},"timeout":25},    
 {"key":"运输车弹幕版","name":"运输车弹幕|4K","type":3,"api":"csp_Wogg","searchable":1,"filterable":1,"changeable":1,"ext":{"token":"file://TV/ali_token.txt","cookie":"file://TV/quark_cookie.txt","site":"https://www.weixine.net","danmu":true},"timeout":25},    
-{"key":"盘99弹幕版","name":"盘99弹幕|4K","type":3,"api":"csp_Pan99","searchable":1,"filterable":1,"changeable":1,"ext":{"token":"file://TV/ali_token.txt","cookie":"file://TV/quark_cookie.txt","danmu":true},"timeout":25},    
 {"key":"玩偶表哥弹幕","name":"玩偶表哥弹幕|4K","type":3,"api":"csp_Wobg","quickSearch":1,"changeable":1,"filterable":1,"ext":{"token":"file://TV/ali_token.txt","cookie":"file://TV/quark_cookie.txt","danmu":true},"timeout":25},    
 {"key":"bili","name":"哔哩哔哩","type":3,"api":"csp_Bili","searchable":1,"quickSearch":1,"filterable":1,"style":{"type":"rect","ratio":1.433},"ext":{"type":"电影#电视剧#动物世界#沙雕动画#帕梅拉#太极拳#广场舞#健身#演唱会","cookie":"file://TV/bili_cookie.txt"},"timeout":25},    
 {"key":"sp360","name":"360影视|解析","type":3,"api":"csp_Sp360","searchable":1,"filterable":1,"changeable":1,"ext":{"danmu":true},"timeout":25},    

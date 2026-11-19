@@ -223,7 +223,8 @@ jobs:
           # End the R8 JVM before packaging the large optional runtime assets.
           if [ "$REPAIR_RUNTIMES" = true ]; then
             mkdir -p app/build/outputs/apk/release
-            gh release download "$TAG" --pattern "TVboxOSC-v${VERSION}.apk" --pattern update.json --dir build/published --clobber
+            gh release download "$TAG" --pattern "TVboxOSC-v${VERSION}.apk" --pattern update.json --pattern catalog.json --dir build/published --clobber
+            python -c "from pathlib import Path; from scripts.runtime_catalog import verify_repair_contracts; verify_repair_contracts(Path('.'), Path('build/published/catalog.json'))"
             cp "build/published/TVboxOSC-v${VERSION}.apk" app/build/outputs/apk/release/
           else
             ./gradlew :app:assembleRelease -Dorg.gradle.jvmargs=-Xmx4096m --max-workers=2 --stacktrace --no-daemon 2>&1 | tee build/gradle-release.log

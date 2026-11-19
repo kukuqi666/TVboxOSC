@@ -5,3 +5,5 @@ requests
 cachetools
 pycryptodome
 beautifulsoup4
+
+yapf==0.43.0

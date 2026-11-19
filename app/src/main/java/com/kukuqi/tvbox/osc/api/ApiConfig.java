@@ -30,7 +30,6 @@ import com.lzy.okgo.callback.AbsCallback;
 import com.lzy.okgo.model.Response;
 import com.orhanobut.hawk.Hawk;
 
-import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -135,7 +134,7 @@ public class ApiConfig {
         String apiUrl = Hawk.get(HawkConfig.API_URL, "");
         if (apiUrl.isEmpty()) { callback.error("-1"); return; }
         File cache = new File(App.getInstance().getFilesDir(), MD5.encode(apiUrl));
-        if (useCache && cache.exists()) {
+        if (useCache && cache.exists() && !com.kukuqi.tvbox.engine.runtime.NodeRuntime.isConfig(apiUrl)) {
             try { parseJson(apiUrl, cache); callback.success(); return; }
             catch (Throwable ignored) {}
         }
@@ -146,7 +145,7 @@ public class ApiConfig {
                 try { writeConfigCache(cache, json); } catch (Throwable ignored) {}
                 callback.success();
             } catch (Throwable failure) {
-                if (cache.exists()) {
+                if (cache.exists() && !com.kukuqi.tvbox.engine.runtime.NodeRuntime.isConfig(apiUrl)) {
                     try { parseJson(apiUrl, cache); callback.success(); return; }
                     catch (Throwable ignored) {}
                 }

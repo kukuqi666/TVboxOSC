@@ -18,66 +18,6 @@
       "ext": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/tvbox18/XYQTVBox/drpy_js/js/alist.conf"
     },
     {
-      "key": "AList",
-      "name": "AList[SP]",
-      "type": 3,
-      "api": "csp_AList",
-      "searchable": 1,
-      "filterable": 1,
-      "changeable": 0,
-      "ext": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/tvbox18/XYQTVBox/drpy_js/alist.json"
-    },
-    {
-      "key": "Wogg",
-      "name": "玩偶",
-      "type": 3,
-      "api": "csp_Wogg",
-      "searchable": 1,
-      "filterable": 1,
-      "switchable": 0,
-      "ext": "clan://XYQTVBox/alitoken.txt"
-    },
-    {
-      "key": "小纸条",
-      "name": "小纸条",
-      "type": 3,
-      "api": "csp_Paper",
-      "searchable": 1,
-      "filterable": 1,
-      "switchable": 0,
-      "ext": "clan://XYQTVBox/alitoken.txt"
-    },
-    {
-      "key": "易搜",
-      "name": "易搜",
-      "type": 3,
-      "api": "csp_YiSo",
-      "searchable": 1,
-      "filterable": 0,
-      "switchable": 0,
-      "ext": "clan://XYQTVBox/alitoken.txt"
-    },
-    {
-      "key": "盘搜",
-      "name": "盘搜",
-      "type": 3,
-      "api": "csp_PanSou",
-      "searchable": 1,
-      "filterable": 0,
-      "switchable": 0,
-      "ext": "clan://XYQTVBox/alitoken.txt"
-    },
-    {
-      "key": "UP云搜",
-      "name": "UP云搜",
-      "type": 3,
-      "api": "csp_UpYun",
-      "searchable": 1,
-      "filterable": 0,
-      "switchable": 0,
-      "ext": "clan://XYQTVBox/alitoken.txt"
-    },
-    {
       "key": "找资源",
       "name": "找资源",
       "type": 3,
@@ -86,16 +26,6 @@
       "filterable": 0,
       "switchable": 0,
       "ext": "clan://XYQTVBox/alitoken.txt$$$yingshi$$$abcd1234"
-    },
-    {
-      "key": "push_agent",
-      "name": "推送",
-      "type": 3,
-      "api": "csp_Push",
-      "searchable": 1,
-      "filterable": 0,
-      "switchable": 0,
-      "ext": "clan://XYQTVBox/alitoken.txt"
     },
     {
       "key": "drpy_js_奇珍异兽",
@@ -574,13 +504,6 @@
       "ext": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/tvbox18/XYQTVBox/drpy_js/js/%E7%88%B1%E5%A3%B9%E5%B8%86%5B%E9%A3%9E%5D.js"
     },
     {
-      "key": "drpy_js_百忙无果",
-      "name": "百忙无果[js]",
-      "type": 3,
-      "api": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/tvbox18/XYQTVBox/drpy_js/libs/drpy2.min.js",
-      "ext": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/JS/js/%E7%99%BE%E5%BF%99%E6%97%A0%E6%9E%9C.js"
-    },
-    {
       "key": "drpy_js_北极狐[V2]",
       "name": "北极狐[V2][js]",
       "type": 3,
@@ -595,20 +518,6 @@
       "ext": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/tvbox18/XYQTVBox/drpy_js/js/%E5%93%94%E5%93%A9%E5%85%94.js"
     },
     {
-      "key": "drpy_js_哔哩影视",
-      "name": "哔哩影视[js]",
-      "type": 3,
-      "api": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/tvbox18/XYQTVBox/drpy_js/libs/drpy2.min.js",
-      "ext": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/JS/js/%E5%93%94%E5%93%A9%E5%BD%B1%E8%A7%86.js"
-    },
-    {
-      "key": "drpy_js_哔哩直播",
-      "name": "哔哩直播[js]",
-      "type": 3,
-      "api": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/tvbox18/XYQTVBox/drpy_js/libs/drpy2.min.js",
-      "ext": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/JS/js/%E5%93%94%E5%93%A9%E7%9B%B4%E6%92%AD.js"
-    },
-    {
       "key": "drpy_js_播客",
       "name": "播客[js]",
       "type": 3,
@@ -621,13 +530,6 @@
       "type": 3,
       "api": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/tvbox18/XYQTVBox/drpy_js/libs/drpy2.min.js",
       "ext": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/tvbox18/XYQTVBox/drpy_js/js/%E5%8D%9A%E7%9C%8B%E5%90%AC%E4%B9%A6.js"
-    },
-    {
-      "key": "drpy_js_菜狗",
-      "name": "菜狗[js]",
-      "type": 3,
-      "api": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/tvbox18/XYQTVBox/drpy_js/libs/drpy2.min.js",
-      "ext": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/tvbox18/XYQTVBox/drpy_js/js/%E8%8F%9C%E7%8B%97.js"
     },
     {
       "key": "drpy_js_厂长资源",
@@ -1183,13 +1085,6 @@
       "ext": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/JS/js/%E5%A5%87%E4%BC%98%E5%BD%B1%E9%99%A2.js"
     },
     {
-      "key": "drpy_js_奇珍异兽",
-      "name": "奇珍异兽[js]",
-      "type": 3,
-      "api": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/tvbox18/XYQTVBox/drpy_js/libs/drpy2.min.js",
-      "ext": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/JS/js/%E5%A5%87%E7%8F%8D%E5%BC%82%E5%85%BD.js"
-    },
-    {
       "key": "drpy_js_起飞影院",
       "name": "起飞影院[js]",
       "type": 3,
@@ -1330,13 +1225,6 @@
       "ext": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/tvbox18/XYQTVBox/drpy_js/js/%E5%94%90%E4%BA%BA%E8%A1%97%E5%BD%B1%E8%A7%86%5B%E9%A3%9E%5D.js"
     },
     {
-      "key": "drpy_js_腾云驾雾",
-      "name": "腾云驾雾[js]",
-      "type": 3,
-      "api": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/tvbox18/XYQTVBox/drpy_js/libs/drpy2.min.js",
-      "ext": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/tvbox18/XYQTVBox/drpy_js/js/%E8%85%BE%E4%BA%91%E9%A9%BE%E9%9B%BE.js"
-    },
-    {
       "key": "drpy_js_天天视频",
       "name": "天天视频[js]",
       "type": 3,
@@ -1398,13 +1286,6 @@
       "type": 3,
       "api": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/tvbox18/XYQTVBox/drpy_js/libs/drpy2.min.js",
       "ext": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/tvbox18/XYQTVBox/drpy_js/js/%E6%88%91%E7%88%B1%E8%B7%9F%E5%89%A7.js"
-    },
-    {
-      "key": "drpy_js_我的哔哩",
-      "name": "我的哔哩[js]",
-      "type": 3,
-      "api": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/tvbox18/XYQTVBox/drpy_js/libs/drpy2.min.js",
-      "ext": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/tvbox18/XYQTVBox/drpy_js/js/%E6%88%91%E7%9A%84%E5%93%94%E5%93%A9.js"
     },
     {
       "key": "drpy_js_武享吧",
@@ -1566,13 +1447,6 @@
       "type": 3,
       "api": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/tvbox18/XYQTVBox/drpy_js/libs/drpy2.min.js",
       "ext": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/tvbox18/XYQTVBox/drpy_js/js/%E6%98%A0%E8%BF%B7%E5%BD%B1%E9%99%A2.js"
-    },
-    {
-      "key": "drpy_js_优酷",
-      "name": "优酷[js]",
-      "type": 3,
-      "api": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/tvbox18/XYQTVBox/drpy_js/libs/drpy2.min.js",
-      "ext": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/JS/js/%E4%BC%98%E9%85%B7.js"
     },
     {
       "key": "drpy_js_有声绘本网",

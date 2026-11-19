@@ -10,8 +10,8 @@ import java.io.IOException;
 
 public interface NodeRuntimeApi extends RuntimePlugin {
 
-    String SERVICE_CLASS = "com.fongmi.android.tv.api.node.NodeService";
-    String SERVICE_ACTION = "com.fongmi.nodejs.START";
+    String SERVICE_CLASS = "com.kukuqi.tvbox.engine.runtime.NodeService";
+    String SERVICE_ACTION = "com.kukuqi.nodejs.START";
 
     Client create(Context context, Callback callback);
 

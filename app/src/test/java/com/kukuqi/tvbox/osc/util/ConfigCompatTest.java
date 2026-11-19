@@ -24,6 +24,19 @@ public class ConfigCompatTest {
         ConfigCompat.Resource input = resource("https://test/main.json", "{\"urls\":[{\"url\":\"./main.json\"}]}");
         ConfigCompat.resolve(input, url -> input);
     }
+    @Test public void legacyDepotAndZyplayerResolveWithCorrectBases() throws Exception {
+        JsonObject result = ConfigCompat.resolve(resource("https://test/depot.json",
+                "{\"storeHouse\":[{\"sourceName\":\"主仓库\",\"sourceUrl\":\"./config/main.json\"}]}"),
+                url -> resource(url, "{\"sites\":{\"default\":1,\"data\":[{\"key\":\"demo\",\"api\":\"./source.js\"}]},\"iptv\":{\"data\":[{\"url\":\"./live.m3u\"}]},\"analyzes\":{\"data\":[{\"url\":\"./parse\"}]}}"));
+        assertEquals("https://test/config/source.js", result.getAsJsonArray("sites").get(0).getAsJsonObject().get("api").getAsString());
+        assertEquals("https://test/config/live.m3u", result.getAsJsonArray("lives").get(0).getAsJsonObject().get("url").getAsString());
+        assertEquals(1, result.getAsJsonArray("parses").size());
+        assertTrue(new SourceDescriptor("https://test/main.json", "{\"sites\":{\"data\":[{\"key\":\"demo\"}]}}").hasVod());
+    }
+    @Test(expected = IllegalArgumentException.class) public void legacyDepotCycleIsRejected() throws Exception {
+        ConfigCompat.Resource input = resource("https://test/main.json", "{\"storeHouse\":[{\"sourceUrl\":\"./main.json\"}]}");
+        ConfigCompat.resolve(input, url -> input);
+    }
     @Test public void mixedRemoteRulesExpandAndOptionalFailuresAreEmpty() throws Exception {
         JsonObject result = ConfigCompat.resolve(resource("https://test/config/main.json", "{\"rules\":[{\"host\":\"legacy\"},\"../rules.json\",\"missing.json\"],\"doh\":\"../doh.json\"}"), url -> {
             if (url.equals("https://test/rules.json")) return resource(url, "[{\"hosts\":[\"test\"],\"regex\":[\".*\\\\.m3u8\"]}]");

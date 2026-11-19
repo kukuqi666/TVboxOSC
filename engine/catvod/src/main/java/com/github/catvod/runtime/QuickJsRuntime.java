@@ -1,7 +1,7 @@
 package com.github.catvod.runtime;
 
 import com.github.catvod.crawler.Spider;
-import com.fongmi.quickjs.host.Host;
+import com.kukuqi.quickjs.host.Host;
 import com.github.catvod.utils.Task;
 
 import dalvik.system.DexClassLoader;

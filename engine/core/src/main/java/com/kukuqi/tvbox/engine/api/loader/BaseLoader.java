@@ -25,10 +25,10 @@ public class BaseLoader {
     private final JsLoader jsLoader;
     private final NodeLoader nodeLoader;
 
-    private BaseLoader() {
+    public BaseLoader() {
         jarLoader = new JarLoader();
         pyLoader = new PyLoader();
-        jsLoader = new JsLoader();
+        jsLoader = new JsLoader(jarLoader);
         nodeLoader = new NodeLoader();
     }
 

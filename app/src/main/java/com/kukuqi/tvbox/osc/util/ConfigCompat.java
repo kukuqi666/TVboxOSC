@@ -24,6 +24,7 @@ public final class ConfigCompat {
     private static JsonObject resolve(Resource resource, Fetcher fetcher, Set<String> visited, int depth) throws Exception {
         if (depth > 8 || !visited.add(resource.url)) throw new IllegalArgumentException("订阅仓库存在循环引用");
         JsonObject object = JsonParser.parseString(resource.content).getAsJsonObject();
+        normalizeSchema(object);
         if (object.has("msg")) throw new IllegalArgumentException(SourceDescriptor.string(object, "msg"));
         if (object.has("urls")) {
             JsonArray urls = array(object, "urls");
@@ -57,6 +58,40 @@ public final class ConfigCompat {
         return object;
     }
 
+    /** 仓库与 zyplayer 导出统一为宿主使用的数组结构。 */
+    public static void normalizeSchema(JsonObject object) {
+        for (String key : new String[]{"sites", "parses", "lives"}) {
+            JsonElement value = object.get(key);
+            if (value != null && value.isJsonObject() && value.getAsJsonObject().has("data")
+                    && value.getAsJsonObject().get("data").isJsonArray()) {
+                object.add(key, value.getAsJsonObject().getAsJsonArray("data"));
+            }
+        }
+        for (String[] alias : new String[][]{{"iptv", "lives"}, {"analyzes", "parses"}}) {
+            JsonElement value = object.get(alias[0]);
+            if (!object.has(alias[1]) && value != null && value.isJsonObject()
+                    && value.getAsJsonObject().has("data") && value.getAsJsonObject().get("data").isJsonArray()) {
+                object.add(alias[1], value.getAsJsonObject().getAsJsonArray("data"));
+            }
+        }
+        if (object.has("storeHouse") && object.get("storeHouse").isJsonArray()) {
+            JsonArray urls = array(object, "urls");
+            Set<String> seen = new HashSet<>();
+            for (JsonElement item : urls) if (item.isJsonObject()) seen.add(SourceDescriptor.string(item.getAsJsonObject(), "url"));
+            for (JsonElement item : object.getAsJsonArray("storeHouse")) {
+                if (!item.isJsonObject()) continue;
+                JsonObject source = item.getAsJsonObject();
+                String url = SourceDescriptor.string(source, "sourceUrl");
+                if (url.isEmpty() || !seen.add(url)) continue;
+                JsonObject entry = new JsonObject();
+                entry.addProperty("name", SourceDescriptor.string(source, "sourceName"));
+                entry.addProperty("url", url);
+                urls.add(entry);
+            }
+            object.add("urls", urls);
+            object.remove("storeHouse");
+        }
+    }
     public static JsonArray array(JsonObject object, String key) {
         JsonElement value = object.get(key);
         return value != null && value.isJsonArray() ? value.getAsJsonArray() : new JsonArray();
@@ -84,6 +119,7 @@ public final class ConfigCompat {
 
     /** Shared structural path handling keeps decoded and plain configurations consistent. */
     public static void normalize(JsonElement element, String base) {
+        if (element.isJsonObject()) normalizeSchema(element.getAsJsonObject());
         com.kukuqi.tvbox.engine.utils.ConfigPaths.normalize(element, base);
         normalizeHeaders(element);
     }

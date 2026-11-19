@@ -55,6 +55,7 @@ public final class CorePlayer extends AbstractPlayer implements PlayerManager.Ca
         manager = new PlayerManager(this);
         manager.setDecode(softwareDecode ? com.kukuqi.tvbox.engine.player.engine.PlayerEngine.SOFT : com.kukuqi.tvbox.engine.player.engine.PlayerEngine.HARD);
         onPlayerRebuild(manager.getPlayer());
+        com.kukuqi.tvbox.osc.core.CoreBridge.bindPlayer(this);
     }
     public void setSoftwareDecode(boolean value) { softwareDecode = value; }
     public PlayerManager manager() { return manager; }
@@ -164,7 +165,8 @@ public final class CorePlayer extends AbstractPlayer implements PlayerManager.Ca
     // DK VideoView uses this as playback intent, including while seeking or buffering.
     @Override public boolean isPlaying() { return manager != null && !manager.isReleased() && player().getPlayWhenReady(); }
     @Override public void seekTo(long position) { player().seekTo(Math.max(0,position)); }
-    @Override public void release() { if (manager != null) { manager.stop(); manager.release(); manager = null; } if (descriptorFile != null) { descriptorFile.delete(); descriptorFile = null; } cues = null; renderedCues = null; subtitleStyleChanged = null; renderSubtitleEnabled = () -> true; surface = null; }
+    @Override public void release() {
+        com.kukuqi.tvbox.osc.core.CoreBridge.unbindPlayer(this); if (manager != null) { manager.stop(); manager.release(); manager = null; } if (descriptorFile != null) { descriptorFile.delete(); descriptorFile = null; } cues = null; renderedCues = null; subtitleStyleChanged = null; renderSubtitleEnabled = () -> true; surface = null; }
     @Override public long getCurrentPosition() { return manager == null ? 0 : manager.getPosition(); }
     @Override public long getDuration() { return manager == null || player().getDuration() == C.TIME_UNSET ? 0 : player().getDuration(); }
     @Override public int getBufferedPercentage() { return manager == null ? 0 : player().getBufferedPercentage(); }

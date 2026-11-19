@@ -3,6 +3,7 @@
 All downloaded archives are pinned; original notices remain inside each module APK.
 """
 import hashlib
+import json
 import os
 from pathlib import Path
 import shutil
@@ -17,6 +18,8 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 CACHE = ROOT / 'build/optional-runtime-inputs'
 INPUTS = {
+    'quickjs-wrapper.tar.gz': ('https://codeload.github.com/FongMi/quickjs-wrapper/tar.gz/7fb3bb181d28f66d7057d171ff9f537b5a77f6c9', '4124f63c40b8e87c78b60cc6c9c5083001c8281c9f052a904ff724595f24b707'),
+    'quickjs-engine.tar.gz': ('https://codeload.github.com/FongMi/quickjs/tar.gz/0b213e90cc56a950856abed2ee7dc85aaa160e7b', '1edce6b0c0a1e1ad24c3259844a67736d704c4022f73822815f26b582dfe4e8b'),
     'node-LICENSE': ('https://raw.githubusercontent.com/FongMi/nodejs-mobile/e2e7cf82b9179d19304e19ccb6c3857155e07368/LICENSE', '5888dbb9a1d2b18f2c3e6c5f6af1b39de658372b402a0577b002777f14c62ace'),
     'node.zip': ('https://github.com/FongMi/nodejs-mobile/releases/download/v24.20.0-android.2/nodejs-mobile-android-24.20.0-android.2.zip', '630a4eea9ca984dc5457c5ef7aa0929b3846f77884d6badacda30be275825ef2'),
     'jre.zip': ('https://github.com/FongMi/bdj-runtime/releases/download/zero-jdk8u482-r1/j2re-zero-arm64-v8a.zip', 'f147cc55cba3d2062697638655fa241e113bc691607e83983b2d00a6dcea8826'),
@@ -69,7 +72,82 @@ def fetch(name):
         raise ValueError(f'Corrupt cached input: {target}')
     return target
 
+def prepare_quickjs():
+    """固定源码生成 kukuqi Java/JNI，禁止对 ELF 符号做二进制替换。"""
+    output = ROOT / 'runtime/quickjs/build/rebuild'
+    if output.exists():
+        shutil.rmtree(output)
+    output.mkdir(parents=True)
+    for archive, destination in [('quickjs-wrapper.tar.gz', output), ('quickjs-engine.tar.gz', output / 'engine')]:
+        destination.mkdir(exist_ok=True)
+        with tarfile.open(fetch(archive)) as tar:
+            tar.extractall(destination, filter='data')
+    source = next(output.glob('quickjs-wrapper-*'))
+    engine = next((output / 'engine').glob('quickjs-*'))
+    shutil.copytree(engine, source / 'vendor/quickjs', dirs_exist_ok=True)
+    # Java、资源路径、JNI 导出、FindClass 与生成的头文件保持一致。
+    for path in source.rglob('*'):
+        if path.is_file() and path.suffix in {'.java', '.cpp', '.h', '.txt', '.pro', '.gradle', '.js'}:
+            value = path.read_text()
+            path.write_text(value.replace('com.fongmi.quickjs', 'com.kukuqi.quickjs')
+                           .replace('com/fongmi/quickjs', 'com/kukuqi/quickjs')
+                           .replace('com_fongmi_quickjs', 'com_kukuqi_quickjs'))
+    for path in sorted(source.rglob('fongmi'), reverse=True):
+        path.rename(path.with_name('kukuqi'))
+    classes = output / 'classes'; classes.mkdir()
+    headers = source / 'build/generated/jni'; headers.mkdir(parents=True)
+    java = Path(os.environ.get('JAVA_HOME', '/opt/jdk-23')) / 'bin'
+    subprocess.run([str(java / 'javac'), '--release', '17', '-encoding', 'UTF-8', '-h', str(headers),
+                    '-cp', str(source / 'libs/chicory-runtime-android.jar'), '-d', str(classes),
+                    *map(str, sorted((source / 'src/main/java').rglob('*.java')))], check=True)
+    shutil.copytree(source / 'src/main/resources', classes, dirs_exist_ok=True)
+    notices = classes / 'META-INF/notices/quickjs'; notices.mkdir(parents=True)
+    for name, path in [('wrapper-LICENSE', source / 'LICENSE'), ('THIRD_PARTY.md', source / 'THIRD_PARTY.md'), ('engine-LICENSE', engine / 'LICENSE')]:
+        shutil.copyfile(path, notices / name)
+    (notices / 'kukuqi-build.json').write_text(json.dumps({
+        'wrapper': INPUTS['quickjs-wrapper.tar.gz'], 'engine': INPUTS['quickjs-engine.tar.gz'],
+        'package': 'com.kukuqi.quickjs', 'androidApi': 24, 'ndk': '29.0.14206865'
+    }, ensure_ascii=False, indent=2) + '\n')
+    with zipfile.ZipFile(source / 'libs/chicory-runtime-android.jar') as bundled:
+        for item in bundled.infolist():
+            if item.is_dir() or item.filename == 'META-INF/MANIFEST.MF': continue
+            target = classes / item.filename
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(bundled.read(item))
+    def package(target, entries):
+        with zipfile.ZipFile(target, 'w', zipfile.ZIP_DEFLATED) as archive:
+            for name, content in sorted(entries):
+                info = zipfile.ZipInfo(name, (2026, 11, 19, 0, 0, 0))
+                info.compress_type = zipfile.ZIP_DEFLATED
+                archive.writestr(info, content)
+    libs = ROOT / 'runtime/quickjs/libs'
+    package(libs / 'wrapper-java.jar', [(p.relative_to(classes).as_posix(), p.read_bytes()) for p in classes.rglob('*') if p.is_file()])
+    sdk = Path(os.environ.get('ANDROID_HOME', '/opt/android-sdk'))
+    ndk = sdk / 'ndk/29.0.14206865'
+    cmake = sdk / 'cmake/3.22.1/bin/cmake'
+    entries = [('AndroidManifest.xml', b'<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.kukuqi.quickjs.runtime"><uses-sdk android:minSdkVersion="24"/></manifest>')]
+    import io
+    empty = io.BytesIO()
+    with zipfile.ZipFile(empty, 'w'): pass
+    entries.append(('classes.jar', empty.getvalue()))
+    for abi in ['arm64-v8a', 'armeabi-v7a']:
+        directory = output / abi
+        subprocess.run([str(cmake), '-S', str(source), '-B', str(directory), '-G', 'Ninja',
+                        '-DCMAKE_MAKE_PROGRAM=' + str(cmake.with_name('ninja')),
+                        '-DCMAKE_TOOLCHAIN_FILE=' + str(ndk / 'build/cmake/android.toolchain.cmake'),
+                        '-DANDROID_ABI=' + abi, '-DANDROID_PLATFORM=android-24', '-DANDROID_STL=c++_static',
+                        '-DCMAKE_BUILD_TYPE=Release'], check=True)
+        subprocess.run([str(cmake), '--build', str(directory), '--target', 'quickjs-wrapper', '--parallel', '4'], check=True)
+        library = directory / 'libquickjs-wrapper.so'
+        subprocess.run([str(ndk / 'toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip'), '--strip-unneeded', str(library)], check=True)
+        entries.append(('jni/' + abi + '/libquickjs-wrapper.so', library.read_bytes()))
+    for path in notices.iterdir(): entries.append(('assets/quickjs-notices/' + path.name, path.read_bytes()))
+    package(libs / 'runtime-release.aar', entries)
+    print('已从固定源码重建 kukuqi QuickJS Java/JNI 与来源声明')
+
+
 def main(name):
+    if name == 'quickjs': return prepare_quickjs()
     if name not in ('nodejs', 'bdj'): raise ValueError(name)
     sdk = Path(os.environ.get('ANDROID_HOME', os.environ.get('ANDROID_SDK_ROOT', '/opt/android-sdk')))
     ndk = Path(os.environ.get('ANDROID_NDK_HOME', str(sdk / 'ndk/29.0.14206865')))
@@ -91,7 +169,7 @@ def main(name):
                 if entry.startswith(('licenses/', 'notices/')) or Path(entry).name in ('LICENSE', 'LICENSE.md', 'NOTICE', 'BUILD_PROVENANCE.json'):
                     if not entry.endswith('/'):
                         target = assets / 'notices' / entry; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(zipped.read(entry))
-        flags += ['-L' + str(native), '-lnode', '-lc++_shared']
+        flags += ['-L' + str(native), '-lnode', '-lc++_shared', '-llog']
     else:
         shutil.copyfile(fetch('jre.zip'), assets / 'jre.zip')
         source = CACHE / 'libbluray-1.4.1'

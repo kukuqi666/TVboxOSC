@@ -50,8 +50,6 @@
 {"key":"csp_xBPQ_西瓜影视","name":"西瓜影视","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,
 "ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E8%A5%BF%E7%93%9C%E5%BD%B1%E8%A7%86.json"},
 
-{"key":"csp_xBPQ-爱看影院","name":"爱看影院️","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"./xBPQ/爱看影院.json"},
-
 {"key":"csp_xBPQ-四虎影院","name":"四虎影院️","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%9B%9B%E8%99%8E%E5%BD%B1%E9%99%A2.json"},
 
 

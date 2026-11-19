@@ -17,76 +17,11 @@
 
 {"key":"drpy_js_玩偶姐姐","name":"玩偶姐姐[DRPY18]","type":3,"api":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/JS/lib/drpy.min.js","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/JS/js/%E7%8E%A9%E5%81%B6%E5%A7%90%E5%A7%90.js"},
 
-{"key":"csp_黄仓库","name":"黄仓库〔SP〕","api":"csp_Hsck","type":3,"filterable":1,"quickSearch":1,"searchable":1,"ext":"https://www.javsee.men/","jar":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/jar/18.jar"},
+{"key":"csp_xBPQ_掏爱撸","name":"掏爱撸","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E6%8E%8F%E7%88%B1%E6%92%B8.json"},
 
-{"key":"csp_Eighteen","name":"18AV〔SP〕","type":3,"api":"csp_Eighteen","searchable":1,"quickSearch":1,"filterable":1},
+{"key":"csp_xBPQ_香蕉视频","name":"香蕉视频","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E9%A6%99%E8%95%89%E8%A7%86%E9%A2%91.json"},
 
-{"key":"csp_XYQHiker_18AV","name":"18AV(XYQH)","type":3,"api":"csp_XYQHiker","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/XYQH/18AV.json"},
-
-{"key":"csp_xBPQ_左临右射","name":"左临右射","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%B7%A6%E4%B8%B4%E5%8F%B3%E5%B0%84.json","jar":"./JAR/Yoursmile2.jar"},
-
-{"key":"csp_xBPQ_掏爱撸","name":"掏爱撸","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E6%8E%8F%E7%88%B1%E6%92%B8.json"},
-
-{"key":"csp_xBPQ_天天综合","name":"天天综合","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%A4%A9%E5%A4%A9%E7%BB%BC%E5%90%88.json","jar":"./JAR/Yoursmile2.jar"},
-
-{"key":"csp_xBPQ_天天直播","name":"天天直播","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%A4%A9%E5%A4%A9%E7%9B%B4%E6%92%AD.json","jar":"./JAR/Yoursmile2.jar"},
-
-{"key":"csp_xBPQ_聚优中文资源","name":"聚优中文资源","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E8%81%9A%E4%BC%98%E4%B8%AD%E6%96%87%E8%B5%84%E6%BA%90.json","jar":"./JAR/Yoursmile2.jar"},
-
-{"key":"csp_xBPQ_聚优超清资源","name":"聚优超清资源","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E8%81%9A%E4%BC%98%E8%B6%85%E6%B8%85%E8%B5%84%E6%BA%90.json","jar":"./JAR/Yoursmile2.jar"},
-
-{"key":"csp_xBPQ_聚优国产传媒","name":"聚优国产传媒","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E8%81%9A%E4%BC%98%E5%9B%BD%E4%BA%A7%E4%BC%A0%E5%AA%92.json","jar":"./JAR/Yoursmile2.jar"},
-
-{"key":"csp_xBPQ_聚优久久热资源","name":"聚优久久热资源","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E8%81%9A%E4%BC%98%E4%B9%85%E4%B9%85%E7%83%AD%E8%B5%84%E6%BA%90.json","jar":"./JAR/Yoursmile2.jar"},
-
-{"key":"csp_xBPQ_聚优废柴网资源","name":"聚优废柴网资源","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E8%81%9A%E4%BC%98%E5%BA%9F%E6%9F%B4%E7%BD%91%E8%B5%84%E6%BA%90.json","jar":"./JAR/Yoursmile2.jar"},
-
-{"key":"csp_xBPQ_聚优麻豆女优","name":"聚优麻豆女优","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E8%81%9A%E4%BC%98%E9%BA%BB%E8%B1%86%E5%A5%B3%E4%BC%98.json","jar":"./JAR/Yoursmile2.jar"},
-
-{"key":"csp_xBPQ_聚优AV解说","name":"聚优AV解说","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E8%81%9A%E4%BC%98AV%E8%A7%A3%E8%AF%B4.json","jar":"./JAR/Yoursmile2.jar"},
-
-{"key":"csp_xBPQ_聚优AV直播","name":"聚优AV直播","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E8%81%9A%E4%BC%98AV%E7%9B%B4%E6%92%AD.json","jar":"./JAR/Yoursmile2.jar"},
-
-{"key":"csp_xBPQ_聚优直播","name":"聚优直播","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E8%81%9A%E4%BC%98%E7%9B%B4%E6%92%AD.json","jar":"./JAR/Yoursmile2.jar"},
-
-{"key":"csp_xBPQ_实时直播","name":"实时直播","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%AE%9E%E6%97%B6%E7%9B%B4%E6%92%AD.json","jar":"./JAR/Yoursmile2.jar"},
-
-{"key":"csp_xBPQ_黄瓜TV","name":"黄瓜TV️","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E9%BB%84%E7%93%9CTV.json","jar":"./JAR/Yoursmile2.jar"},
-
-{"key":"csp_xBPQ_banan","name":"banan","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/banan.json","jar":"./JAR/Yoursmile2.jar"},
-
-{"key":"csp_xBPQ-爱看影院","name":"爱看影院️","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"./xBPQ/爱看影院.json"},
-
-{"key":"csp_xBPQ_爱污传媒","name":"爱污传媒","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E7%88%B1%E6%B1%A1%E4%BC%A0%E5%AA%92.json","jar":"./JAR/Yoursmile2.jar"},
-
-{"key":"csp_xBPQ_麻豆映画","name":"麻豆映画","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E9%BA%BB%E8%B1%86%E6%98%A0%E7%94%BB.json","jar":"./JAR/Yoursmile2.jar"},
-
-{"key":"csp_xBPQ_香蕉视频","name":"香蕉视频","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E9%A6%99%E8%95%89%E8%A7%86%E9%A2%91.json"},
-
-{"key":"csp_xBPQ_性欲轮回","name":"性欲轮回","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E6%80%A7%E6%AC%B2%E8%BD%AE%E5%9B%9E.json","jar":"./JAR/Yoursmile2.jar"},
-
-{"key":"csp_xBPQ_性欲轮回[分类]","name":"性欲轮回[分类]","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E6%80%A7%E6%AC%B2%E8%BD%AE%E5%9B%9E%5B%E5%88%86%E7%B1%BB%5D.json","jar":"./JAR/Yoursmile2.jar"},
-
-{"key":"csp_xBPQ_右手影院","name":"右手影院","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%8F%B3%E6%89%8B%E5%BD%B1%E9%99%A2.json"},
-
-{"key":"csp_xBPQ_色花堂","name":"色花堂","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E8%89%B2%E8%8A%B1%E5%A0%82.json","jar":"./JAR/xBPQ_0111.jar"},
-
-{"key":"csp_xBPQ_GAOAA","name":"GAOAA","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,
-"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/GAOAA.json","jar":"./JAR/XBPQ_0111.jar"},
-
-{"key":"csp_xBPQ_Jable","name":"Jable〔翻墙〕","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/Jable.json","jar":"./JAR/Yoursmile2.jar"},
-
-{"key":"csp_xBPQ_玩偶姐姐","name":"玩偶姐姐〔翻墙〕","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E7%8E%A9%E5%81%B6%E5%A7%90%E5%A7%90.json","jar":"./JAR/Yoursmile2.jar"},
-
-{"key":"csp_xBPQ_朱古力","name":"朱古力〔翻墙〕","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E6%9C%B1%E5%8F%A4%E5%8A%9B.json","jar":"./JAR/Yoursmile2.jar"},
-
-{"key":"csp_xBPQ_NOWAV","name":"NOWAV〔翻墙〕","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/NOWAV.json","jar":"./JAR/Yoursmile2.jar"},
-
-{"key":"csp_xBPQ_女优","name":"女优〔翻墙〕","type":3,"api":"csp_xBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%A5%B3%E4%BC%98.json","jar":"./JAR/Yoursmile2.jar"},
-
-{"key":"csp_Miss","name":"Miss AV 墙外〔SP〕","type":3,"api":"csp_Miss","searchable":1,"quickSearch":1,"filterable":1},
-
-{"key":"csp_Hanime","name":"Hanime 墙外〔SP〕","type":3,"api":"csp_Hanime","searchable":1,"quickSearch":1,"filterable":1},
+{"key":"csp_xBPQ_右手影院","name":"右手影院","type":3,"api":"csp_XBPQ","searchable":1,"quickSearch":1,"filterable":1,"ext":"https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/sources/zyjk/xBPQ/%E5%8F%B3%E6%89%8B%E5%BD%B1%E9%99%A2.json"},
 
 {"key":"黄瓜TV资源","name":"黄瓜TV资源","type":0,"api":"https://caiji10.com/home/cjapi/cfs6/mc10/vod/xml","searchable":1,"quickSearch":1,"filterable":1},
 
@@ -127,8 +62,7 @@
 {"key":"易看资源-伦理","name":"易看资源-伦理","type":1,"api":"https://api.yikanapi.com/api.php/provide/vod/","searchable":1,"quickSearch":1},
 {"key":"影库资源-伦理","name":"影库资源-伦理","type":1,"api":"https://api.ykapi.net/api.php/provide/vod/?ac=list","searchable":1,"quickSearch":1,"filterable":1},
 {"key":"酷伦理","name":"酷伦理-伦理","type":1,"api":"https://api.kudian70.com/api.php/provide/vod/","searchable":1,"quickSearch":1,"filterable":1},
-{"key":"博天堂","name":"博天堂-伦理","type":0,"api":"http://bttcj.com/inc/sapi.php","searchable":1,"quickSearch":1,"filterable":1},
-{"key":"push_agent","name":"推送|云盘|磁力","type":3,"api":"csp_PushAgent","playerType":1,"searchable":0,"quickSearch":0,"filterable":0,"ext":"https://agit.ai/Yoursmile7/TVBox/raw/branch/master/token.txt","jar":"./JAR/cs.jar"}
+{"key":"博天堂","name":"博天堂-伦理","type":0,"api":"http://bttcj.com/inc/sapi.php","searchable":1,"quickSearch":1,"filterable":1}
 ],
 
 
