@@ -10,7 +10,7 @@ class Spider(Spider):
 	def getName(self):
 		return "py_zhaozy"
 	def init(self,extend):
-		self.ali = extend[0]
+		self.ali = self.loadSpider('py_ali')
 		print("============py_zhaozy============")
 		pass
 	def isVideoFormat(self,url):

@@ -452,10 +452,11 @@
       }
     },
     {
+      "jar": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/jar/fan-170b3430a9.jar;md5;5187bb3bc6eba66ecb3785abb0d21431",
       "key": "米搜",
       "name": "🦋米搜┃优夸",
       "type": 3,
-      "api": "csp_MIPanSoGuard",
+      "api": "csp_MIPanSo",
       "searchable": 1,
       "quickSearch": 1,
       "changeable": 0,
@@ -625,24 +626,6 @@
         "ratio": 1.597
       },
       "searchable": 0,
-      "quickSearch": 0,
-      "changeable": 0
-    },
-    {
-      "key": "fan",
-      "name": "导航 www.gaoops.com",
-      "type": 3,
-      "api": "csp_XPathGuard",
-      "searchable": 1,
-      "quickSearch": 0,
-      "changeable": 0
-    },
-    {
-      "key": "cc",
-      "name": "请勿相信视频中广告",
-      "type": 3,
-      "api": "csp_XPathGuard",
-      "searchable": 1,
       "quickSearch": 0,
       "changeable": 0
     }

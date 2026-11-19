@@ -103,10 +103,90 @@ class PythonSourceTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, 'network owner'):
             self.app.read_remote('https://example.org/source.py', None)
 
+    def test_optional_home_video_accepts_legacy_none_or_list(self):
+        for value in [None, [], [{'vod_id': 'one'}]]:
+            spider = types.SimpleNamespace(homeVideoContent=lambda: value)
+            self.assertEqual({'list': value or []}, json.loads(self.app.homeVideoContent(spider)))
+        with self.assertRaises(TypeError):
+            self.app.homeVideoContent(types.SimpleNamespace(homeVideoContent=lambda: 'invalid'))
+
+    def test_legacy_search_signature_and_internal_type_errors(self):
+        old = types.SimpleNamespace(searchContent=lambda key, quick: {'list': [key]})
+        new = types.SimpleNamespace(searchContent=lambda key, quick, pg: {'list': [pg]})
+        self.assertEqual(['word'], json.loads(self.app.searchContent(old, 'word', False, '2'))['list'])
+        self.assertEqual(['2'], json.loads(self.app.searchContent(new, 'word', False, '2'))['list'])
+        def broken(key, quick, pg): raise TypeError('inside source')
+        with self.assertRaisesRegex(TypeError, 'inside source'):
+            self.app.searchContent(types.SimpleNamespace(searchContent=broken), 'word', False)
+
     def test_async_or_nan_output_is_rejected(self):
         async def result(): return {}
         with self.assertRaises(TypeError): self.app.encode_json(result())
         with self.assertRaises(ValueError): self.app.encode_json({'value': float('nan')})
+
+
+class LegacySpiderTests(unittest.TestCase):
+    def setUp(self):
+        root = Path(__file__).resolve().parents[1] / 'engine/chaquo/src/main/python'
+        catvod, crawler = types.ModuleType('com.github.catvod'), types.ModuleType('com.github.catvod.crawler')
+        catvod.Proxy = Mock()
+        crawler.Spider = Mock()
+        with patch.dict(sys.modules, {'com.github.catvod': catvod, 'com.github.catvod.crawler': crawler}):
+            spec = importlib.util.spec_from_file_location('legacy_spider_fixture', root / 'base/spider.py')
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+        self.spider = module.Spider()
+        self.spider.net = Mock()
+        self.values = {}
+        self.spider.local = types.SimpleNamespace(get=self.values.get, set=self.values.__setitem__, delete=lambda key: self.values.pop(key, None))
+
+    def test_legacy_response_preserves_binary_headers_cookies_and_query(self):
+        self.spider.net.req.return_value = {'code': 200, 'headers': {'Content-Type': 'application/json; charset=utf-8', 'Set-Cookie': ['a=1; Path=/', 'b=2; Path=/']}, 'content': b'{"n":42}'}
+        response = self.spider.fetch('https://example.org/api', params={'q': '中文'}, cookies={'sid': 'one'}, timeout=(2, 3), allow_redirects=False)
+        self.assertEqual(42, response.json()['n'])
+        self.assertEqual(b'{"n":42}', response.content)
+        self.assertEqual({'a': '1', 'b': '2'}, response.cookies.get_dict())
+        url, options = self.spider.net.req.call_args.args
+        self.assertIn('q=%E4%B8%AD%E6%96%87', url)
+        self.assertEqual('sid=one', options['headers']['Cookie'])
+        self.assertEqual((3000, 5000, 0, 3), tuple(options[key] for key in ('timeout', 'callTimeout', 'redirect', 'buffer')))
+
+    def test_legacy_post_supports_form_json_and_raw_bytes(self):
+        self.spider.net.req.return_value = {'code': 200, 'headers': {}, 'content': b'ok'}
+        for method, args, expected in [
+            (self.spider.post, {'data': {'q': 'a b'}}, 'q=a+b'),
+            (self.spider.postJson, {'data': {'n': 42}}, b'{"n": 42}'),
+            (self.spider.post, {'data': b'\x00\xff'}, b'\x00\xff')]:
+            method('https://example.org/api', **args)
+            options = self.spider.net.req.call_args.args[1]
+            body = bytes(options['body']) if isinstance(options['body'], list) else options['body']
+            self.assertEqual(expected, body)
+            self.assertEqual('POST', options['method'])
+            self.assertTrue(options['headers']['Content-Type'])
+        self.spider.postJson('https://example.org/api', {'n': 42})
+        self.assertEqual({'n': 42}, json.loads(bytes(self.spider.net.req.call_args.args[1]['body'])))
+        self.spider.post('https://example.org/api', {'q': 'a b'})
+        self.assertEqual('q=a+b', self.spider.net.req.call_args.args[1]['body'])
+
+    def test_legacy_network_errors_propagate(self):
+        import requests
+        self.spider.net.req.return_value = {'code': 0, 'error': 'cancelled', 'content': b''}
+        with self.assertRaisesRegex(requests.ConnectionError, 'cancelled'):
+            self.spider.fetch('https://example.org/api')
+        with self.assertRaises(ValueError): self.spider.fetch('https://example.org/api', timeout=-1)
+
+    def test_legacy_cache_uses_source_storage_and_honors_expiry(self):
+        self.spider.setCache('device', {'id': 42})
+        self.assertEqual({'id': 42}, self.spider.getCache('device'))
+        with patch('time.time', return_value=100): self.spider.setCache('short', 'value', 2)
+        with patch('time.time', return_value=101): self.assertEqual('value', self.spider.getCache('short'))
+        with patch('time.time', return_value=102): self.assertIsNone(self.spider.getCache('short'))
+        self.spider.delCache('device')
+        self.assertIsNone(self.spider.getCache('device'))
+
+    def test_legacy_html_helpers_keep_markup_and_argument_order(self):
+        self.assertEqual('<b>42</b>', self.spider.cleanText('\n<b>42</b>\t'))
+        self.assertEqual('42', self.spider.regStr('/movie/42.html', r'/movie/(\d+)\.html'))
 
 
 if __name__ == '__main__':

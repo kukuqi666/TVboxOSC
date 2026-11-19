@@ -1719,6 +1719,369 @@
       "from": "❤鲨鱼资源",
       "to": "❤鲨鱼资源_16495fc4",
       "reason": "消除来源 key 冲突，保留不同入口"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "jhkx-full.json",
+      "key": "米搜",
+      "reference": "csp_MIPanSoGuard",
+      "original_jar": "jar/spider.jar",
+      "action": "replace_source_jar",
+      "api": "csp_MIPanSo",
+      "jar": "jar/fan-170b3430a9.jar",
+      "reason": "设备确认原类不存在；改用本仓具备对应类的配套 JAR，保留来源扩展参数"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "jhkx-full.json",
+      "key": "fan",
+      "reference": "csp_XPathGuard",
+      "original_jar": "jar/spider.jar",
+      "action": "remove_source",
+      "reason": "导航或广告提示占位行，没有来源参数，移出点播列表"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "jhkx-full.json",
+      "key": "cc",
+      "reference": "csp_XPathGuard",
+      "original_jar": "jar/spider.jar",
+      "action": "remove_source",
+      "reason": "导航或广告提示占位行，没有来源参数，移出点播列表"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "sources/qist/0821.json",
+      "key": "苹果",
+      "reference": "csp_LiteAppleGuard",
+      "original_jar": "jar/fan-bfd1ef131e.jar",
+      "action": "replace_source_jar",
+      "api": "csp_LiteApple",
+      "jar": "jar/fan-170b3430a9.jar",
+      "reason": "设备确认原类不存在；改用本仓具备对应类的配套 JAR，保留来源扩展参数"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "sources/qist/0821.json",
+      "key": "白白",
+      "reference": "csp_SbaibaiGuard",
+      "original_jar": "jar/fan-bfd1ef131e.jar",
+      "action": "remove_source",
+      "reason": "设备确认类不存在；本仓没有对应实现，移出可用列表"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "sources/qist/0821.json",
+      "key": "神车",
+      "reference": "csp_AppSKGuard",
+      "original_jar": "jar/fan-bfd1ef131e.jar",
+      "action": "replace_source_jar",
+      "api": "csp_AppSK",
+      "jar": "jar/fan.jar",
+      "reason": "设备确认原类不存在；改用本仓具备对应类的配套 JAR，保留来源扩展参数"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "sources/qist/0821.json",
+      "key": "zxzj",
+      "reference": "csp_ZxzjGuard",
+      "original_jar": "jar/fan-bfd1ef131e.jar",
+      "action": "replace_source_jar",
+      "api": "csp_Zxzj",
+      "jar": "jar/fan.jar",
+      "reason": "设备确认原类不存在；改用本仓具备对应类的配套 JAR，保留来源扩展参数"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "sources/qist/0821.json",
+      "key": "低端",
+      "reference": "csp_DdrkGuard",
+      "original_jar": "jar/fan-bfd1ef131e.jar",
+      "action": "replace_source_jar",
+      "api": "csp_Ddrk",
+      "jar": "jar/fan.jar",
+      "reason": "设备确认原类不存在；改用本仓具备对应类的配套 JAR，保留来源扩展参数"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "sources/qist/0821.json",
+      "key": "Ysj",
+      "reference": "csp_YsjGuard",
+      "original_jar": "jar/fan-bfd1ef131e.jar",
+      "action": "replace_source_jar",
+      "api": "csp_Ysj",
+      "jar": "jar/fan.jar",
+      "reason": "设备确认原类不存在；改用本仓具备对应类的配套 JAR，保留来源扩展参数"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "sources/qist/0821.json",
+      "key": "926",
+      "reference": "csp_kanqiu926Guard",
+      "original_jar": "jar/fan-bfd1ef131e.jar",
+      "action": "replace_source_jar",
+      "api": "csp_kanqiu926",
+      "jar": "jar/fan-170b3430a9.jar",
+      "reason": "设备确认原类不存在；改用本仓具备对应类的配套 JAR，保留来源扩展参数"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "sources/qist/0821.json",
+      "key": "xzso",
+      "reference": "csp_XzsoGuard",
+      "original_jar": "jar/fan-bfd1ef131e.jar",
+      "action": "remove_source",
+      "reason": "设备确认类不存在；本仓没有对应实现，移出可用列表"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "sources/qist/0821.json",
+      "key": "米搜",
+      "reference": "csp_MIPanSoGuard",
+      "original_jar": "jar/fan-bfd1ef131e.jar",
+      "action": "replace_source_jar",
+      "api": "csp_MIPanSo",
+      "jar": "jar/fan-170b3430a9.jar",
+      "reason": "设备确认原类不存在；改用本仓具备对应类的配套 JAR，保留来源扩展参数"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "sources/qist/0821.json",
+      "key": "夸搜",
+      "reference": "csp_PanSearchGuard",
+      "original_jar": "jar/fan-bfd1ef131e.jar",
+      "action": "replace_source_jar",
+      "api": "csp_PanSearch",
+      "jar": "jar/fan.jar",
+      "reason": "设备确认原类不存在；改用本仓具备对应类的配套 JAR，保留来源扩展参数"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "sources/qist/0821.json",
+      "key": "Aliso",
+      "reference": "csp_PanSearchGuard",
+      "original_jar": "jar/fan-bfd1ef131e.jar",
+      "action": "replace_source_jar",
+      "api": "csp_PanSearch",
+      "jar": "jar/fan.jar",
+      "reason": "设备确认原类不存在；改用本仓具备对应类的配套 JAR，保留来源扩展参数"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "sources/qist/0821.json",
+      "key": "YiSo",
+      "reference": "csp_YiSoGuard",
+      "original_jar": "jar/fan-bfd1ef131e.jar",
+      "action": "replace_source_jar",
+      "api": "csp_YiSo",
+      "jar": "jar/fan.jar",
+      "reason": "设备确认原类不存在；改用本仓具备对应类的配套 JAR，保留来源扩展参数"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "sources/qist/0821.json",
+      "key": "csp_AList",
+      "reference": "csp_AList",
+      "original_jar": "jar/fan-bfd1ef131e.jar",
+      "action": "replace_source_jar",
+      "api": "csp_AList",
+      "jar": "jar/fan.jar",
+      "reason": "设备确认原类不存在；改用本仓具备对应类的配套 JAR，保留来源扩展参数"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "sources/qist/0821.json",
+      "key": "新6V_c94469a6",
+      "reference": "csp_SixV",
+      "original_jar": "jar/fan-bfd1ef131e.jar",
+      "action": "replace_source_jar",
+      "api": "csp_SixV",
+      "jar": "jar/fan.jar",
+      "reason": "设备确认原类不存在；改用本仓具备对应类的配套 JAR，保留来源扩展参数"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "sources/qist/0826.json",
+      "key": "苹果",
+      "reference": "csp_LiteAppleGuard",
+      "original_jar": "jar/fan-bfd1ef131e.jar",
+      "action": "replace_source_jar",
+      "api": "csp_LiteApple",
+      "jar": "jar/fan-170b3430a9.jar",
+      "reason": "设备确认原类不存在；改用本仓具备对应类的配套 JAR，保留来源扩展参数"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "sources/qist/0826.json",
+      "key": "白白",
+      "reference": "csp_SbaibaiGuard",
+      "original_jar": "jar/fan-bfd1ef131e.jar",
+      "action": "remove_source",
+      "reason": "设备确认类不存在；本仓没有对应实现，移出可用列表"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "sources/qist/0826.json",
+      "key": "神车",
+      "reference": "csp_AppSKGuard",
+      "original_jar": "jar/fan-bfd1ef131e.jar",
+      "action": "replace_source_jar",
+      "api": "csp_AppSK",
+      "jar": "jar/fan.jar",
+      "reason": "设备确认原类不存在；改用本仓具备对应类的配套 JAR，保留来源扩展参数"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "sources/qist/0826.json",
+      "key": "zxzj",
+      "reference": "csp_ZxzjGuard",
+      "original_jar": "jar/fan-bfd1ef131e.jar",
+      "action": "replace_source_jar",
+      "api": "csp_Zxzj",
+      "jar": "jar/fan.jar",
+      "reason": "设备确认原类不存在；改用本仓具备对应类的配套 JAR，保留来源扩展参数"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "sources/qist/0826.json",
+      "key": "低端",
+      "reference": "csp_DdrkGuard",
+      "original_jar": "jar/fan-bfd1ef131e.jar",
+      "action": "replace_source_jar",
+      "api": "csp_Ddrk",
+      "jar": "jar/fan.jar",
+      "reason": "设备确认原类不存在；改用本仓具备对应类的配套 JAR，保留来源扩展参数"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "sources/qist/0826.json",
+      "key": "Ysj",
+      "reference": "csp_YsjGuard",
+      "original_jar": "jar/fan-bfd1ef131e.jar",
+      "action": "replace_source_jar",
+      "api": "csp_Ysj",
+      "jar": "jar/fan.jar",
+      "reason": "设备确认原类不存在；改用本仓具备对应类的配套 JAR，保留来源扩展参数"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "sources/qist/0826.json",
+      "key": "926",
+      "reference": "csp_kanqiu926Guard",
+      "original_jar": "jar/fan-bfd1ef131e.jar",
+      "action": "replace_source_jar",
+      "api": "csp_kanqiu926",
+      "jar": "jar/fan-170b3430a9.jar",
+      "reason": "设备确认原类不存在；改用本仓具备对应类的配套 JAR，保留来源扩展参数"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "sources/qist/0826.json",
+      "key": "xzso",
+      "reference": "csp_XzsoGuard",
+      "original_jar": "jar/fan-bfd1ef131e.jar",
+      "action": "remove_source",
+      "reason": "设备确认类不存在；本仓没有对应实现，移出可用列表"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "sources/qist/0826.json",
+      "key": "米搜",
+      "reference": "csp_MIPanSoGuard",
+      "original_jar": "jar/fan-bfd1ef131e.jar",
+      "action": "replace_source_jar",
+      "api": "csp_MIPanSo",
+      "jar": "jar/fan-170b3430a9.jar",
+      "reason": "设备确认原类不存在；改用本仓具备对应类的配套 JAR，保留来源扩展参数"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "sources/qist/0826.json",
+      "key": "夸搜",
+      "reference": "csp_PanSearchGuard",
+      "original_jar": "jar/fan-bfd1ef131e.jar",
+      "action": "replace_source_jar",
+      "api": "csp_PanSearch",
+      "jar": "jar/fan.jar",
+      "reason": "设备确认原类不存在；改用本仓具备对应类的配套 JAR，保留来源扩展参数"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "sources/qist/0826.json",
+      "key": "Aliso",
+      "reference": "csp_PanSearchGuard",
+      "original_jar": "jar/fan-bfd1ef131e.jar",
+      "action": "replace_source_jar",
+      "api": "csp_PanSearch",
+      "jar": "jar/fan.jar",
+      "reason": "设备确认原类不存在；改用本仓具备对应类的配套 JAR，保留来源扩展参数"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "sources/qist/0826.json",
+      "key": "YiSo",
+      "reference": "csp_YiSoGuard",
+      "original_jar": "jar/fan-bfd1ef131e.jar",
+      "action": "replace_source_jar",
+      "api": "csp_YiSo",
+      "jar": "jar/fan.jar",
+      "reason": "设备确认原类不存在；改用本仓具备对应类的配套 JAR，保留来源扩展参数"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "sources/qist/0826.json",
+      "key": "fan",
+      "reference": "csp_XPathGuard",
+      "original_jar": "jar/fan-bfd1ef131e.jar",
+      "action": "remove_source",
+      "reason": "导航或广告提示占位行，没有来源参数，移出点播列表"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "sources/qist/0826.json",
+      "key": "cc",
+      "reference": "csp_XPathGuard",
+      "original_jar": "jar/fan-bfd1ef131e.jar",
+      "action": "remove_source",
+      "reason": "导航或广告提示占位行，没有来源参数，移出点播列表"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "sources/qist/fty.json",
+      "key": "cc",
+      "reference": "csp_XPathGuard",
+      "original_jar": "jar/fan-bfd1ef131e.jar",
+      "action": "remove_source",
+      "reason": "导航或广告提示占位行，没有来源参数，移出点播列表"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "tvbox.json",
+      "key": "米搜",
+      "reference": "csp_MIPanSoGuard",
+      "original_jar": "jar/spider.jar",
+      "action": "replace_source_jar",
+      "api": "csp_MIPanSo",
+      "jar": "jar/fan-170b3430a9.jar",
+      "reason": "设备确认原类不存在；改用本仓具备对应类的配套 JAR，保留来源扩展参数"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "tvbox.json",
+      "key": "fan",
+      "reference": "csp_XPathGuard",
+      "original_jar": "jar/spider.jar",
+      "action": "remove_source",
+      "reason": "导航或广告提示占位行，没有来源参数，移出点播列表"
+    },
+    {
+      "scope": "source-compatibility-20261119",
+      "file": "tvbox.json",
+      "key": "cc",
+      "reference": "csp_XPathGuard",
+      "original_jar": "jar/spider.jar",
+      "action": "remove_source",
+      "reason": "导航或广告提示占位行，没有来源参数，移出点播列表"
     }
   ],
   "removed_configs": [
@@ -3360,13 +3723,13 @@
   "summary": {
     "files": 2301,
     "jars": 32,
-    "local_edges": 2375,
+    "local_edges": 2381,
     "duplicate_groups": 0,
     "repository_missing": 0,
     "upstream_missing": 0,
     "checksum_errors": 0,
     "config_errors": 0,
-    "config_warnings": 35
+    "config_warnings": 0
   },
   "aliases": {
     "website/tvbox-config/18/18-01.json": "18/18-01.json",
@@ -20620,7 +20983,11 @@
       "md5": "5187bb3bc6eba66ecb3785abb0d21431",
       "references": [],
       "used_by": [
-        "sources/zyjk/tvbox2.json"
+        "jhkx-full.json",
+        "sources/qist/0821.json",
+        "sources/qist/0826.json",
+        "sources/zyjk/tvbox2.json",
+        "tvbox.json"
       ],
       "incompatible_sdk_references": [],
       "spider_classes": [
@@ -21674,6 +22041,8 @@
       "md5": "f6ce0ce7bd8b398540be062ebef7051d",
       "references": [],
       "used_by": [
+        "sources/qist/0821.json",
+        "sources/qist/0826.json",
         "sources/tvbox18/XYQTVBox/fty/fty.json"
       ],
       "incompatible_sdk_references": [],
@@ -31827,11 +32196,12 @@
     {
       "path": "jhkx-full.json",
       "kind": "config",
-      "size": 18359,
-      "sha256": "4aa32a6ccf2841718b1cc66f7199570f2af30e421f6d54c3b9984daae1560856",
-      "md5": "0e6825d49860d9be2a1335f844528522",
+      "size": 18126,
+      "sha256": "41579685ad6c81fd213992471bb93d184f7c33176d5e00c7767ee87f5da6b8c5",
+      "md5": "54119de76a9a6678d5d28e6b7f436e8b",
       "references": [
         "jar/douban.jar",
+        "jar/fan-170b3430a9.jar",
         "jar/spider.jar",
         "js/douyu.js",
         "js/drpy2.min.js",
@@ -32240,11 +32610,13 @@
     {
       "path": "sources/qist/0821.json",
       "kind": "config",
-      "size": 30710,
-      "sha256": "5424ae9c09df7a27e3c04723158a36625e32a5f2e29138e220aed33eb7d08664",
-      "md5": "6f6ed6cf6085d02fd15eb54086987076",
+      "size": 31972,
+      "sha256": "63ef8d400c845a2c079204d820ed42b8f9b2d6b6a6730a81c5ee223a2dbbe915",
+      "md5": "05692ed5cdd119c162fb56235e8a4d3c",
       "references": [
+        "jar/fan-170b3430a9.jar",
         "jar/fan-bfd1ef131e.jar",
+        "jar/fan.jar",
         "js/tuxiaobei.js",
         "sources/qist/FTY/短视频.js",
         "sources/qist/FTY/酷奇MV.js",
@@ -32353,11 +32725,13 @@
     {
       "path": "sources/qist/0826.json",
       "kind": "config",
-      "size": 12198,
-      "sha256": "54cee30cb0604d1c1c1e87c830847057044dc0e321f56754ee70c9e10d2ebd6c",
-      "md5": "0ae33e848dce1bc7cdf0b6f0e5a10bf3",
+      "size": 12945,
+      "sha256": "05e969c0f4679b174210cbfabb0a06e28c30716ba9aefd565270c7b66b3adfe6",
+      "md5": "99b4d21a826798158431df0fca039601",
       "references": [
-        "jar/fan-bfd1ef131e.jar"
+        "jar/fan-170b3430a9.jar",
+        "jar/fan-bfd1ef131e.jar",
+        "jar/fan.jar"
       ],
       "used_by": [],
       "format": "json-with-comments"
@@ -37586,9 +37960,9 @@
     {
       "path": "sources/qist/fty.json",
       "kind": "config",
-      "size": 12700,
-      "sha256": "660202ffa989f67c6a68f4ed0bbf646553dd354a02209ca65488320bb4212c74",
-      "md5": "24e6adbdabda4ba8c6a904a12a5ae013",
+      "size": 12557,
+      "sha256": "b343c7205eba494ded29ffbd0d52377e8bdf73e5fdeec5e591c3c25ba3c1bcf4",
+      "md5": "d880cb1709d94a8bccdcbde501756ffb",
       "references": [
         "jar/fan-bfd1ef131e.jar",
         "js/douyu.js",
@@ -55288,9 +55662,9 @@
     {
       "path": "sources/zyjk/py/py_czspp.py",
       "kind": "python",
-      "size": 10477,
-      "sha256": "0026e31d51a58bd6d1ae7ab4c3bbd09e588ea934843ed937e8088c76232e9bb1",
-      "md5": "29aade81a860ff33f62b9d55dd5c0403",
+      "size": 10419,
+      "sha256": "fd982858cfc011ee4aae9ef678cab3d3dcaa110b2cf611fcfea8168f0f7633f7",
+      "md5": "bc723a615db0daf803ab03abd17ad460",
       "references": [],
       "used_by": [
         "sources/zyjk/py/tvbox.json"
@@ -55386,9 +55760,9 @@
     {
       "path": "sources/zyjk/py/py_pansou.py",
       "kind": "python",
-      "size": 2138,
-      "sha256": "cbbe30c126b013edd404e9ac2ef4db1d9cbe093a54de3042862a0706cd9468dd",
-      "md5": "0447dc2d6262ca379988c364cfb2bbf6",
+      "size": 2154,
+      "sha256": "44fef0e8a24f4b1fa8d71c416cf431d2e8fba01ed81225382b701122aab0f9ef",
+      "md5": "034a1483b707680c362ed749d4fff910",
       "references": [],
       "used_by": [
         "sources/zyjk/plugin/tvbox.json",
@@ -55451,9 +55825,9 @@
     {
       "path": "sources/zyjk/py/py_yiso.py",
       "kind": "python",
-      "size": 1603,
-      "sha256": "254e628a41c8401250b443d5f7f3ba256008f962544bade469557f589aee1cc9",
-      "md5": "d8f1bde1abc02e866368f8202b5f9bb7",
+      "size": 1619,
+      "sha256": "8962882bf0d2ce5fcd337794d470394ec84951cbed5144357166c6df325356ed",
+      "md5": "14f086b62ebe62ff8a2e16a8f28cb39a",
       "references": [],
       "used_by": [
         "sources/zyjk/plugin/tvbox.json",
@@ -55464,9 +55838,9 @@
     {
       "path": "sources/zyjk/py/py_zhaozy.py",
       "kind": "python",
-      "size": 2174,
-      "sha256": "12ef9430083ba2f0d4b8d6ca9a972168c3a6efa3af1fa450d13a690fc54697ad",
-      "md5": "102534c7dc0bcc16bde4d94261cf1cf3",
+      "size": 2190,
+      "sha256": "cd7b4f173e2611dce5c22a95de7996c5ffec3c000c192bcd7ac0e19f4c070e76",
+      "md5": "bc952502b4e97a1f8e1f9a85b09f5835",
       "references": [],
       "used_by": [
         "sources/zyjk/plugin/tvbox.json",
@@ -55490,9 +55864,9 @@
     {
       "path": "sources/zyjk/py/py_小纸条.py",
       "kind": "python",
-      "size": 3753,
-      "sha256": "b39c44d68fdcf7b8da3e9afd95b2e653f6e6d4893d81c264a8811861add22e3a",
-      "md5": "7991a1013bc7bab6b720186463c12e46",
+      "size": 3769,
+      "sha256": "5297ac9219005f8152ed3e2ed4830e0025dfefdb8a1d994cf1faafa4396762a3",
+      "md5": "847d5817156fdb03a29571adbdf9df1e",
       "references": [],
       "used_by": [
         "sources/zyjk/plugin/tvbox.json",
@@ -58326,10 +58700,11 @@
     {
       "path": "tvbox.json",
       "kind": "config",
-      "size": 18211,
-      "sha256": "8a77b337d62de18b42de4eba0492efc724052ed0d2cb9bf07eab3fe217210144",
-      "md5": "e0f38095bbc24c4894ffb777ebc639b8",
+      "size": 17978,
+      "sha256": "70f21bb5d39589868e645fcf6196454919a41fdb4cbb46abcd0f2122106157f2",
+      "md5": "65d6914702aef3b089ed110f3880051a",
       "references": [
+        "jar/fan-170b3430a9.jar",
         "jar/pbdb.jar",
         "jar/spider.jar",
         "js/douyu.js",
@@ -58392,286 +58767,5 @@
     "https://www.bestpvp.site/tvbox/jar/custom_spider_stable.jar"
   ],
   "upstream_missing": [],
-  "config_problems": [
-    {
-      "file": "jhkx-full.json",
-      "key": "米搜",
-      "api": "csp_MIPanSoGuard",
-      "jar": "jar/spider.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "jhkx-full.json",
-      "key": "fan",
-      "api": "csp_XPathGuard",
-      "jar": "jar/spider.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "jhkx-full.json",
-      "key": "cc",
-      "api": "csp_XPathGuard",
-      "jar": "jar/spider.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "sources/qist/0821.json",
-      "key": "苹果",
-      "api": "csp_LiteAppleGuard",
-      "jar": "jar/fan-bfd1ef131e.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "sources/qist/0821.json",
-      "key": "白白",
-      "api": "csp_SbaibaiGuard",
-      "jar": "jar/fan-bfd1ef131e.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "sources/qist/0821.json",
-      "key": "神车",
-      "api": "csp_AppSKGuard",
-      "jar": "jar/fan-bfd1ef131e.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "sources/qist/0821.json",
-      "key": "zxzj",
-      "api": "csp_ZxzjGuard",
-      "jar": "jar/fan-bfd1ef131e.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "sources/qist/0821.json",
-      "key": "低端",
-      "api": "csp_DdrkGuard",
-      "jar": "jar/fan-bfd1ef131e.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "sources/qist/0821.json",
-      "key": "Ysj",
-      "api": "csp_YsjGuard",
-      "jar": "jar/fan-bfd1ef131e.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "sources/qist/0821.json",
-      "key": "926",
-      "api": "csp_kanqiu926Guard",
-      "jar": "jar/fan-bfd1ef131e.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "sources/qist/0821.json",
-      "key": "xzso",
-      "api": "csp_XzsoGuard",
-      "jar": "jar/fan-bfd1ef131e.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "sources/qist/0821.json",
-      "key": "米搜",
-      "api": "csp_MIPanSoGuard",
-      "jar": "jar/fan-bfd1ef131e.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "sources/qist/0821.json",
-      "key": "夸搜",
-      "api": "csp_PanSearchGuard",
-      "jar": "jar/fan-bfd1ef131e.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "sources/qist/0821.json",
-      "key": "Aliso",
-      "api": "csp_PanSearchGuard",
-      "jar": "jar/fan-bfd1ef131e.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "sources/qist/0821.json",
-      "key": "YiSo",
-      "api": "csp_YiSoGuard",
-      "jar": "jar/fan-bfd1ef131e.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "sources/qist/0821.json",
-      "key": "csp_AList",
-      "api": "csp_AList",
-      "jar": "jar/fan-bfd1ef131e.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "sources/qist/0821.json",
-      "key": "新6V_c94469a6",
-      "api": "csp_SixV",
-      "jar": "jar/fan-bfd1ef131e.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "sources/qist/0826.json",
-      "key": "苹果",
-      "api": "csp_LiteAppleGuard",
-      "jar": "jar/fan-bfd1ef131e.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "sources/qist/0826.json",
-      "key": "白白",
-      "api": "csp_SbaibaiGuard",
-      "jar": "jar/fan-bfd1ef131e.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "sources/qist/0826.json",
-      "key": "神车",
-      "api": "csp_AppSKGuard",
-      "jar": "jar/fan-bfd1ef131e.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "sources/qist/0826.json",
-      "key": "zxzj",
-      "api": "csp_ZxzjGuard",
-      "jar": "jar/fan-bfd1ef131e.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "sources/qist/0826.json",
-      "key": "低端",
-      "api": "csp_DdrkGuard",
-      "jar": "jar/fan-bfd1ef131e.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "sources/qist/0826.json",
-      "key": "Ysj",
-      "api": "csp_YsjGuard",
-      "jar": "jar/fan-bfd1ef131e.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "sources/qist/0826.json",
-      "key": "926",
-      "api": "csp_kanqiu926Guard",
-      "jar": "jar/fan-bfd1ef131e.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "sources/qist/0826.json",
-      "key": "xzso",
-      "api": "csp_XzsoGuard",
-      "jar": "jar/fan-bfd1ef131e.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "sources/qist/0826.json",
-      "key": "米搜",
-      "api": "csp_MIPanSoGuard",
-      "jar": "jar/fan-bfd1ef131e.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "sources/qist/0826.json",
-      "key": "夸搜",
-      "api": "csp_PanSearchGuard",
-      "jar": "jar/fan-bfd1ef131e.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "sources/qist/0826.json",
-      "key": "Aliso",
-      "api": "csp_PanSearchGuard",
-      "jar": "jar/fan-bfd1ef131e.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "sources/qist/0826.json",
-      "key": "YiSo",
-      "api": "csp_YiSoGuard",
-      "jar": "jar/fan-bfd1ef131e.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "sources/qist/0826.json",
-      "key": "fan",
-      "api": "csp_XPathGuard",
-      "jar": "jar/fan-bfd1ef131e.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "sources/qist/0826.json",
-      "key": "cc",
-      "api": "csp_XPathGuard",
-      "jar": "jar/fan-bfd1ef131e.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "sources/qist/fty.json",
-      "key": "cc",
-      "api": "csp_XPathGuard",
-      "jar": "jar/fan-bfd1ef131e.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "tvbox.json",
-      "key": "米搜",
-      "api": "csp_MIPanSoGuard",
-      "jar": "jar/spider.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "tvbox.json",
-      "key": "fan",
-      "api": "csp_XPathGuard",
-      "jar": "jar/spider.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    },
-    {
-      "file": "tvbox.json",
-      "key": "cc",
-      "api": "csp_XPathGuard",
-      "jar": "jar/spider.jar",
-      "reason": "静态 DEX 未发现爬虫类，需设备验证",
-      "severity": "warning"
-    }
-  ]
+  "config_problems": []
 }

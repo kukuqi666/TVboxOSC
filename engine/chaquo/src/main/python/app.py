@@ -83,7 +83,8 @@ def homeContent(ru, filter):
 
 
 def homeVideoContent(ru):
-    return encode_json(ru.homeVideoContent())
+    value = sync_result(ru.homeVideoContent())
+    return encode_json({"list": [] if value is None else value} if value is None or isinstance(value, list) else value)
 
 
 def categoryContent(ru, tid, pg, filter, extend):
@@ -95,7 +96,15 @@ def detailContent(ru, array):
 
 
 def searchContent(ru, key, quick, pg="1"):
-    return encode_json(ru.searchContent(key, quick, pg))
+    from inspect import signature
+    search = ru.searchContent
+    try:
+        signature(search).bind(key, quick, pg)
+    except TypeError:
+        # 旧 T3 只声明 key/quick；仅在签名不接收页码时使用两个参数。
+        signature(search).bind(key, quick)
+        return encode_json(search(key, quick))
+    return encode_json(search(key, quick, pg))
 
 
 def playerContent(ru, flag, id, vipFlags):

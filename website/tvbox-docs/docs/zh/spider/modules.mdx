@@ -1,0 +1,106 @@
+---
+description: 安装与宿主签名、模块接口及设备 ABI 匹配的独立运行模块。
+---
+
+import { withBase } from '@rspress/core/runtime';
+
+# 安装执行模块
+
+在“我的 → 模块管理”安装 Python、QuickJS、Node.js、Thunder 或 BD-J。当前界面和订阅数据库沿用 TVboxOSC，运行模块与主包分别安装。
+
+## 安装与更新
+
+模块必须与主包签名一致，并声明匹配的 `tvbox.runtime.contract`。当前开发代码使用以下接口；已经发布的 3.1.1 附件保持原状，不能把新接口的 APK 覆盖到旧版发布目录。
+
+| 模块 | 开发版本 | 接口 | 执行入口 |
+| --- | --- | --- | --- |
+| QuickJS | 1.1.0 / code 5 | `tvbox-quickjs-v2` | 普通 JS / ES module |
+| Python | 1.1.0 / code 4 | `tvbox-python-v2` | 继承 `base.spider.Spider` |
+| Node.js | 1.1.0 / code 4 | `tvbox-nodejs-v2` | `index.js.md5` bundle |
+| Thunder | 沿用现有版本 | `tvbox-thunder-v1` | 下载与磁力解析 |
+| BD-J | 沿用现有版本 | `tvbox-bdj-v1` | Java 运行环境 |
+
+主包及模块的自有包名使用 `com.kukuqi`。共享 Spider 协议仍保留 `com.github.catvod`，以兼容现有 JAR。QuickJS 的 Java 包和 JNI 从固定源码配套重建，不能只改 Java 包名后继续使用旧原生库。
+
+安装后执行模块测试。如果已加载模块被更新，需要重启应用，避免旧 Java 类与新原生库混用。启动时会清理废弃的 `code_cache/runtimes/{quickjs,python,nodejs}`、`no_backup/runtimes/{quickjs,python,nodejs}` 与旧 `files/nodejs/server.cjs`，订阅和用户脚本不在清理范围内。
+
+## 对照范围与剩余差距
+
+2026-11-19 核对的参考代码为 FongMi/TV `5bf18d6`、CatVodSpider `ab5b005`。这里按能力记录，不能用文件数量推算兼容百分比。
+
+| 能力 | 本仓状态 | 仍需验证或完善 |
+| --- | --- | --- |
+| 模块发现、签名、ABI、版本与接口验证 | 宿主与 SDK 共用一套 Provider 和加载器 | 每次正式发布仍需签名产物验证 |
+| QuickJS Java/JNI 与 SDK 求值 | 统一为 kukuqi 包，支持独立来源会话 | 更多第三方脚本的实际业务兼容 |
+| Python 来源 | 隔离导入、网络归属、Cookie/UA；固定 cryptography、cffi、NumPy、pywasm 等扩展与配套 CPython 原生库 | 已逐项执行扩展运算，并对本仓 68 个 Spider 脚本验证真实来源链路；结果和外部服务限制见下文 |
+| Node bundle | 校验和、独立进程、HTTP 路由、重启、二进制代理；danmuPush/clearDanmu 接入现有弹幕视图 | 不改变用户弹幕开关，切换播放器时丢弃旧目标更新 |
+| Node 宿主消息 | 网页、提示、Cookie/UA、播放信息已连接 | 完整播放场景及第三方交互需设备验证 |
+| 来源生命周期与测试台 | JAR/JS/Python/Node 共用 FutureTask 并发去重；取消加载、初始化失败释放、关闭与销毁串行；旧代后台销毁 | 外部 JAR 自身的 close/destroy 行为仍由其实现负责 |
+| 配置 | 普通配置、urls/storeHouse 仓库、zyplayer data 结构；本地 JS 文件与相对模块导入；旧 QuickJS 引用列为审计错误 | 35 条历史警告已设备核对，24 条修正 JAR 引用、11 条失效或占位条目移出；外网站点结果单独记录 |
+| 播放与 UI | 保留现有 UI、Media3/MPV 适配和软硬解设置；清除不再实例化的 IJK 源码、JNI 调用及演示资源 | 尚未分发独立 MPV APK，BD-J 仍不等于完整交互式蓝光菜单 |
+
+JAR 中的加密资源不能仅靠静态 DEX 判断可用性。历史 35 条警告已在设备核对，全部确认为对应类不存在。修复和下架原因记录在配置发布目录 `catalog.json` 的 `config_repairs` 中；类能加载不代表站点已经播放通过。
+
+## 配置 JAR 与依赖清理
+
+两份配置包 `957f4f3ee9526dcc8a0d1d6d-custom_spider.jar`、`spider-b4886fad7b.jar` 原来仍使用旧 QuickJS 类型，无法与 kukuqi 包的模块链接。通过 smali-dexlib2 3.0.9 逐类型迁移并重新生成 DEX，迁移前验证了调用到的 wrapper 类型、方法及构造器。原有 275、3229 个 DEX 类及站点资源保持完整；派生包去掉已失效的原始签名元数据，输入、输出、wrapper 摘要及迁移方法记录在配置 `catalog.json` 的 `jar_migrations`。
+
+JAR 的父加载器经过共享 SDK 的模块路由，允许解析独立 QuickJS 模块提供的类型。显式声明的 JAR MD5 在下载或读取本地文件后也会校验；初始化失败不再被缓存成成功的空来源。静态审计同时扫描 DEX 类型和反射字符串，阻止旧包名重新混入。
+
+废弃 IJK 的实现、演示布局、DNS 原生调用及混淆规则已移除。保留当前 DKPlayer 视图、CorePlayer、Media3 和 MPV。旧下载工具统一为 `com.github.catvod.net.Download`；未使用的生物验证依赖和只提供颜色常量的旧库已移除，原界面颜色值保留。
+
+## Python 构建输入
+
+Python 使用 Chaquopy 17.2.0 和 CPython 3.10。`engine/chaquo/runtime.lock.json` 固定参考原生包的来源提交、发布标签、清单摘要和 9 个扩展 wheel。`requirements.txt` 固定其余 Python 包版本。构建需要 Python 3.10、JDK 21 或以上、Android SDK/NDK，以及 `patchelf`。
+
+```bash
+python3 scripts/prepare_python_runtime.py --sync
+TVBOX_BUILD_PYTHON=python3.10 ./gradlew :runtime-python:assembleDebug
+```
+
+同步和构建都会验证输入摘要。模块消费最终转换的 AAR，统一 CPython、Chaquopy 桥接、stdlib 扩展和加密库，替换 requirements 内的 C++ 库为宿主播放器使用的同一内容，并重新生成资产摘要。校验 ARM64 ELF 和 16 KB LOAD 对齐，保留库内许可证与固定输入来源。当前 Python 模块发布 ABI 仍为 `arm64-v8a`，不能把它安装到仅支持 32 位的设备。
+
+配置整理后执行 `python3 scripts/audit_configs.py --write`。若需要重新迁移指定配置 JAR，可执行 `python3 scripts/migrate_config_jars.py website/tvbox-config/jar/文件名.jar`；工具在验证 SDK 后重建 DEX，并更新消费配置的 MD5，不能使用原始二进制字符串替换。
+
+## 本轮验证
+
+2026-11-19：107 项 JVM 单测、39 项脚本测试、60 项普通主包设备回归、38 项混淆主包关键回归通过。普通与 R8 主包构建、Python/QuickJS Release 模块构建、文档构建均通过。设备用例包含真实 JAR 的 JS HTML 解析桥接、Python AES-GCM/NumPy/WASM 实算、Node bundle/代理，以及现有界面的弹幕推送与清空。混淆回归使用普通测试 APK，避免测试依赖自身的裁剪或类名变化混入宿主验证。
+
+配置审计覆盖 2301 个文件、32 个 JAR，重复、缺失、MD5、结构错误和类引用警告为 0。外部订阅返回 200 只代表本次可读取，不等同于所有站点均可播放。
+
+
+## 逐站设备验证
+
+本轮使用 MuMu Android 15 验证版宿主和配套 Python 模块，设备 ABI 为 `x86_64,arm64-v8a,x86`。ARM64 模块通过设备的兼容层执行，这不能代替不同品牌 ARM 真机的验收。保留正式 3.1.1 附件和用户现有界面。
+
+原有 35 条动态类警告不是加密误报：设备加载也找不到对应类。其中 24 条改用本仓实现对应类的 JAR，包含每条来源独立的 MD5；4 条没有可用实现的来源下架，7 条导航或广告提示占位行从点播列表移出。修复保留原来源的扩展参数，没有把来源改成其他无关站点。
+
+Python 补齐旧 T3 脚本实际使用的 `fetch`、`post`、`postJson`、`html`、`regStr`、`xpText`、`cleanText` 和带过期时间的缓存入口。HTTP 响应保持脚本需要的 `requests.Response` 形式，请求、Cookie、关闭和取消继续由当前来源的宿主网络管理；保持证书验证。支持两参数旧搜索函数及可选首页推荐返回 `None` 或数组，同时保留业务内部异常。4 个网盘搜索脚本改用 `loadSpider('py_ali')`，另一处厂长脚本修正响应对象与会话对象混用。
+
+扩展实算覆盖 ujson、lxml XPath、PyQuery、BeautifulSoup、字符集检测、bz2/lzma/zlib、SQLite、SSL、缓存、cffi、NumPy 线性代数、PyCryptodome AES/ChaCha20/RSA、cryptography AES-GCM/Ed25519 和 WASM。未把不参与 T3 加载的辅助脚本所需 `ddddocr` 加进模块。
+
+<a href={withBase('/source-validation.json')} download>下载逐站验证结果与构建摘要</a>。公开结果区分类解析、初始化、首页、列表、详情、播放地址和解码阶段；完整异常留在本地 `build/source-validation/`。验证收集器正常结束仅表示所有条目已记录，不能据此宣布全部来源可播放。
+
+### 本次结果
+
+| 范围 | 完成情况 | 播放验收与限制 |
+| --- | --- | --- |
+| 35 条历史 JAR 警告 | 全部设备核对；24 条修正引用、11 条移出列表 | 修复后的 24 条均完成类解析，20 条初始化成功；其余 4 条初始化超时，尚无这些修复条目的完整播放通过记录 |
+| 68 个 Python Spider | 65 个初始化成功，56 个首页接口完成 | 10 个视频首帧、2 个音频播放通过；其他结果为外网错误、超时、站点响应异常、缺少配置、无内容或需要解析器 |
+| 饭太硬、王二小 | 分别读到 49、100 个来源；抽测 6 个普通来源 | 饭太硬的厂长、比特及王二小的 AnimeAiGongHeGuo 完成视频首帧；另外 3 个为超时、空播放地址或空来源响应 |
+| SDK 与扩展回归 | 12 项设备回归、46 项脚本测试、107 项 JVM 单测通过 | Python Debug/Release 模块构建通过；不将站点收集器的结束状态算作播放成功 |
+
+本轮未再出现缺少 `fetch`、`post`、`getCache` 等基础方法或扩展模块缺失的错误。68 个来源中的 4 个网盘搜索脚本已完成子来源初始化，旧 AList/小猫咪脚本的 POST 位置参数另做定向复测。4 个没有导出可加载 Spider 类的辅助或服务端脚本独立列出，不伪装成已通过的 T3 来源。
+
+### 复测方法
+
+先构建并安装带 `-PcoreValidation=true` 的验证版主包、Python/QuickJS 模块及测试 APK。使用 `scripts/verify_source_compatibility.py prepare` 生成真实配置输入，通过本机 HTTP 服务向设备提供仓库素材：
+
+```bash
+python3 scripts/verify_source_compatibility.py prepare
+python3 -m http.server 18080 --bind 127.0.0.1 --directory .
+```
+
+另开 WSL 终端执行 `adb reverse tcp:18080 tcp:18080`，把 `build/source-validation/cases.json` 推送到 `/sdcard/Download/tvbox-source-validation/cases.json`。使用 `com.kukuqi.tvbox.osc.corevalidation.test/com.kukuqi.tvbox.osc.RegressionTestRunner`，逐组运行 `SourceCompatibilityRegressionTest` 的 `testPackagedPythonSources`、`testEncryptedJarSources`、`testLiveSubscriptions`；各组前结束验证版进程，避免模拟器原生翻译层累积 ClassLoader namespace 后影响下一组。
+
+每组结果保存到验证版外部目录 `files/source-validation/{python,encrypted,subscriptions}.json`。设备版本、ABI 和 APK SHA256 记录在同目录的 `metadata.json`，随验证结果保存。拉回 `build/source-validation/` 后运行 `scripts/verify_source_compatibility.py report`。`publish` 会先核对全部输入是否有终态结果，再生成脱敏的文档附件；没有结果、存在运行中条目或覆盖不完整时拒绝发布。视频通过条件为实际渲染首帧且播放进度超过 500 毫秒；纯音频单独要求音轨被选中且播放进度前进，不以取得 URL 代替播放成功。

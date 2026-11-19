@@ -45,8 +45,7 @@ class Spider(Spider):  # 元类 默认的元类 type
             "Referer": url,
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
         }
-        session = self.getCookie(url,header)
-        rsp = session.get(url, headers=header)
+        rsp = self.getCookie(url)
         root = self.html(self.cleanText(rsp.text))
         aList = root.xpath("//div[@class='mi_btcon']//ul/li")
         videos = []

@@ -12,7 +12,7 @@ class Spider(Spider):
 	def getName(self):
 		return "py_gitcafe"
 	def init(self,extend):
-		self.ali = extend[0]
+		self.ali = self.loadSpider('py_ali')
 		print("============py_gitcafe============")
 		pass
 	def isVideoFormat(self,url):
