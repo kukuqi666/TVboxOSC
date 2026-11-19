@@ -63,4 +63,35 @@ public class RealJarLoadTest extends InstrumentationTestCase {
         String home = s.homeContent(true);
         assertNotNull("homeContent 不应返回 null", home);
     }
+
+    public void testMigratedSmallJarHtmlFunctions() throws Exception { migratedJar("957f4f3ee9526dcc8a0d1d6d-custom_spider.jar"); }
+    public void testMigratedLargeJarHtmlFunctions() throws Exception { migratedJar("spider-b4886fad7b.jar"); }
+    private void migratedJar(String name) throws Exception {
+        File external = new File("/sdcard/Download/tvbox-runtime-fixtures/" + name);
+        assertTrue("请先推送配置 JAR 回归素材：" + name, external.isFile());
+        try (InputStream input = new java.io.FileInputStream(external); OutputStream output = new FileOutputStream(jar)) {
+            byte[] buffer = new byte[65536]; int count;
+            while ((count = input.read(buffer)) != -1) output.write(buffer, 0, count);
+        }
+        File script = new File(jar.getParentFile(), name + ".js");
+        String code = "import {Spider} from 'catvod';export default class extends Spider {homeContent(){"
+                + "let title=pdfh('<div><a href=\"/demo\">兼容测试</a></div>','a&&Text');"
+                + "if(title!=='兼容测试')throw Error('pdfh:'+title);"
+                + "let url=pd('<a href=\"/demo\">链接</a>','a&&href','https://example.org');"
+                + "if(url!=='https://example.org/demo')throw Error('pd:'+url);"
+                + "return {class:[{type_id:'1',type_name:title}]};}}";
+        try (OutputStream output = new FileOutputStream(script)) { output.write(code.getBytes(java.nio.charset.StandardCharsets.UTF_8)); }
+        BaseLoader loader = new BaseLoader();
+        try {
+            var spider = loader.getSpider("migrated-" + name, "file://" + script.getAbsolutePath(), "", "file://" + jar.getAbsolutePath());
+            assertTrue(spider.homeContent(true).contains("兼容测试"));
+        } finally { loader.destroy(); script.delete(); }
+    }
+    public void testIncorrectLocalJarChecksumIsRejected() {
+        BaseLoader loader = new BaseLoader();
+        try {
+            try { loader.getSpider("bad-md5", "csp_Local", "", "file://" + jar.getAbsolutePath() + ";md5;00000000000000000000000000000000"); fail("错误 MD5 的 JAR 不得执行"); }
+            catch (IllegalStateException expected) { assertTrue(expected.getCause().getMessage().contains("MD5")); }
+        } finally { loader.destroy(); }
+    }
 }

@@ -11,7 +11,7 @@ import com.kukuqi.tvbox.engine.bean.Config;
 import com.kukuqi.tvbox.engine.event.ConfigEvent;
 import com.kukuqi.tvbox.engine.impl.Callback;
 import com.kukuqi.tvbox.engine.setting.Setting;
-import com.kukuqi.tvbox.engine.utils.Download;
+import com.github.catvod.net.Download;
 import com.kukuqi.tvbox.engine.utils.FileUtil;
 import com.kukuqi.tvbox.engine.utils.ResUtil;
 import com.kukuqi.tvbox.engine.utils.UrlUtil;

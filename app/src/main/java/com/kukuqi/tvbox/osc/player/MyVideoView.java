@@ -36,6 +36,14 @@ public class MyVideoView extends VideoView {
         danmakuSource = source; danmakuName = name; danmakuEpisode = episode; hasDanmakuContext = true; refreshDanmaku = false;
         danmaku.load(source, name, episode);
     }
+    /** 接收 Node 来源推送，沿用当前弹幕渲染和用户开关。 */
+    public void setScriptDanmaku(String url) {
+        if (url == null || url.isEmpty()) {
+            danmakuSource = com.google.gson.JsonNull.INSTANCE;
+            refreshDanmaku = false;
+            danmaku.clear();
+        } else setDanmakuContext(new com.google.gson.JsonPrimitive(url), danmakuName, danmakuEpisode);
+    }
     public String getDanmakuStatus() { return danmaku.status(); }
     public int getDanmakuCount() { return danmakuView.count(); }
 
@@ -44,6 +52,7 @@ public class MyVideoView extends VideoView {
         SleepTimer.get().register(this);
         if (sleepPaused) return;
         super.start();
+        com.kukuqi.tvbox.osc.core.CoreBridge.bindVideoView(this);
         if (refreshDanmaku && hasDanmakuContext) { refreshDanmaku = false; danmaku.load(danmakuSource, danmakuName, danmakuEpisode); }
     }
 
@@ -67,6 +76,7 @@ public class MyVideoView extends VideoView {
     @Override public void release() {
         if (danmaku != null) { danmaku.cancel(); refreshDanmaku = true; }
         SleepTimer.get().unregister(this);
+        com.kukuqi.tvbox.osc.core.CoreBridge.unbindVideoView(this);
         super.release();
     }
     public MyVideoView(@NonNull Context context) {

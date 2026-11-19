@@ -8,7 +8,7 @@ import com.kukuqi.tvbox.engine.api.config.LiveConfig;
 import com.kukuqi.tvbox.engine.bean.Core;
 import com.kukuqi.tvbox.engine.exception.ExtractException;
 import com.kukuqi.tvbox.engine.setting.LiveSetting;
-import com.kukuqi.tvbox.engine.utils.Download;
+import com.github.catvod.net.Download;
 import com.kukuqi.tvbox.engine.utils.ResUtil;
 import com.kukuqi.tvbox.engine.utils.UrlUtil;
 import com.github.catvod.utils.Path;

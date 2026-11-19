@@ -187,6 +187,16 @@ public class FeatureRegressionTest extends InstrumentationTestCase {
         onMain(()->{player[0].seekTo(2000); player[0].startFullScreen();});
         waitFor(()->player[0].isFullScreen()); Thread.sleep(300);capture("video-danmaku-fullscreen.png");
         onMain(()->assertEquals(2,player[0].getDanmakuCount()));
+        java.lang.reflect.Field callbackField = com.kukuqi.tvbox.engine.runtime.NodeRuntime.class.getDeclaredField("callback");
+        callbackField.setAccessible(true);
+        var callback = (com.github.catvod.runtime.NodeRuntimeApi.Callback) callbackField.get(com.kukuqi.tvbox.engine.runtime.NodeRuntime.get());
+        assertNotNull(callback);
+        assertTrue(com.google.gson.JsonParser.parseString(callback.onMessage("clearDanmu", new com.google.gson.JsonObject())).getAsJsonObject().get("success").getAsBoolean());
+        onMain(() -> assertEquals(0, player[0].getDanmakuCount()));
+        com.google.gson.JsonObject push = new com.google.gson.JsonObject(); push.addProperty("url", base + "/comments.xml");
+        assertTrue(com.google.gson.JsonParser.parseString(callback.onMessage("danmuPush", push)).getAsJsonObject().get("success").getAsBoolean());
+        waitFor(() -> player[0].getDanmakuCount() == 2);
+
     }
     public void testQualitySwitchKeepsPositionAndPausedState() throws Exception {
         DetailActivity detail = (DetailActivity)getInstrumentation().startActivitySync(new Intent(getInstrumentation().getTargetContext(), DetailActivity.class)

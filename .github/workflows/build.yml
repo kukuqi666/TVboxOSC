@@ -35,7 +35,7 @@ jobs:
       - name: Preserve BD-J build JDK
         run: echo "JAVA8_HOME=$JAVA_HOME" >> "$GITHUB_ENV"
       - name: Install BD-J Java build tool
-        run: sudo apt-get update && sudo apt-get install -y ant
+        run: sudo apt-get update && sudo apt-get install -y ant patchelf
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -185,7 +185,7 @@ jobs:
       - name: Preserve BD-J build JDK
         run: echo "JAVA8_HOME=$JAVA_HOME" >> "$GITHUB_ENV"
       - name: Install BD-J Java build tool
-        run: sudo apt-get update && sudo apt-get install -y ant
+        run: sudo apt-get update && sudo apt-get install -y ant patchelf
       - uses: actions/setup-java@v4
         with:
           distribution: temurin

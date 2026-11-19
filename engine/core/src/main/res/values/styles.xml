@@ -52,7 +52,7 @@
 
     <style name="core_Theme.Crash" parent="core_Theme.Base">
         <item name="android:windowDisablePreview">true</item>
-        <item name="android:windowBackground">@color/grey_700</item>
+        <item name="android:windowBackground">#616161</item>
     </style>
 
     <style name="core_Control">

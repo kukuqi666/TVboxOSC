@@ -42,7 +42,8 @@ if (signingStore.exists()) {
     android.buildTypes.configureEach { signingConfig android.signingConfigs.host }
 }
 dependencies {
-    implementation project(':python-runtime')
+    debugImplementation project(path: ':python-runtime', configuration: 'preparedDebug')
+    releaseImplementation project(path: ':python-runtime', configuration: 'preparedRelease')
     compileOnly project(':source-runtime')
 
     coreLibraryDesugaring libs.desugar

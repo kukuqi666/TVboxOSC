@@ -1,7 +1,5 @@
 package com.kukuqi.tvbox.engine.utils;
 
-import com.github.bassaer.library.MDColor;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,48 +8,49 @@ public class ColorGenerator {
     private static final List<Integer> PALETTE_400;
     private static final List<Integer> PALETTE_700;
 
+    // 保持原有头像配色，移除仅提供常量的旧颜色库。
     static {
         PALETTE_400 = new ArrayList<>();
-        PALETTE_400.add(MDColor.RED_400);
-        PALETTE_400.add(MDColor.PINK_400);
-        PALETTE_400.add(MDColor.PURPLE_400);
-        PALETTE_400.add(MDColor.DEEP_PURPLE_400);
-        PALETTE_400.add(MDColor.INDIGO_400);
-        PALETTE_400.add(MDColor.BLUE_400);
-        PALETTE_400.add(MDColor.LIGHT_BLUE_400);
-        PALETTE_400.add(MDColor.CYAN_400);
-        PALETTE_400.add(MDColor.TEAL_400);
-        PALETTE_400.add(MDColor.GREEN_400);
-        PALETTE_400.add(MDColor.LIGHT_GREEN_400);
-        PALETTE_400.add(MDColor.LIME_400);
-        PALETTE_400.add(MDColor.YELLOW_400);
-        PALETTE_400.add(MDColor.AMBER_400);
-        PALETTE_400.add(MDColor.ORANGE_400);
-        PALETTE_400.add(MDColor.DEEP_ORANGE_400);
-        PALETTE_400.add(MDColor.BROWN_400);
-        PALETTE_400.add(MDColor.GREY_400);
-        PALETTE_400.add(MDColor.BLUE_GREY_400);
+        PALETTE_400.add(0xFFEF5350);
+        PALETTE_400.add(0xFFEC407A);
+        PALETTE_400.add(0xFFAB47BC);
+        PALETTE_400.add(0xFF7E57C2);
+        PALETTE_400.add(0xFF5C6BC0);
+        PALETTE_400.add(0xFF42A5F5);
+        PALETTE_400.add(0xFF29B6F6);
+        PALETTE_400.add(0xFF26C6DA);
+        PALETTE_400.add(0xFF26A69A);
+        PALETTE_400.add(0xFF66BB6A);
+        PALETTE_400.add(0xFF9CCC65);
+        PALETTE_400.add(0xFFD4E157);
+        PALETTE_400.add(0xFFFFEE58);
+        PALETTE_400.add(0xFFFFCA28);
+        PALETTE_400.add(0xFFFFA726);
+        PALETTE_400.add(0xFFFF7043);
+        PALETTE_400.add(0xFF8D6E63);
+        PALETTE_400.add(0xFFBDBDBD);
+        PALETTE_400.add(0xFF78909C);
 
         PALETTE_700 = new ArrayList<>();
-        PALETTE_700.add(MDColor.RED_700);
-        PALETTE_700.add(MDColor.PINK_700);
-        PALETTE_700.add(MDColor.PURPLE_700);
-        PALETTE_700.add(MDColor.DEEP_PURPLE_700);
-        PALETTE_700.add(MDColor.INDIGO_700);
-        PALETTE_700.add(MDColor.BLUE_700);
-        PALETTE_700.add(MDColor.LIGHT_BLUE_700);
-        PALETTE_700.add(MDColor.CYAN_700);
-        PALETTE_700.add(MDColor.TEAL_700);
-        PALETTE_700.add(MDColor.GREEN_700);
-        PALETTE_700.add(MDColor.LIGHT_GREEN_700);
-        PALETTE_700.add(MDColor.LIME_700);
-        PALETTE_700.add(MDColor.YELLOW_700);
-        PALETTE_700.add(MDColor.AMBER_700);
-        PALETTE_700.add(MDColor.ORANGE_700);
-        PALETTE_700.add(MDColor.DEEP_ORANGE_700);
-        PALETTE_700.add(MDColor.BROWN_700);
-        PALETTE_700.add(MDColor.GREY_700);
-        PALETTE_700.add(MDColor.BLUE_GREY_700);
+        PALETTE_700.add(0xFFD32F2F);
+        PALETTE_700.add(0xFFC2185B);
+        PALETTE_700.add(0xFF7B1FA2);
+        PALETTE_700.add(0xFF512DA8);
+        PALETTE_700.add(0xFF303F9F);
+        PALETTE_700.add(0xFF1976D2);
+        PALETTE_700.add(0xFF0288D1);
+        PALETTE_700.add(0xFF0097A7);
+        PALETTE_700.add(0xFF00796B);
+        PALETTE_700.add(0xFF388E3C);
+        PALETTE_700.add(0xFF689F38);
+        PALETTE_700.add(0xFFAFB42B);
+        PALETTE_700.add(0xFFFBC02D);
+        PALETTE_700.add(0xFFFFA000);
+        PALETTE_700.add(0xFFF57C00);
+        PALETTE_700.add(0xFFE64A19);
+        PALETTE_700.add(0xFF5D4037);
+        PALETTE_700.add(0xFF616161);
+        PALETTE_700.add(0xFF455A64);
     }
 
     public static int get400(String key) {

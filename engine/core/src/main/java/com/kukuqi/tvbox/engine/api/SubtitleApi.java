@@ -8,7 +8,7 @@ import com.kukuqi.tvbox.engine.bean.SubtitleSearchItem;
 import com.kukuqi.tvbox.engine.bean.SubtitleSearchPage;
 import com.kukuqi.tvbox.engine.impl.ApiCallback;
 import com.kukuqi.tvbox.engine.setting.SubtitleSetting;
-import com.kukuqi.tvbox.engine.utils.Download;
+import com.github.catvod.net.Download;
 import com.kukuqi.tvbox.engine.utils.ResUtil;
 import com.kukuqi.tvbox.engine.utils.SubtitleArchive;
 import com.kukuqi.tvbox.engine.utils.Task;

@@ -15,20 +15,22 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import com.kukuqi.tvbox.engine.utils.Task;
 
 import dalvik.system.DexClassLoader;
 
 public class BaseLoader {
 
-    private final JarLoader jarLoader;
-    private final PyLoader pyLoader;
-    private final JsLoader jsLoader;
-    private final NodeLoader nodeLoader;
+    private volatile JarLoader jarLoader;
+    private volatile PyLoader pyLoader;
+    private volatile JsLoader jsLoader;
+    private volatile NodeLoader nodeLoader;
+    private final List<SpiderLoader> retiredLoaders = new ArrayList<>();
 
     public BaseLoader() {
         jarLoader = new JarLoader();
-        pyLoader = new PyLoader();
-        jsLoader = new JsLoader(jarLoader);
         nodeLoader = new NodeLoader();
     }
 
@@ -48,19 +50,58 @@ public class BaseLoader {
         return api.startsWith("csp_");
     }
 
-    public synchronized void clear() {
-        // The host loads the replacement configuration on a worker thread immediately after clear.
-        // Finish destroying old modules before allowing a new module to enter the cache.
-        jarLoader.clear();
-        pyLoader.clear();
-        jsLoader.clear();
-        nodeLoader.clear();
+    private synchronized JsLoader js() {
+        if (jsLoader == null) jsLoader = new JsLoader(jarLoader);
+        return jsLoader;
     }
 
-    public synchronized Spider getSpider(String key, String api, String ext, String jar) {
+    private synchronized PyLoader python() {
+        if (pyLoader == null) pyLoader = new PyLoader();
+        return pyLoader;
+    }
+
+    public void clear() { rotate(false); }
+    public void destroy() { rotate(true); }
+
+    private void rotate(boolean exiting) {
+        List<SpiderLoader> previous = new ArrayList<>();
+        List<SpiderLoader> retired;
+        synchronized (this) {
+            previous.add(jarLoader);
+            previous.add(nodeLoader);
+            if (pyLoader != null) previous.add(pyLoader);
+            if (jsLoader != null) previous.add(jsLoader);
+            retiredLoaders.addAll(previous);
+            retired = exiting ? new ArrayList<>(retiredLoaders) : previous;
+            jarLoader = new JarLoader();
+            nodeLoader = new NodeLoader();
+            pyLoader = null;
+            jsLoader = null;
+        }
+        // 先关闭旧代，阻止迟到的初始化进入缓存，再在后台释放原生资源。
+        Throwable failure = null;
+        for (SpiderLoader loader : previous) {
+            try { loader.clear(); }
+            catch (RuntimeException | Error error) {
+                if (failure == null) failure = error;
+                else if (failure != error) failure.addSuppressed(error);
+            }
+        }
+        Task.execute(() -> {
+            for (SpiderLoader loader : retired) {
+                try { loader.destroy(); }
+                catch (RuntimeException | Error error) { com.github.catvod.crawler.SpiderDebug.log(error); }
+                finally { synchronized (BaseLoader.this) { retiredLoaders.remove(loader); } }
+            }
+        });
+        if (failure instanceof RuntimeException error) throw error;
+        if (failure instanceof Error error) throw error;
+    }
+
+    public Spider getSpider(String key, String api, String ext, String jar) {
         if (NodeLoader.accepts(api)) return nodeLoader.getSpider(key, api, ext);
-        else if (isPy(api)) return pyLoader.getSpider(key, api, ext);
-        else if (isJs(api)) return jsLoader.getSpider(key, api, ext, jar);
+        else if (isPy(api)) return python().getSpider(key, api, ext);
+        else if (isJs(api)) return js().getSpider(key, api, ext, jar);
         else if (isCsp(api)) return jarLoader.getSpider(key, api, ext, jar);
         else return new SpiderNull();
     }
@@ -74,28 +115,29 @@ public class BaseLoader {
     }
 
     public void setRecent(String key, String api, String jar) {
-        if (NodeLoader.accepts(api)) nodeLoader.setRecent(key);
-        else if (isJs(api)) jsLoader.setRecent(key);
-        else if (isPy(api)) pyLoader.setRecent(key);
+        if (NodeLoader.accepts(api)) nodeLoader.setRecent(key, api);
+        else if (isJs(api)) js().setRecent(key);
+        else if (isPy(api)) python().setRecent(key);
         else if (isCsp(api)) jarLoader.setRecent(Crypto.md5(jar));
     }
 
     public Object[] proxy(Map<String, String> params) throws Exception {
         if (params.containsKey("siteKey")) return getSpider(params.get("siteKey")).proxy(params);
-        if ("js".equals(params.get("do"))) return jsLoader.proxy(params);
+        if ("js".equals(params.get("do"))) return js().proxy(params);
         if ("nodejs".equals(params.get("do")) || "node".equals(params.get("do"))) return nodeLoader.proxy(params);
-        if ("py".equals(params.get("do"))) return pyLoader.proxy(params);
+        if ("py".equals(params.get("do"))) return python().proxy(params);
         return jarLoader.proxy(params);
     }
 
-    public synchronized void parseJar(String jar, boolean recent) {
+    public void parseJar(String jar, boolean recent) {
         if (TextUtils.isEmpty(jar)) return;
         String key = Crypto.md5(jar);
-        jarLoader.parseJar(key, jar);
-        if (recent) jarLoader.setRecent(key);
+        JarLoader loader = jarLoader;
+        loader.parseJar(key, jar);
+        if (recent) loader.setRecent(key);
     }
 
-    public synchronized DexClassLoader dex(String jar) {
+    public DexClassLoader dex(String jar) {
         return jarLoader.dex(jar);
     }
 

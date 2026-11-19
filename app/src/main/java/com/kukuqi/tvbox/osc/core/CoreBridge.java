@@ -95,6 +95,8 @@ public final class CoreBridge {
                         case "setCookie" -> success = host.setCookie(com.kukuqi.tvbox.osc.util.SourceDescriptor.string(options, "url"), com.kukuqi.tvbox.osc.util.SourceDescriptor.string(options, "cookie"));
                         case "getUserAgent" -> response.addProperty("ua", host.getUserAgent());
                         case "getPlayInfo" -> { return nodePlaybackInfo(); }
+                        case "danmuPush" -> success = nodeDanmaku(com.kukuqi.tvbox.osc.util.SourceDescriptor.string(options, "url"));
+                        case "clearDanmu" -> success = nodeDanmaku("");
                         default -> success = false;
                     }
                 } catch (RuntimeException error) {
@@ -116,6 +118,25 @@ public final class CoreBridge {
     public static void bindPlayer(com.kukuqi.tvbox.osc.player.CorePlayer player) { activePlayer = new java.lang.ref.WeakReference<>(player); }
     public static void unbindPlayer(com.kukuqi.tvbox.osc.player.CorePlayer player) {
         if (activePlayer.get() == player) { activePlayer.clear(); nodePlayFlag = ""; nodePlayId = ""; }
+    }
+    private static volatile java.lang.ref.WeakReference<com.kukuqi.tvbox.osc.player.MyVideoView> activeVideoView = new java.lang.ref.WeakReference<>(null);
+    public static void bindVideoView(com.kukuqi.tvbox.osc.player.MyVideoView view) { activeVideoView = new java.lang.ref.WeakReference<>(view); }
+    public static void unbindVideoView(com.kukuqi.tvbox.osc.player.MyVideoView view) { if (activeVideoView.get() == view) activeVideoView.clear(); }
+    private static boolean nodeDanmaku(String url) {
+        var expectedView = activeVideoView.get();
+        var expectedPlayer = activePlayer.get();
+        if (expectedView == null || expectedPlayer == null) return false;
+        java.util.concurrent.FutureTask<Boolean> update = new java.util.concurrent.FutureTask<>(() -> {
+            if (activeVideoView.get() != expectedView || activePlayer.get() != expectedPlayer
+                    || expectedView.getMediaPlayer() != expectedPlayer || expectedPlayer.manager() == null
+                    || expectedPlayer.manager().isReleased()) return false;
+            expectedView.setScriptDanmaku(url);
+            return true;
+        });
+        if (Looper.myLooper() == Looper.getMainLooper()) update.run(); else MAIN.post(update);
+        try { return update.get(1500, java.util.concurrent.TimeUnit.MILLISECONDS); }
+        catch (InterruptedException interrupted) { Thread.currentThread().interrupt(); update.cancel(false); return false; }
+        catch (Exception failure) { update.cancel(false); return false; }
     }
     private static String nodePlaybackInfo() {
         java.util.concurrent.FutureTask<String> read = new java.util.concurrent.FutureTask<>(() -> {

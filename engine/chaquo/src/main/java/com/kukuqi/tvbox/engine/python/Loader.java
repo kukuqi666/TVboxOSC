@@ -23,7 +23,7 @@ public class Loader implements com.github.catvod.runtime.PythonRuntime {
     @Override public void initialize() { /* 构造时已初始化。 */ }
     @Override public void check() {
         Python python = Python.getInstance();
-        python.getModule("ujson"); python.getModule("Crypto.Cipher.AES");
+        for (String module : new String[]{"ujson", "lxml.etree", "Crypto.Cipher.AES", "cryptography.hazmat.primitives.ciphers.aead", "cffi", "numpy", "pywasm"}) python.getModule(module);
         try (PyObject globals = python.getBuiltins().callAttr("dict");
              PyObject result = python.getBuiltins().callAttr("eval", "6 * 7", globals)) {
             if (result.toInt() != 42) throw new IllegalStateException("Python 求值结果异常");

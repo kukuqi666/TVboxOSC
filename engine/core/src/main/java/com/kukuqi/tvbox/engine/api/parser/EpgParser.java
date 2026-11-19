@@ -7,7 +7,7 @@ import com.kukuqi.tvbox.engine.bean.Epg;
 import com.kukuqi.tvbox.engine.bean.EpgData;
 import com.kukuqi.tvbox.engine.bean.Live;
 import com.kukuqi.tvbox.engine.bean.Tv;
-import com.kukuqi.tvbox.engine.utils.Download;
+import com.github.catvod.net.Download;
 import com.kukuqi.tvbox.engine.utils.FileUtil;
 import com.kukuqi.tvbox.engine.utils.Formatters;
 import com.kukuqi.tvbox.engine.utils.UrlUtil;

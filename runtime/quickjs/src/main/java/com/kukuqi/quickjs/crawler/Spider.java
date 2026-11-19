@@ -46,6 +46,7 @@ public class Spider extends com.github.catvod.crawler.Spider {
     private volatile Global global;
     private volatile boolean closed;
     private volatile boolean destroyed;
+    private boolean scriptReady;
 
     public Spider(String api, DexClassLoader dex) {
         this(api, dex, Host.NONE);
@@ -257,7 +258,7 @@ public class Spider extends com.github.catvod.crawler.Spider {
 
     private Throwable destroyScript(Throwable failure) {
         try {
-            if (global != null) call("destroy");
+            if (global != null && scriptReady) call("destroy");
         } catch (Exception | Error error) {
             if (failure == null) failure = error;
             else if (failure != error) failure.addSuppressed(error);
@@ -284,6 +285,7 @@ public class Spider extends com.github.catvod.crawler.Spider {
             return null;
         }).get();
         createObj();
+        scriptReady = true;
     }
 
     private Object bindGlobals() {

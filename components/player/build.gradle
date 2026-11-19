@@ -33,6 +33,5 @@ android {
 
 dependencies {
     implementation libs.annotation
-    implementation libs.okhttp
     api libs.dkplayer
 }

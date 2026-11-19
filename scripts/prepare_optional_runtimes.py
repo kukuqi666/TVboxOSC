@@ -18,6 +18,8 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 CACHE = ROOT / 'build/optional-runtime-inputs'
 INPUTS = {
+    'smali-dexlib2-3.0.9.jar': ('https://dl.google.com/dl/android/maven2/com/android/tools/smali/smali-dexlib2/3.0.9/smali-dexlib2-3.0.9.jar', '8b547506f62f91d74b70f4beb4989b99e1ff61fc50b2525e9796ca35f0a351dc'),
+    'guava-33.0.0-jre.jar': ('https://repo.maven.apache.org/maven2/com/google/guava/guava/33.0.0-jre/guava-33.0.0-jre.jar', 'f4d85c3e4d411694337cb873abea09b242b664bb013320be6105327c45991537'),
     'quickjs-wrapper.tar.gz': ('https://codeload.github.com/FongMi/quickjs-wrapper/tar.gz/7fb3bb181d28f66d7057d171ff9f537b5a77f6c9', '4124f63c40b8e87c78b60cc6c9c5083001c8281c9f052a904ff724595f24b707'),
     'quickjs-engine.tar.gz': ('https://codeload.github.com/FongMi/quickjs/tar.gz/0b213e90cc56a950856abed2ee7dc85aaa160e7b', '1edce6b0c0a1e1ad24c3259844a67736d704c4022f73822815f26b582dfe4e8b'),
     'node-LICENSE': ('https://raw.githubusercontent.com/FongMi/nodejs-mobile/e2e7cf82b9179d19304e19ccb6c3857155e07368/LICENSE', '5888dbb9a1d2b18f2c3e6c5f6af1b39de658372b402a0577b002777f14c62ace'),

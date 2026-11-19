@@ -181,9 +181,6 @@
 -keep class com.dueeeke.videoplayer.** { *; }
 -dontwarn com.dueeeke.videoplayer.**
 
-# IjkPlayer
--keep class tv.danmaku.ijk.** { *; }
--dontwarn tv.danmaku.ijk.**
 
 # ExoPlayer
 
@@ -200,9 +197,6 @@
 -keep class com.github.catvod.crawler.*{*;}
 # 迅雷下载模块
 -keep class com.xunlei.downloadlib.** {*;}
-# quickjs引擎
--keep class com.github.tvbox.quickjs.** {*;}
--keep class com.whl.quickjs.** {*;}
 
 # 支持影视的ali相关的jar
 -keep class com.google.gson.**{*;}

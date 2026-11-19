@@ -1,3 +1,8 @@
+import com.android.build.api.artifact.SingleArtifact
+import org.gradle.process.ExecOperations
+import javax.inject.Inject
+import groovy.json.JsonSlurper
+
 plugins {
     id 'com.android.library'
     id 'com.chaquo.python'
@@ -19,6 +24,8 @@ android {
             pyc { src = false; pip = false }
             pip {
                 install("-r", "requirements.txt")
+                def runtimeLock = new JsonSlurper().parse(rootProject.file('engine/chaquo/runtime.lock.json'))
+                runtimeLock.wheels.each { wheel -> install(rootProject.file('build/python-runtime-inputs/' + wheel.file).absolutePath) }
             }
         }
     }
@@ -39,4 +46,34 @@ android {
 dependencies {
     compileOnly project(':source-runtime')
     coreLibraryDesugaring libs.desugar
+}
+
+// 先校验固定输入，再由 AGP 的 AAR 转换统一扩展与 CPython 原生库。
+def syncPython = tasks.register('syncPythonRuntime', Exec) {
+    commandLine 'python3', rootProject.file('scripts/prepare_python_runtime.py'), '--sync'
+}
+tasks.matching { it.name.endsWith('PythonRequirements') }.configureEach { dependsOn syncPython }
+abstract class PreparePythonRuntime extends DefaultTask {
+    @InputFile @PathSensitive(PathSensitivity.NONE) abstract RegularFileProperty getInputArchive()
+    @OutputFile abstract RegularFileProperty getOutputArchive()
+    @Inject abstract ExecOperations getExecOperations()
+    @TaskAction void prepare() {
+        execOperations.exec {
+            commandLine 'python3', project.rootProject.file('scripts/prepare_python_runtime.py'),
+                    '--aar', inputArchive.get().asFile, '--output', outputArchive.get().asFile
+        }
+    }
+}
+androidComponents.onVariants(androidComponents.selector().all()) { variant ->
+    def prepared = tasks.register("prepare${variant.name.capitalize()}PythonRuntime", PreparePythonRuntime) {
+        dependsOn syncPython
+        inputs.files(rootProject.file('scripts/prepare_optional_runtimes.py'), rootProject.file('scripts/prepare_python_runtime.py'), rootProject.file('engine/chaquo/runtime.lock.json'), rootProject.file('engine/core/libs/lib-mpvplayer-release.aar'))
+    }
+    variant.artifacts.use(prepared).wiredWithFiles({ it.inputArchive }, { it.outputArchive }).toTransform(SingleArtifact.AAR.INSTANCE)
+    // 项目默认依赖直接消费合并目录，会绕过 AAR 转换；模块必须消费此最终归档。
+    def exported = configurations.create("prepared${variant.name.capitalize()}") {
+        canBeConsumed = true
+        canBeResolved = false
+    }
+    exported.outgoing.artifact(variant.artifacts.get(SingleArtifact.AAR.INSTANCE)) { builtBy prepared }
 }

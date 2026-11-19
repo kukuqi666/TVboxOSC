@@ -18,7 +18,6 @@
 -keep class com.kukuqi.tvbox.engine.player.extractor.Source { *; }
 -keep interface com.kukuqi.tvbox.engine.player.extractor.Source$Extractor { *; }
 -keep class com.kukuqi.tvbox.engine.exception.ExtractException { *; }
--keep class com.kukuqi.tvbox.engine.utils.Download { *; }
 -keep class com.kukuqi.tvbox.engine.utils.ResUtil { *; }
 -keep class com.kukuqi.tvbox.engine.utils.UrlUtil { *; }
 -keep class com.kukuqi.tvbox.engine.R$string { public static int core_error_play_timeout; }

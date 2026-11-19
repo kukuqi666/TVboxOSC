@@ -20,6 +20,7 @@ public final class DanmakuController {
     private static final java.util.concurrent.ExecutorService PARSER = java.util.concurrent.Executors.newSingleThreadExecutor();
     public DanmakuController(DanmakuView view) { this.view = view; }
     public void cancel() { generation++; DanmakuApi.cancel(); }
+    public void clear() { cancel(); view.setTimeline(null); status = "已清空"; }
     public void load(JsonElement source, String name, String episode) {
         cancel(); view.setTimeline(null); status = "正在加载";
         if (!Hawk.get("danmaku_load", false)) { status = "已关闭"; return; }

@@ -189,6 +189,25 @@ class WebsiteAuditTest(unittest.TestCase):
         source = "// import x from './missing.js'\n const example=`import y from './also-missing.js'`; import a from './real.js'; const b=require('../lib.js');"
         self.assertEqual({'./real.js', '../lib.js'}, self.audit.js_imports(source))
 
+    def test_legacy_quickjs_types_are_rejected_even_when_jar_path_exists(self):
+        import io
+        import struct
+        import zipfile
+        from contextlib import redirect_stdout
+        def dex_with_reference(reference):
+            data = bytearray(116)
+            data[:8] = b'dex\n035\0'
+            struct.pack_into('<II', data, 56, 1, 112)
+            struct.pack_into('<I', data, 112, 116)
+            data.extend(bytes([len(reference)]) + reference.encode() + b'\0')
+            return data
+        jar = self.root / 'source.jar'
+        with zipfile.ZipFile(jar, 'w') as archive: archive.writestr('classes.dex', dex_with_reference('Lcom/fongmi/quickjs/QuickJSContext;'))
+        with redirect_stdout(io.StringIO()): self.assertEqual(1, self.audit.audit(write=True))
+        self.assertFalse((self.root / 'catalog.json').exists())
+        with zipfile.ZipFile(jar, 'w') as archive: archive.writestr('classes.dex', dex_with_reference('Lcom/kukuqi/quickjs/QuickJSContext;'))
+        with redirect_stdout(io.StringIO()): self.assertEqual(0, self.audit.audit(write=True))
+
     def test_probe_preserves_failure_and_uses_bounded_read(self):
         import io
         import urllib.error
@@ -204,6 +223,50 @@ class WebsiteAuditTest(unittest.TestCase):
             self.assertEqual(3, request.call_args.kwargs['timeout'])
         with patch.object(self.audit.urllib.request, 'urlopen', side_effect=urllib.error.HTTPError('https://example.test', 403, 'denied', {}, None)):
             self.assertEqual(403, self.audit.probe_urls(['https://example.test'])[0]['status'])
+
+
+class PythonRuntimePackagingTest(unittest.TestCase):
+    def test_requirement_rewrite_keeps_resources_and_removes_formatter_tests(self):
+        import io
+        import zipfile
+        import prepare_python_runtime as runtime
+        original = io.BytesIO()
+        with zipfile.ZipFile(original, 'w') as archive:
+            archive.writestr('pkg/data.json', b'{"ok":true}')
+            archive.writestr(runtime.CXX, b'old-cxx')
+            archive.writestr('yapftests/test_format.py', b'test')
+        updated = runtime.rewrite_zip(original.getvalue(), lambda name, data: b'host-cxx' if name == runtime.CXX else data, omit_tests=True)
+        with zipfile.ZipFile(io.BytesIO(updated)) as archive:
+            self.assertEqual(b'{"ok":true}', archive.read('pkg/data.json'))
+            self.assertEqual(b'host-cxx', archive.read(runtime.CXX))
+            self.assertNotIn('yapftests/test_format.py', archive.namelist())
+
+    def test_native_libraries_reject_wrong_abi_and_page_alignment(self):
+        import struct
+        import prepare_python_runtime as runtime
+        data = bytearray(120)
+        data[:6] = b'\x7fELF\x02\x01'
+        struct.pack_into('<H', data, 18, 183)
+        struct.pack_into('<Q', data, 32, 64)
+        struct.pack_into('<HH', data, 54, 56, 1)
+        struct.pack_into('<I', data, 64, 1)
+        struct.pack_into('<Q', data, 112, 16384)
+        runtime.verify_elf(data, 'valid.so')
+        struct.pack_into('<Q', data, 112, 4096)
+        with self.assertRaises(ValueError): runtime.verify_elf(data, '4k.so')
+        struct.pack_into('<H', data, 18, 40)
+        with self.assertRaises(ValueError): runtime.verify_elf(data, 'arm32.so')
+
+    def test_corrupt_download_never_replaces_verified_input(self):
+        import prepare_python_runtime as runtime
+        with tempfile.TemporaryDirectory() as temporary, patch.object(runtime, 'CACHE', Path(temporary)):
+            path = Path(temporary) / 'input.whl'
+            path.write_bytes(b'previous')
+            def corrupt(url, part): part.write_bytes(b'corrupt')
+            with patch.object(runtime, 'download', side_effect=corrupt), self.assertRaises(ValueError):
+                runtime.fetch('input.whl', '0' * 64, 'https://example.test/')
+            self.assertEqual(b'previous', path.read_bytes())
+            self.assertFalse(path.with_suffix('.part').exists())
 
 
 if __name__ == '__main__':

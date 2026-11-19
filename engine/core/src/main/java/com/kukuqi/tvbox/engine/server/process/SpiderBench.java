@@ -98,7 +98,7 @@ public class SpiderBench implements Process {
         try {
             if (!jar.isEmpty()) loader.parseJar(jar, false);
             spider = loader.getSpider(siteKey, api, ext, jar);
-        } catch (Throwable failure) { loader.clear(); throw failure; }
+        } catch (Throwable failure) { loader.destroy(); throw failure; }
         long loadMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started);
         Session previous = sessions.put(id, new Session(api, jar, ext, spider, loader));
         if (previous != null) previous.close();
@@ -278,7 +278,7 @@ public class SpiderBench implements Process {
         void close() {
             // 释放来源时同步结束它留下的网络追踪，避免容器泄漏
             NetTrace.end("bench:" + api);
-            loader.clear();
+            loader.destroy();
         }
     }
 

@@ -360,7 +360,9 @@ public class RuntimeModuleRegressionTest extends InstrumentationTestCase {
         // A local torrent exercises native Thunder parsing without starting a network download.
         File torrent = new File(host.getCacheDir(), "runtime-fixture.torrent");
         // Thunder intentionally filters files <= 30 MiB. Only metadata is generated, no video payload.
-        java.nio.file.Files.writeString(torrent.toPath(), "d4:infod6:lengthi33554432e4:name9:video.mp412:piece lengthi33554432e6:pieces20:01234567890123456789ee");
+        try (java.io.OutputStream output = new java.io.FileOutputStream(torrent)) {
+            output.write("d4:infod6:lengthi33554432e4:name9:video.mp412:piece lengthi33554432e6:pieces20:01234567890123456789ee".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        }
         Object thunder = RuntimeModules.create(host, RuntimeModule.THUNDER);
         List<?> media = (List<?>) RuntimeModules.call(thunder, "parse", new Class<?>[]{String.class}, "file://" + torrent.getAbsolutePath());
         assertEquals(1, media.size());

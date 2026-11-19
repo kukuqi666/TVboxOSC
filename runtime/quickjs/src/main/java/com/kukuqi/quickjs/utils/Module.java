@@ -119,6 +119,16 @@ public class Module implements QuickJS.ModuleLoader {
     private CompletableFuture<String> read(String name, Net client) {
         if (name.startsWith("http")) return client.requestAsync(name, new NetOptions()).thenApply(this::readResponse);
         if (name.startsWith("assets")) return CompletableFuture.completedFuture(QuickJSLoader.readAsset(name));
+        if (name.startsWith("file:/") || name.startsWith("/")) {
+            try {
+                File source = name.startsWith("file:/") ? new File(new java.net.URI(name)) : new File(name);
+                try (java.io.InputStream input = new java.io.FileInputStream(source)) {
+                    return CompletableFuture.completedFuture(Path.readOrThrow(input));
+                }
+            } catch (java.io.IOException | java.net.URISyntaxException error) {
+                throw new IllegalStateException("无法读取本地 JS 模块：" + name, error);
+            }
+        }
         throw new IllegalArgumentException("Unsupported module URL: " + name);
     }
 

@@ -3335,6 +3335,28 @@
       "reason": "与 xyq.json 配置语义相同，且没有直接消费者"
     }
   ],
+  "jar_migrations": [
+    {
+      "file": "jar/957f4f3ee9526dcc8a0d1d6d-custom_spider.jar",
+      "input_sha256": "957f4f3ee9526dcc8a0d1d6d0f16d0ec30a15a8cb2a5bf945c8a143c4a5879d8",
+      "output_sha256": "3102a95e7f43d6a42a7b05ee8bf8df273cf5c4ce482359a7c68818e7f6c372c7",
+      "removed_signatures": [],
+      "wrapper_sha256": "4101c1fb9a3f0cf83e66359fa65914ffd748d4ef137858cd6f66aaa46b67a52f",
+      "method": "smali-dexlib2 3.0.9 类型重写与 DEX 重建；逐方法验证 kukuqi wrapper，保留全部站点类和资源"
+    },
+    {
+      "file": "jar/spider-b4886fad7b.jar",
+      "input_sha256": "b4886fad7bf24bc0776f55eb28e938cd0dae14aab36c94fb4cc9f86cf5f90b74",
+      "output_sha256": "f7cb9dce39ff94b7e332debacf93498e4cefb440e5f02f12a1a49d33a889d676",
+      "removed_signatures": [
+        "META-INF/ANDROID.RSA",
+        "META-INF/ANDROID.SF",
+        "META-INF/MANIFEST.MF"
+      ],
+      "wrapper_sha256": "4101c1fb9a3f0cf83e66359fa65914ffd748d4ef137858cd6f66aaa46b67a52f",
+      "method": "smali-dexlib2 3.0.9 类型重写与 DEX 重建；逐方法验证 kukuqi wrapper，保留全部站点类和资源"
+    }
+  ],
   "summary": {
     "files": 2301,
     "jars": 32,
@@ -6187,6 +6209,7 @@
       "md5": "01a4ac9109a0602124cee4feddc1971e",
       "references": [],
       "used_by": [],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.AppYs",
         "com.github.catvod.spider.AppYsV2",
@@ -6505,6 +6528,7 @@
       "used_by": [
         "sources/xiongjian83/18/19.json"
       ],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.AList",
         "com.github.catvod.spider.Ali",
@@ -7609,6 +7633,7 @@
       "md5": "770a64d7528f1c45c19fa9ca0adab5a0",
       "references": [],
       "used_by": [],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.AList",
         "com.github.catvod.spider.Ali",
@@ -8348,6 +8373,7 @@
       "used_by": [
         "sources/xiongjian83/X.json"
       ],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.360",
         "com.github.catvod.spider.AList",
@@ -9812,13 +9838,14 @@
     {
       "path": "jar/957f4f3ee9526dcc8a0d1d6d-custom_spider.jar",
       "kind": "jar",
-      "size": 167813,
-      "sha256": "957f4f3ee9526dcc8a0d1d6d0f16d0ec30a15a8cb2a5bf945c8a143c4a5879d8",
-      "md5": "15e6a916ed637e3c5dfb75df41d881be",
+      "size": 167685,
+      "sha256": "3102a95e7f43d6a42a7b05ee8bf8df273cf5c4ce482359a7c68818e7f6c372c7",
+      "md5": "18f0b57ab2934958b42774ae441da479",
       "references": [],
       "used_by": [
         "sources/xiongjian83/18/19.json"
       ],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.AList",
         "com.github.catvod.spider.Demo",
@@ -10106,6 +10133,7 @@
       "used_by": [
         "sources/zyjk/tvbox2.json"
       ],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.AppYs",
         "com.github.catvod.spider.AppYsV2",
@@ -10959,6 +10987,7 @@
       "used_by": [
         "sources/qist/0825.json"
       ],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.AppYs",
         "com.github.catvod.spider.AppYsV2",
@@ -12612,6 +12641,7 @@
       "used_by": [
         "sources/qist/XYQ.json"
       ],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.AliPS",
         "com.github.catvod.spider.Alist",
@@ -12976,6 +13006,7 @@
         "sources/xiongjian83/X.json",
         "sources/zyjk/tvbox2.json"
       ],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.AliPS",
         "com.github.catvod.spider.Alist",
@@ -13346,6 +13377,7 @@
         "sources/zyjk/xp.json",
         "sources/zyjk/xyq.json"
       ],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.AList",
         "com.github.catvod.spider.Ali",
@@ -14985,6 +15017,7 @@
       "used_by": [
         "sources/xiongjian83/18/19.json"
       ],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.AList",
         "com.github.catvod.spider.Ali",
@@ -16378,6 +16411,7 @@
       "used_by": [
         "sources/qist/0827.json"
       ],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.AList",
         "com.github.catvod.spider.Ali",
@@ -16917,6 +16951,7 @@
       "used_by": [
         "sources/tvbox18/XYQTVBox/drpy_js/drjs_config.json"
       ],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.AliPS",
         "com.github.catvod.spider.AppYs",
@@ -17267,6 +17302,7 @@
       "used_by": [
         "sources/tvbox18/XYQTVBox/XYQTVBox.json"
       ],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.AliPS",
         "com.github.catvod.spider.AppYs",
@@ -17618,6 +17654,7 @@
       "used_by": [
         "jhkx-full.json"
       ],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.919Tiyu",
         "com.github.catvod.spider.Alist",
@@ -20585,6 +20622,7 @@
       "used_by": [
         "sources/zyjk/tvbox2.json"
       ],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.AList",
         "com.github.catvod.spider.Ali",
@@ -20992,6 +21030,7 @@
         "sources/qist/0826.json",
         "sources/qist/fty.json"
       ],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.AiDjGuard",
         "com.github.catvod.spider.AlisoGuard",
@@ -21082,6 +21121,7 @@
       "md5": "5aee1ff968a3dc5cbbf225399e9441e9",
       "references": [],
       "used_by": [],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.AList",
         "com.github.catvod.spider.Ali",
@@ -21636,6 +21676,7 @@
       "used_by": [
         "sources/tvbox18/XYQTVBox/fty/fty.json"
       ],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.AList",
         "com.github.catvod.spider.Ali",
@@ -22179,6 +22220,7 @@
       "used_by": [
         "sources/tvbox18/XYQTVBox/qiaoji/qjtvbox.json"
       ],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.AppYsV2",
         "com.github.catvod.spider.Appto",
@@ -22367,6 +22409,7 @@
       "used_by": [
         "sources/zyjk/tvbox1.json"
       ],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.AList",
         "com.github.catvod.spider.Ali",
@@ -22430,6 +22473,7 @@
       "used_by": [
         "sources/tvbox18/adult.json"
       ],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.AList",
         "com.github.catvod.spider.Ali",
@@ -23180,6 +23224,7 @@
       "md5": "2a88192b6a0a8f95c9f9f99cd501f90a",
       "references": [],
       "used_by": [],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.Init",
         "com.github.catvod.spider.merge.As",
@@ -23215,6 +23260,7 @@
       "used_by": [
         "sources/tvbox18/ok/ok.json"
       ],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.AList",
         "com.github.catvod.spider.Ali",
@@ -24336,6 +24382,7 @@
       "used_by": [
         "tvbox.json"
       ],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.4KZhinan",
         "com.github.catvod.spider.919TY",
@@ -26916,6 +26963,7 @@
         "sources/tvbox18/pg/jsm.json",
         "sources/tvbox18/tv.json"
       ],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.AList",
         "com.github.catvod.spider.Ali",
@@ -27026,6 +27074,7 @@
       "used_by": [
         "sources/tvbox18/app.json"
       ],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.AList",
         "com.github.catvod.spider.Ali",
@@ -27185,6 +27234,7 @@
       "used_by": [
         "sources/qist/99188.json"
       ],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.AList",
         "com.github.catvod.spider.Ali",
@@ -28154,6 +28204,7 @@
         "sources/qist/9918.json",
         "sources/qist/js.json"
       ],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.AList",
         "com.github.catvod.spider.Ali",
@@ -29108,15 +29159,16 @@
     {
       "path": "jar/spider-b4886fad7b.jar",
       "kind": "jar",
-      "size": 1700116,
-      "sha256": "b4886fad7bf24bc0776f55eb28e938cd0dae14aab36c94fb4cc9f86cf5f90b74",
-      "md5": "decb609b673019e18512dc3a96b6a252",
+      "size": 1685243,
+      "sha256": "f7cb9dce39ff94b7e332debacf93498e4cefb440e5f02f12a1a49d33a889d676",
+      "md5": "a960ac10b9bb29fb7b7c4a048b98d850",
       "references": [],
       "used_by": [
         "sources/qist/dianshi.json",
         "sources/qist/jsm.json",
         "sources/qist/xiaosa/api.json"
       ],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.4KZhinan",
         "com.github.catvod.spider.ALLLive",
@@ -31021,6 +31073,7 @@
         "jhkx-full.json",
         "tvbox.json"
       ],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.AlisoGuard",
         "com.github.catvod.spider.AllliveGuard",
@@ -31107,6 +31160,7 @@
       "md5": "fd3cefc7302f3a39a442682f802b11e5",
       "references": [],
       "used_by": [],
+      "incompatible_sdk_references": [],
       "spider_classes": [
         "com.github.catvod.spider.AliPS",
         "com.github.catvod.spider.Alist",
@@ -37473,8 +37527,8 @@
       "path": "sources/qist/dianshi.json",
       "kind": "config",
       "size": 53651,
-      "sha256": "050f608719c9c5ed9221661d8f1ce308011322a41023db271e1613d4b1734c04",
-      "md5": "c3c48d7960c06d5105748ee642a2ff6c",
+      "sha256": "d882c74b056e245ddb17c2b54256b85784d5d0f2290ccc9b0e1ebd74a6ea32f2",
+      "md5": "5e18e15156656ee6ffcc67312812a9b6",
       "references": [
         "jar/spider-b4886fad7b.jar",
         "sources/qist/js/360影视.js",
@@ -39887,8 +39941,8 @@
       "path": "sources/qist/jsm.json",
       "kind": "config",
       "size": 54381,
-      "sha256": "a101064e714ee051611a71a81f0c3d2007bfed047be68a9a01c3db1a88d0eb88",
-      "md5": "0d15550f0f32661cf23c29ac3b93c754",
+      "sha256": "c88f0380e41d5ceea560b81ed9d0a569c31f477f2638df069a50c2b5bf06034f",
+      "md5": "c965ba560cc28d0c317da4ac4a73d7c5",
       "references": [
         "jar/spider-b4886fad7b.jar",
         "sources/qist/js/360影视.js",
@@ -41596,8 +41650,8 @@
       "path": "sources/qist/xiaosa/api.json",
       "kind": "config",
       "size": 28851,
-      "sha256": "2e97d1dac31df465775c6ae4568cba1b213e40c5442b38065c1d3eaec7789e65",
-      "md5": "d22bbeaea26e0f1951a47abe27a8153c",
+      "sha256": "4df35f69f21bea2469ee28c39831da36a53302148518ecd35af1f7ed7d8c70d8",
+      "md5": "d6e64a35c31629fd395ae76ce61f3aa9",
       "references": [
         "jar/spider-b4886fad7b.jar",
         "sources/qist/json/CZKT.json",

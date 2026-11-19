@@ -94,8 +94,8 @@ def parse_config(text):
     return document
 
 
-def dex_classes(data):
-    """读取实际 class_defs，引用了某类不代表 JAR 实现了该类。"""
+def dex_strings(data):
+    """提取 DEX 字符串，检测跨模块类型及反射引用。"""
     if not data.startswith(b'dex\n'): raise ValueError('DEX 文件头无效')
     uint = lambda offset: struct.unpack_from('<I', data, offset)[0]
     strings = []
@@ -104,6 +104,13 @@ def dex_classes(data):
         while data[offset] & 128: offset += 1
         offset += 1
         strings.append(data[offset:data.index(0, offset)].decode('utf-8', errors='replace'))
+    return strings
+
+
+def dex_classes(data):
+    """读取实际 class_defs，引用了某类不代表 JAR 实现了该类。"""
+    strings = dex_strings(data)
+    uint = lambda offset: struct.unpack_from('<I', data, offset)[0]
     types = [strings[uint(uint(68) + 4 * index)] for index in range(uint(64))]
     return {types[uint(uint(100) + 32 * index)] for index in range(uint(96))}
 
@@ -124,6 +131,9 @@ def inspect_configs(records):
             with zipfile.ZipFile(ROOT / rel) as archive:
                 dex = [name for name in archive.namelist() if re.fullmatch(r'classes[0-9]*\.dex', name)]
                 names = set().union(*(dex_classes(archive.read(name)) for name in dex)) if dex else set()
+                incompatible = sorted({value for name in dex for value in dex_strings(archive.read(name)) if 'com/fongmi/quickjs/' in value or 'com.fongmi.quickjs.' in value})
+                record['incompatible_sdk_references'] = incompatible
+                if incompatible: problems.append({'file': rel, 'reason': 'JAR 引用了旧 QuickJS 类型，与 kukuqi 模块不兼容', 'references': incompatible})
                 jars[rel] = names
                 record['spider_classes'] = sorted(name[1:-1].replace('/', '.') for name in names if name.startswith('Lcom/github/catvod/spider/') and '$' not in name)
                 record['android_dex'] = bool(dex)
@@ -236,7 +246,7 @@ def audit(write=False, return_result=False):
                'upstream_missing': sum(x['kind'] == 'upstream' for x in missing),
                'checksum_errors': len(checksum_errors), 'config_errors': len(errors),
                'config_warnings': len(problems) - len(errors)}
-    result = {**{key: previous[key] for key in ('source_repositories', 'deduplicated', 'symlinks_removed', 'removed_jar', 'saved_bytes', 'config_repairs', 'removed_configs') if key in previous},
+    result = {**{key: previous[key] for key in ('source_repositories', 'deduplicated', 'symlinks_removed', 'removed_jar', 'saved_bytes', 'config_repairs', 'removed_configs', 'jar_migrations') if key in previous},
               'summary': summary, 'aliases': aliases, 'files': list(records.values()),
               'external_jars': sorted(external_jars), 'upstream_missing': missing, 'config_problems': problems}
     failures = bool(duplicate_groups or checksum_errors or missing or errors)

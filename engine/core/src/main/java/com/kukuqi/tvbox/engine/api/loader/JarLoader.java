@@ -3,7 +3,7 @@ package com.kukuqi.tvbox.engine.api.loader;
 import android.content.Context;
 
 import com.kukuqi.tvbox.engine.App;
-import com.kukuqi.tvbox.engine.utils.Download;
+import com.github.catvod.net.Download;
 import com.kukuqi.tvbox.engine.utils.UrlUtil;
 import com.github.catvod.crawler.Spider;
 import com.github.catvod.crawler.SpiderNull;
@@ -23,31 +23,29 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import dalvik.system.DexClassLoader;
 
-public class JarLoader {
+public class JarLoader extends SpiderLoader {
 
     private final ConcurrentHashMap<String, DexClassLoader> loaders;
     private final ConcurrentHashMap<String, Method> methods;
-    private final ConcurrentHashMap<String, Spider> spiders;
     private final ConcurrentHashMap<String, Object> locks;
     private volatile String recent;
 
     public JarLoader() {
         loaders = new ConcurrentHashMap<>();
         methods = new ConcurrentHashMap<>();
-        spiders = new ConcurrentHashMap<>();
         locks = new ConcurrentHashMap<>();
     }
 
-    public void clear() {
-        spiders.values().forEach(spider -> { try { spider.destroy(); } catch (Throwable error) { error.printStackTrace(); } finally { spider.releaseNetwork(); } });
+    @Override
+    protected void clearReferences() {
         loaders.clear();
         methods.clear();
-        spiders.clear();
         locks.clear();
         recent = null;
     }
 
-    public void setRecent(String recent) {
+    public synchronized void setRecent(String recent) {
+        checkOpen();
         this.recent = recent;
     }
 
@@ -55,10 +53,13 @@ public class JarLoader {
         if (Thread.interrupted()) return;
         if (!Path.exists(file) || !file.setReadOnly()) return;
         String cachePath = Path.jar().getAbsolutePath();
-        DexClassLoader loader = new DexClassLoader(file.getAbsolutePath(), cachePath, cachePath, App.get().getClassLoader());
+        DexClassLoader loader = new DexClassLoader(file.getAbsolutePath(), cachePath, cachePath, com.github.catvod.utils.RuntimeModule.getSpiderClassLoader());
         invokeInit(loader);
-        invokeProxy(key, loader);
-        loaders.put(key, loader);
+        synchronized (this) {
+            checkOpen();
+            invokeProxy(key, loader);
+            loaders.put(key, loader);
+        }
     }
 
     private void invokeInit(DexClassLoader loader) {
@@ -66,8 +67,10 @@ public class JarLoader {
             Class<?> clz = loader.loadClass("com.github.catvod.spider.Init");
             Method method = clz.getMethod("init", Context.class);
             method.invoke(clz, App.get());
-        } catch (Throwable e) {
-            e.printStackTrace();
+        } catch (ClassNotFoundException | NoSuchMethodException optional) {
+            // 部分合法 JAR 没有全局初始化入口。
+        } catch (ReflectiveOperationException failure) {
+            throw new IllegalStateException("JAR 全局初始化失败", failure);
         }
     }
 
@@ -82,10 +85,12 @@ public class JarLoader {
     }
 
     public void parseJar(String key, String jar) {
+        checkOpen();
         if (loaders.containsKey(key)) return;
         if (jar.startsWith("assets")) jar = UrlUtil.convert(jar);
         Object lock = locks.computeIfAbsent(key, k -> new Object());
         synchronized (lock) {
+            checkOpen();
             if (loaders.containsKey(key)) return;
             String[] texts = jar.split(";md5;");
             String md5 = texts.length > 1 ? texts[1].trim() : "";
@@ -94,44 +99,51 @@ public class JarLoader {
             if (!md5.isEmpty() && Crypto.equals(Path.jar(jar), md5)) {
                 load(key, Path.jar(jar));
             } else if (jar.startsWith("http")) {
-                load(key, Download.create(jar, Path.jar(jar)).get());
+                File downloaded = Download.create(jar, Path.jar(jar)).get();
+                verifyChecksum(downloaded, md5);
+                load(key, downloaded);
             } else if (jar.startsWith("file")) {
-                load(key, Path.local(jar));
+                File local = Path.local(jar);
+                verifyChecksum(local, md5);
+                load(key, local);
             } else if (!jar.isEmpty() && new java.io.File(jar).isFile()) {
                 // 测试台与调试场景允许直接给出本机绝对路径，例如 /sdcard/demo.jar
-                load(key, Path.local(jar));
+                File local = Path.local(jar);
+                verifyChecksum(local, md5);
+                load(key, local);
             }
         }
     }
 
+    private void verifyChecksum(File file, String md5) {
+        if (!md5.isEmpty() && !Crypto.equals(file, md5)) throw new IllegalStateException("JAR MD5 校验失败");
+    }
+
     public DexClassLoader dex(String jar) {
+        if (jar == null || jar.isEmpty()) return null;
         try {
             String jaKey = Crypto.md5(jar);
             parseJar(jaKey, jar);
             return loaders.get(jaKey);
+        } catch (java.util.concurrent.CancellationException cancelled) {
+            throw cancelled;
         } catch (Throwable e) {
-            e.printStackTrace();
-            return null;
+            throw new IllegalStateException("JAR 加载失败：" + jar, e);
         }
     }
 
     public Spider getSpider(String key, String api, String ext, String jar) {
         String jaKey = Crypto.md5(jar);
-        String spKey = jaKey + key;
-        return spiders.computeIfAbsent(spKey, k -> {
-            Spider spider = null;
+        return load(jaKey + '\u0000' + key, App.get(), ext, () -> {
+            parseJar(jaKey, jar);
+            DexClassLoader loader = loaders.get(jaKey);
+            if (loader == null) throw new IllegalStateException("JAR 未载入：" + jar);
             try {
-                parseJar(jaKey, jar);
-                DexClassLoader loader = loaders.get(jaKey);
-                if (loader == null) return new SpiderNull();
-                spider = (Spider) loader.loadClass("com.github.catvod.spider." + api.split("csp_")[1]).newInstance();
+                Spider spider = (Spider) loader.loadClass("com.github.catvod.spider." + api.substring(4)).getDeclaredConstructor().newInstance();
                 spider.prepare(key);
-                spider.init(App.get(), ext);
                 return spider;
-            } catch (Throwable e) {
-                if (spider != null) try { spider.destroy(); } catch (Throwable ignored) {} finally { spider.releaseNetwork(); }
-                e.printStackTrace();
-                // 单个站点类名写错/初始化失败不该拖垮整个站点列表，与 FongMi 一致降级为 SpiderNull
+            } catch (ClassNotFoundException absent) {
+                // 保持现有 UI 对失效站点类名的降级行为，初始化失败则明确报错并允许重试。
                 return new SpiderNull();
             }
         });

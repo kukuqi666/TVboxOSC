@@ -1,0 +1,58 @@
+{
+  "repository": "FongMi/python-android",
+  "tag": "v1.1.0",
+  "commit": "4cabf1d1bce37d1fc517d939c54b8087af8f9cd3",
+  "manifests": {
+    "wheels": {
+      "file": "wheels-manifest.json",
+      "sha256": "cee4990209d4f823a91f95172e1e22349ca2ed18f271f05e2dd4288c16bee0e0"
+    },
+    "native-bundles": {
+      "file": "native-bundles-manifest.json",
+      "sha256": "2eba31a2863cd007440610655633c862d3692a942468ebd6dbc0e7e05423ec1e"
+    },
+    "pure-wheels": {
+      "file": "pure-wheels-manifest.json",
+      "sha256": "eaf95fcc0a8ae65640c36fbbc98bcc61131414523a8060f9a0dbba8d859e5a79"
+    }
+  },
+  "abi": "arm64-v8a",
+  "wheels": [
+    {
+      "file": "chaquopy_libgfortran-4.9-4-py3-none-android_24_arm64_v8a.whl",
+      "sha256": "39d754488c0e26662a354dbe7572cef8b4fbf51bae9430830cfe5ac1a048f395"
+    },
+    {
+      "file": "chaquopy_libxml2-2.9.8-4-py3-none-android_24_arm64_v8a.whl",
+      "sha256": "9ef0c8a879ce28a6fb8eb3dbc69b32110cce06070133950bdaff6d9782e44082"
+    },
+    {
+      "file": "chaquopy_libxslt-1.1.32-4-py3-none-android_24_arm64_v8a.whl",
+      "sha256": "71da8f8cfe4dcc104da87cb8421b7d3bb9d3cb8857c75541c1da7a1ed6855a62"
+    },
+    {
+      "file": "cffi-2.0.0-2-cp310-cp310-android_24_arm64_v8a.whl",
+      "sha256": "f5caf207d710addd99883edbc6e5770efc96cf7cb7bd234cf59c7f40f0da944a"
+    },
+    {
+      "file": "cryptography-50.0.2-2-cp310-cp310-android_24_arm64_v8a.whl",
+      "sha256": "af100d72bb66c69d9e4edb4b8926a863bf283ff74c40b505aa17fe3211ffc695"
+    },
+    {
+      "file": "pycryptodome-3.21.0-2-cp310-cp310-android_24_arm64_v8a.whl",
+      "sha256": "ce077e6c3571159c456b168d9e39b91f09eb6ff17df19c213c68faedcf89961e"
+    },
+    {
+      "file": "lxml-5.3.0-2-cp310-cp310-android_24_arm64_v8a.whl",
+      "sha256": "a03773e22d08f73887dcc2909f536b4630297a965ae7f045b7c48e81becfdffa"
+    },
+    {
+      "file": "numpy-1.26.2-2-cp310-cp310-android_24_arm64_v8a.whl",
+      "sha256": "b30090fbf14844919b53e2f6133981f1f62972a1c5ddb8e3550a8884f68e3bd3"
+    },
+    {
+      "file": "pywasm-1.0.8-py3-none-any.whl",
+      "sha256": "f59608c11e049cdcb878db8110e6265dc3485f46d16a8999d049e3c153289bea"
+    }
+  ]
+}

@@ -36,7 +36,6 @@ import com.hjq.permissions.XXPermissions
 import com.lxj.xpopup.XPopup
 import com.orhanobut.hawk.Hawk
 import okhttp3.HttpUrl
-import tv.danmaku.ijk.media.player.IjkMediaPlayer
 import java.io.File
 
 /** Shared settings behavior; the host owns document results and view lifetime. */
@@ -268,7 +267,6 @@ class SettingsController(
                     mBinding.tvDns.text = OkGoHelper.dnsHttpsList[pos]
                     Hawk.put(HawkConfig.DOH_URL, pos)
                     OkGoHelper.updateDns()
-                    IjkMediaPlayer.toggleDotPort(pos > 0)
                 }
 
                 override fun getDisplay(name: String?): String {

@@ -1,5 +1,7 @@
 package com.kukuqi.tvbox.engine.utils;
 
+import com.github.catvod.net.Download;
+
 import com.github.catvod.utils.Crypto;
 import com.github.catvod.utils.Path;
 

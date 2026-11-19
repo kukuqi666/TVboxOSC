@@ -179,6 +179,20 @@ public class ScriptSdkRegressionTest extends InstrumentationTestCase {
         com.kukuqi.tvbox.engine.api.loader.BaseLoader.get().clear();
         assertTrue("destroy exceeded its deadline", android.os.SystemClock.elapsedRealtime() - start < 6000);
     }
+    public void testPythonNativeExtensionsAndWasmExecute() throws Exception {
+        File source = new File(getInstrumentation().getTargetContext().getCacheDir(), "native-extensions.py");
+        String code = "from base.spider import Spider as Base\nclass Spider(Base):\n def init(self,extend=''): pass\n def homeContent(self,filter):\n"
+                + "  import numpy as np, pywasm, tempfile\n  from cryptography.hazmat.primitives.ciphers.aead import AESGCM\n  from lxml import etree\n  from Crypto.Hash import SHA256\n"
+                + "  cipher=AESGCM(bytes(16))\n  encrypted=cipher.encrypt(bytes(12),b'kukuqi',None)\n  assert cipher.decrypt(bytes(12),encrypted,None)==b'kukuqi'\n"
+                + "  assert int(np.dot([2,3],[6,10]))==42\n  assert etree.fromstring(b'<a>ok</a>').text=='ok'\n  assert len(SHA256.new(b'kukuqi').hexdigest())==64\n"
+                + "  data=bytes.fromhex('0061736d0100000001070160027f7f017f030201000707010361646400000a09010700200020016a0b')\n"
+                + "  with tempfile.NamedTemporaryFile(suffix='.wasm') as wasm:\n   wasm.write(data)\n   wasm.flush()\n   assert pywasm.load(wasm.name).exec('add',[20,22])==42\n"
+                + "  return {'class':[{'type_id':'1','type_name':'native-extensions-ok'}]}\n";
+        try (java.io.OutputStream output = new java.io.FileOutputStream(source)) { output.write(code.getBytes(java.nio.charset.StandardCharsets.UTF_8)); }
+        var loader = new com.kukuqi.tvbox.engine.api.loader.BaseLoader();
+        try { assertTrue(loader.getSpider("native-extensions", "file://" + source.getAbsolutePath(), "", "").homeContent(false).contains("native-extensions-ok")); }
+        finally { loader.destroy(); source.delete(); }
+    }
     private String js() {
         return "import {Spider,net,local} from 'catvod';export default class extends Spider {"
                 + "init(ext){this.base=ext;local.set('init',{ok:true});} async homeContent(){"
