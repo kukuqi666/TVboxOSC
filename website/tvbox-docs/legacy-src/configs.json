@@ -1,0 +1,50 @@
+[
+  {
+    "id": "yunxing",
+    "name": "饭太硬",
+    "url": "http://www.饭太硬.cc/tv",
+    "color": "#28a9e0"
+  },
+  {
+    "id": "junyu",
+    "name": "王二小",
+    "url": "http://tvbox.xn--4kq62z5rby2qupq9ub.top/",
+    "color": "#c4e00f"
+  },
+  {
+    "id": "qiaoer",
+    "name": "俊于",
+    "url": "http://home.jundie.top:81/top98.json",
+    "color": "#5f3cab"
+  },
+  {
+    "id": "yunxing2",
+    "name": "R18接口(本地)",
+    "url": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/R18.json",
+    "color": "#db1f76"
+  },
+  {
+    "id": "yunxing3",
+    "name": "undcover",
+    "url": "https://raw.githubusercontent.com/UndCover/PyramidStore/main/py.json",
+    "color": "#FFA500"
+  },
+  {
+    "id": "tangsan",
+    "name": "香雅情",
+    "url": "https://raw.githubusercontent.com/xyq254245/xyqonlinerule/main/XYQTVBox.json",
+    "color": "#1ba050"
+  },
+  {
+    "id": "gaotianliuyun",
+    "name": "高田流水js",
+    "url": "https://raw.githubusercontent.com/gaotianliuyun/gao/master/js.json",
+    "color": "#1f3cfb"
+  },
+  {
+    "id": "xiaoya",
+    "name": "南风",
+    "url": "https://raw.githubusercontent.com/yoursmile66/TVBox/refs/heads/main/XC.json",
+    "color": "#7F8C8D"
+  }
+]

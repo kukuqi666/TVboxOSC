@@ -541,10 +541,10 @@ public class FeatureRegressionTest extends InstrumentationTestCase {
             for(String label:new String[]{"首页站点","直播线路","已保存来源","热门搜索","主题色彩"}) assertFalse("Redundant row: " + label, hasText(main.findViewById(R.id.my_scroll),label));
         });
         capture("my-settings-top.png");
-        onMain(()->main.findViewById(R.id.llModuleManager).performClick());waitFor(()->node("Python · 已安装 1.0.0")!=null);
-        assertNotNull(node("内置：Exo / Media3、MPV、JAR Spider"));assertNotNull(node("QuickJS · 已安装 1.0.0"));assertNotNull(node("Python · 已安装 1.0.0"));
+        onMain(()->main.findViewById(R.id.llModuleManager).performClick());waitFor(()->node("Python · 已安装 1.0.2")!=null);
+        assertNotNull(node("内置：Exo / Media3、MPV、JAR Spider"));assertNotNull(node("QuickJS · 已安装 1.0.2"));assertNotNull(node("Python · 已安装 1.0.2"));
         assertNull(node("Exo 2.18.7 · 内置"));assertNull(node("IJK · 内置"));capture("module-manager.png");node("×").performAction(AccessibilityNodeInfo.ACTION_CLICK);
-        waitFor(()->node("Python · 已安装 1.0.0")==null);
+        waitFor(()->node("Python · 已安装 1.0.2")==null);
         onMain(()->main.findViewById(R.id.llPlaybackSettings).performClick());waitFor(()->node("音频直通：关")!=null||node("音频直通：开")!=null);
         assertNotNull(node("高级播放设置"));
         AccessibilityNodeInfo panel = getInstrumentation().getUiAutomation().getRootInActiveWindow();

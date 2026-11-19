@@ -180,6 +180,7 @@ public class DetailActivity extends BaseVbActivity<ActivityDetailBinding> {
     @Override
     protected void onResume() {
         super.onResume();
+        if (!EventBus.getDefault().isRegistered(this)) EventBus.getDefault().register(this);
         background.onResume();
         mBinding.ivPrivateBrowsing.postDelayed(NotificationUtils::cancelAll, 800);
     }
@@ -287,6 +288,7 @@ public class DetailActivity extends BaseVbActivity<ActivityDetailBinding> {
     @Override
     protected void onPause() {
         super.onPause();
+        if (EventBus.getDefault().isRegistered(this)) EventBus.getDefault().unregister(this);
         background.onPause();
     }
 
@@ -737,6 +739,17 @@ public class DetailActivity extends BaseVbActivity<ActivityDetailBinding> {
             return;
         }
         super.onBackPressed();
+    }
+
+    /**
+     * Web remote keys arrive on the main thread and are replayed through the same dispatch path a
+     * physical remote uses, so focus movement and player shortcuts stay in one place.
+     */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onRemoteEvent(com.kukuqi.tvbox.engine.event.RemoteEvent event) {
+        KeyEvent keyEvent = com.kukuqi.tvbox.engine.event.RemoteEvent.toKeyEvent(event.key());
+        if (keyEvent == null) return;
+        dispatchKeyEvent(keyEvent);
     }
 
     @Override

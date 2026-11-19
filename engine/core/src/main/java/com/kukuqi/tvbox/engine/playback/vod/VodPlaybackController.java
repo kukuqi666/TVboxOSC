@@ -234,6 +234,7 @@ public class VodPlaybackController {
     }
 
     public void playbackError(String msg) {
+        com.kukuqi.tvbox.engine.server.Diagnostics.playbackError(msg);
         preloader.clear();
         host.resetPlaybackForError(msg);
         fallbackPolicy.playbackError();

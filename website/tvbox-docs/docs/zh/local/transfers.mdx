@@ -1,0 +1,69 @@
+---
+description: /upload/* 的分块续传与 /download/* 的装置下载任务状态机。
+---
+
+import { Flow, FlowNode, Arrow } from '@theme/components/Flow';
+
+# 可续传上传与装置下载
+
+上传中断后，重新选取相同档案即可续传。「装置下载」会将网址内容存入 App 装置。
+
+以下均使用 POST；`/upload/chunk` 用 multipart，其余用表单。JSON 回应使用 `text/plain`，禁止快取。
+
+## 端点
+
+| 端点 | 参数 | 行为 |
+| --- | --- | --- |
+| `/upload/start` | `id`、`path`、`name`、`size`、`sha256`；`parallel`（选填） | 建立或查询续传。`id` 是 32 位小写十六进位；`size` 是档案位元组数，`sha256` 是 64 位小写十六进位。 |
+| `/upload/chunk` | `id`、`offset`、`size`；multipart `chunk`，并行模式另带 `revision` | 上传分块；依 start 回传的 `chunkSize` 切分，`offset` 与 `size` 以位元组计算。 |
+| `/upload/finish` | `id`；并行模式另带 `revision` | 检查完整大小与 SHA-256，再落档或解压 ZIP；只有 `complete=true` 才完成。 |
+| `/download/start` | `url`、`path`；`name`（选填） | 由 App 装置下载 HTTP(S) 档案到既有目录；省略 `name` 时取网址最后一段，无名称时用 `download`。 |
+| `/download/status` | `id`（选填） | 查询目前任务；省略 `id` 可重新取得目前任务。 |
+| `/download/pause` | `id` | 暂停进行中的任务；依回传状态确认，已结束的任务不改变状态。 |
+| `/download/resume` | `id` | 恢复 `paused` 或 `failed` 任务；能否接续取决于来源支援及已保存资料。 |
+| `/download/cancel` | `id` | 取消任务；停止后为 `cancelled`，不等同删除目的档案。 |
+
+## 分块上传
+
+1. 先计算整个档案的 SHA-256，以固定 `id` 呼叫 `start`；同一 `id` 续传时，`path`、`name`、`size` 与 `sha256` 必须保持一致。
+2. 回应包含 `offset`、`complete` 及 `chunkSize`（目前 4 MiB）。
+3. 依 `offset` 传送下一块，全部上传后呼叫 `finish`；伺服器检查 SHA-256 后才完成落档。
+
+`start` 指定 `parallel=true` 时，另外回传 `revision`、`chunks` 及 `threads`（目前 4）。`chunks` 是已收到的分块索引；`chunk` 与 `finish` 均须带回 `revision`。不要只依 `offset` 判断并行分块是否全部完成；若版本改变，重新 `start` 取得状态。过期上传回传 404，重新选取原档案建立或恢复传输。
+
+```bash
+# 1) 计算指纹并开始
+SHA=$(sha256sum demo.mp4 | cut -d' ' -f1)
+curl --data-urlencode "id=$ID" --data-urlencode "path=/TV" --data-urlencode "name=demo.mp4" \
+     --data-urlencode "size=$(stat -c%s demo.mp4)" --data-urlencode "sha256=$SHA" \
+     "http://127.0.0.1:9978/upload/start"
+
+# 2) 依 offset 传送分块
+curl -F "id=$ID" -F "offset=0" -F "size=4194304" -F "chunk=@chunk-0" "http://127.0.0.1:9978/upload/chunk"
+
+# 3) 完成
+curl --data-urlencode "id=$ID" "http://127.0.0.1:9978/upload/finish"
+```
+
+## 装置下载任务
+
+```sh
+curl --data-urlencode "url=https://example.com/video.mp4" --data-urlencode "path=/TV" --data-urlencode "name=demo.mp4" "http://127.0.0.1:9978/download/start"
+curl -X POST "http://127.0.0.1:9978/download/status"
+```
+
+每次回应包含任务 `id`、`name`、`path`、`state`、`total`、`downloaded`、`speed` 与 `error`。大小以位元组、`speed` 以位元组／秒表示；未知 `total` 为 -1。`pause`、`resume`、`cancel` 必须带回同一 `id`，旧 `id` 回传 409；尚无任务时回传 404。每个 App 服务同时只执行一个装置下载，进行中再次 `start` 回传 409。
+
+暂停或取消可能先回报 `pausing`／`cancelling`，请继续查询并以最终状态为准；只有 `completed` 才代表完成，`failed` 时查看 `error`。可用 `status` 重新取得遗失的任务回应，但任务状态不保证跨 App 重启保留。下载暂存由 App 管理，档案列表隐藏 `.tv-downloads` 目录。
+
+## 状态流程
+
+<Flow direction="column">
+  <FlowNode title="start" tone="accent">建立任务，进入 running</FlowNode>
+  <Arrow label="pause / resume" />
+  <FlowNode title="pausing → paused">暂停完成，可 resume 回到 running</FlowNode>
+  <Arrow label="cancel" />
+  <FlowNode title="cancelling → cancelled">结束任务，不删除目的档案</FlowNode>
+  <Arrow label="自然结束" />
+  <FlowNode title="completed / failed" tone="accent">只有 completed 代表完成，failed 请看 error</FlowNode>
+</Flow>

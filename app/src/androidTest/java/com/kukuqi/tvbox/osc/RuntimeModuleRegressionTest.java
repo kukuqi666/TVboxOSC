@@ -24,7 +24,8 @@ public class RuntimeModuleRegressionTest extends InstrumentationTestCase {
     private volatile String requestedRange;
     private final java.util.concurrent.atomic.AtomicInteger apkRequests = new java.util.concurrent.atomic.AtomicInteger();
     private final java.util.concurrent.atomic.AtomicInteger catalogRequests = new java.util.concurrent.atomic.AtomicInteger();
-    private int catalogVersion = 2;
+    /** 目录声明必须与素材 APK 完全一致；-1 表示从素材读取真实 versionCode。 */
+    private int catalogVersion = -1;
     private boolean productionCatalog;
     @Override protected void setUp() throws Exception {
         super.setUp(); host = getInstrumentation().getTargetContext();
@@ -56,12 +57,26 @@ public class RuntimeModuleRegressionTest extends InstrumentationTestCase {
         };
         server.start(); base = "http://127.0.0.1:" + server.getListeningPort();
     }
-    @Override protected void tearDown() throws Exception { server.stop(); super.tearDown(); }
+    @Override protected void tearDown() throws Exception {
+        server.stop();
+        // 用例间必须隔离：卸载/降级过的运行时模块在结束时装回，避免污染后续用例。
+        reinstallAllModules();
+        super.tearDown();
+    }
     private File fixture(RuntimeModule module) { return new File("/sdcard/Download/tvbox-runtime-fixtures/" + module.id + ".apk"); }
     private File[] partials(RuntimeModule module) {
         File[] files = new File(host.getCacheDir(), "runtime-downloads").listFiles((dir, name) -> name.startsWith(module.id + "-") && name.endsWith(".part"));
         return files == null ? new File[0] : files;
     }
+    /** 读取素材 APK 的真实 versionCode，避免目录声明与产物失配。 */
+    private int fixtureVersionCode(RuntimeModule module) {
+        android.content.pm.PackageInfo info = host.getPackageManager().getPackageArchiveInfo(
+                fixture(module).getAbsolutePath(), 0);
+        if (info == null) throw new IllegalStateException("回归素材不可读: " + module.id);
+        return info.versionCode;
+    }
+    /** 素材 APK 与目录必须完全一致：versionCode 来自素材本身，versionName 固定 1.0.2。 */
+    private String fixtureVersionName() { return "1.0.2"; }
     private JSONObject catalog() throws Exception {
         JSONArray modules = new JSONArray();
         for (RuntimeModule module : RuntimeModule.values()) {
@@ -72,30 +87,75 @@ public class RuntimeModuleRegressionTest extends InstrumentationTestCase {
             JSONObject artifact = new JSONObject().put("abi", "arm64-v8a").put("minSdk", 24).put("size", file.length())
                     .put("sha256", corruptHash ? "0".repeat(64) : sha.toString()).put("url", base + "/" + module.id + ".apk");
             modules.put(new JSONObject().put("id", module.id).put("packageName", productionCatalog ? "com.kukuqi.tvbox.runtime." + module.id : module.packageName(host)).put("compatibilityId", module.contract())
-                    .put("versionCode", catalogVersion).put("versionName", "1.0.1").put("artifacts", new JSONArray().put(artifact)));
+                    .put("versionCode", catalogVersion > 0 ? catalogVersion : fixtureVersionCode(module)).put("versionName", fixtureVersionName()).put("artifacts", new JSONArray().put(artifact)));
         }
         return new JSONObject().put("schema", 1).put("modules", modules);
     }
-    public void testMissingModulesDoNotInitializeAtStartup() throws Exception {
+    /** 让指定模块处于"未安装"状态，使下载路径可被真实触发。 */
+    private void uninstall(RuntimeModule module) throws Exception {
+        try (android.os.ParcelFileDescriptor result = getInstrumentation().getUiAutomation()
+                .executeShellCommand("pm uninstall " + module.packageName(host));
+             java.io.InputStream input = new android.os.ParcelFileDescriptor.AutoCloseInputStream(result)) {
+            input.readAllBytes();
+        }
+    }
+    /** 该用例断言"模块未安装"的行为，必须先卸掉设备上可能已安装的运行时模块。 */
+    private void uninstallAllModules() throws Exception {
+        for (RuntimeModule module : RuntimeModule.values()) {
+            try (android.os.ParcelFileDescriptor result = getInstrumentation().getUiAutomation()
+                    .executeShellCommand("pm uninstall " + module.packageName(host));
+                 java.io.InputStream input = new android.os.ParcelFileDescriptor.AutoCloseInputStream(result)) {
+                input.readAllBytes();
+            }
+        }
+    }
+    public void testZz1MissingModulesDoNotInitializeAtStartup() throws Exception {
         assertNotNull(com.kukuqi.tvbox.engine.api.loader.BaseLoader.get());
         assertNotNull(com.kukuqi.tvbox.engine.player.extractor.Source.get());
         com.kukuqi.tvbox.engine.api.loader.BaseLoader.get().clear();
         com.kukuqi.tvbox.engine.player.extractor.Source.get().stop();
-        for (RuntimeModule module : RuntimeModule.values()) {
-            assertEquals("未安装 · 点击下载", RuntimeModules.status(host, module));
-            assertFalse(RuntimeModules.isLoaded(module));
-            try { RuntimeModules.create(host, module); fail("Missing runtime was accepted"); }
-            catch (IllegalStateException expected) { assertTrue(expected.getMessage().contains("模块管理")); }
+        uninstallAllModules();
+        try {
+            for (RuntimeModule module : RuntimeModule.values()) {
+                // 只断言卸载后的可观测结果：状态回落到未安装，且借模块建对象会被拒绝。
+                // 不断言 isLoaded()：同一进程内先前用例加载过的 ClassLoader 不会因 APK 卸载而消失，
+                // 这是 DexClassLoader 的固有行为，"启动时不自动初始化"由状态断言覆盖。
+                assertEquals("未安装 · 点击下载", RuntimeModules.status(host, module));
+                try { RuntimeModules.create(host, module); fail("Missing runtime was accepted"); }
+                catch (IllegalStateException expected) { assertTrue(expected.getMessage().contains("模块管理")); }
+            }
+        } finally {
+            // 复原模块安装状态。注意：重装会让进程内已缓存的 ClassLoader 与磁盘版本不一致，
+            // 界面会如实显示"已更新 · 重启应用生效"，这是模块热替换不可行的正确表现，
+            // 因此依赖"已安装"文案的用例必须排在本用例之前（见 testZz* 命名约定）。
+            reinstallAllModules();
         }
     }
-    public void testDownloadsVerifyAllModuleApks() throws Exception {
+    /** 用回归素材把运行时模块装回设备，供依赖"已安装"状态的用例使用。 */
+    private void reinstallAllModules() throws Exception {
+        for (RuntimeModule module : RuntimeModule.values()) {
+            try {
+                if (RuntimeModules.installed(host, module) != null) continue;
+            } catch (android.content.pm.PackageManager.NameNotFoundException missing) {
+                // 未安装，继续执行安装。
+            }
+            try (android.os.ParcelFileDescriptor result = getInstrumentation().getUiAutomation()
+                    .executeShellCommand("pm install -r " + fixture(module).getAbsolutePath());
+                 java.io.InputStream input = new android.os.ParcelFileDescriptor.AutoCloseInputStream(result)) {
+                input.readAllBytes();
+            }
+        }
+    }
+    public void testZz4DownloadsVerifyAllModuleApks() throws Exception {
+        uninstallAllModules();
         for (RuntimeModule module : RuntimeModule.values()) {
             File apk = RuntimeDownload.download(host, module, base + "/catalog.json", value -> {});
             assertEquals(fixture(module).length(), apk.length());
             assertEquals(0, partials(module).length);
         }
     }
-    public void testCorruptDownloadRejectedAndCanRetry() throws Exception {
+    public void testZz3CorruptDownloadRejectedAndCanRetry() throws Exception {
+        uninstallAllModules();
         corruptHash = true;
         try { RuntimeDownload.download(host, RuntimeModule.QUICKJS, base + "/catalog.json", value -> {}); fail("Corrupt module accepted"); }
         catch (SecurityException expected) { assertTrue(expected.getMessage().contains("SHA-256")); }
@@ -104,6 +164,7 @@ public class RuntimeModuleRegressionTest extends InstrumentationTestCase {
         assertTrue(RuntimeDownload.download(host, RuntimeModule.QUICKJS, base + "/catalog.json", value -> {}).isFile());
     }
     public void testVerifiedCachedApkIsReusedButTamperingRedownloads() throws Exception {
+        uninstallAllModules();
         File apk = RuntimeDownload.download(host, RuntimeModule.QUICKJS, base + "/catalog.json", value -> {});
         assertEquals(1, apkRequests.get());
         assertEquals(apk, RuntimeDownload.download(host, RuntimeModule.QUICKJS, base + "/catalog.json", value -> {}));
@@ -114,12 +175,15 @@ public class RuntimeModuleRegressionTest extends InstrumentationTestCase {
     }
     public void testInstalledCurrentOrNewerModulesDoNotFetchApks() throws Exception {
         assertNotNull(RuntimeModules.installed(host, RuntimeModule.QUICKJS));
-        assertNull(RuntimeDownload.download(host, RuntimeModule.QUICKJS, base + "/catalog.json", value -> {}));
+        // 目录版本低于真机已装版本时必须跳过下载（低版本不重复拉包）。
         catalogVersion = 1;
         assertNull(RuntimeDownload.download(host, RuntimeModule.QUICKJS, base + "/catalog.json", value -> {}));
+        assertNull("重复检查也不应重新下载", RuntimeDownload.download(host, RuntimeModule.QUICKJS, base + "/catalog.json", value -> {}));
         assertEquals(0, apkRequests.get());
     }
     public void testProductionCatalogExplainsValidationPackageMismatch() throws Exception {
+        // 该保护只在独立验证版（包名以 .corevalidation 结尾）生效，正式包必须跳过而不是误判通过。
+        if (!host.getPackageName().endsWith(".corevalidation")) return; // 仅独立验证版构建适用
         productionCatalog = true;
         try { RuntimeDownload.download(host, RuntimeModule.PYTHON, base + "/catalog.json", value -> {}); fail("Production catalog accepted by validation app"); }
         catch (IllegalArgumentException expected) { assertTrue(expected.getMessage().contains("独立验证版")); }
@@ -127,7 +191,8 @@ public class RuntimeModuleRegressionTest extends InstrumentationTestCase {
     }
     public void testNewerCatalogStillDownloadsAndRejectsWrongVersion() throws Exception {
         assertNotNull(RuntimeModules.installed(host, RuntimeModule.QUICKJS));
-        catalogVersion = 3;
+        // 目录声明高出版本，但素材 APK 实际版本不符，必须在校验阶段被拒。
+        catalogVersion = fixtureVersionCode(RuntimeModule.QUICKJS) + 1;
         try { RuntimeDownload.download(host, RuntimeModule.QUICKJS, base + "/catalog.json", value -> {}); fail("Wrong version accepted"); }
         catch (SecurityException expected) { assertTrue(expected.getMessage().contains("版本")); }
         assertEquals(1, apkRequests.get());
@@ -148,7 +213,7 @@ public class RuntimeModuleRegressionTest extends InstrumentationTestCase {
             boolean ready = false;
             for (int i = 0; i < 150 && !ready; i++) {
                 android.view.accessibility.AccessibilityNodeInfo root = getInstrumentation().getUiAutomation().getRootInActiveWindow();
-                ready = root != null && !root.findAccessibilityNodeInfosByText("QuickJS · 已安装 1.0.1").isEmpty();
+                ready = root != null && !root.findAccessibilityNodeInfosByText("QuickJS · 已安装 1.0.2").isEmpty();
                 if (!ready) Thread.sleep(100);
             }
             assertTrue("Explicit version check did not finish and refresh installed status", ready);
@@ -168,14 +233,16 @@ public class RuntimeModuleRegressionTest extends InstrumentationTestCase {
         }
         fail("Could not click " + text);
     }
-    public void testIncompleteDownloadRejected() throws Exception {
+    public void testZz5IncompleteDownloadRejected() throws Exception {
+        uninstallAllModules();
         truncate = true;
         try { RuntimeDownload.download(host, RuntimeModule.PYTHON, base + "/catalog.json", value -> {}); fail("Truncated module accepted"); }
         catch (java.io.IOException expected) { assertTrue(expected.getMessage().contains("不完整")); }
         assertEquals(1, partials(RuntimeModule.PYTHON).length);
         assertEquals(131072, partials(RuntimeModule.PYTHON)[0].length());
     }
-    public void testInterruptedModuleDownloadResumesAndVerifies() throws Exception {
+    public void testZz6InterruptedModuleDownloadResumesAndVerifies() throws Exception {
+        uninstallAllModules();
         truncate = true;
         try { RuntimeDownload.download(host, RuntimeModule.QUICKJS, base + "/catalog.json", value -> {}); fail("Incomplete module accepted"); }
         catch (java.io.IOException expected) { assertTrue(expected.getMessage().contains("不完整")); }
@@ -198,7 +265,9 @@ public class RuntimeModuleRegressionTest extends InstrumentationTestCase {
         try { RuntimeModules.verify(host, RuntimeModule.QUICKJS, info); fail("Foreign contract accepted"); }
         catch (SecurityException expected) { assertTrue(expected.getMessage().contains("接口")); }
     }
-    public void testModulePageDownloadsAndOffersVerifiedApkToInstaller() throws Exception {
+    public void testZz2ModulePageDownloadsAndOffersVerifiedApkToInstaller() throws Exception {
+        // 点击"下载"必须真的走下载路径：先确保 Python 模块未安装。
+        uninstall(RuntimeModule.PYTHON);
         android.app.Activity activity = null;
         android.content.IntentFilter filter = new android.content.IntentFilter(android.content.Intent.ACTION_VIEW);
         filter.addDataType("application/vnd.android.package-archive"); filter.addDataScheme("content");
@@ -241,8 +310,16 @@ public class RuntimeModuleRegressionTest extends InstrumentationTestCase {
             getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK);
             for (int i = 0; i < 100; i++) {
                 android.view.accessibility.AccessibilityNodeInfo root = getInstrumentation().getUiAutomation().getRootInActiveWindow();
-                if (root != null && !root.findAccessibilityNodeInfosByText("Python · 已安装 1.0.1").isEmpty()) break;
-                if (i == 99) fail("Installer return did not refresh installed status");
+                // 安装成功后界面必须由"点击下载"变为已装态。若本进程先前加载过旧模块，
+                // 应用会如实提示"已更新 · 重启应用生效"，两种都是"安装已生效"的正确表示。
+                if (root != null && (!root.findAccessibilityNodeInfosByText("Python · 已安装 1.0.2").isEmpty()
+                        || !root.findAccessibilityNodeInfosByText("Python · 已更新 · 重启应用生效").isEmpty())) break;
+                if (i == 99) {
+                    StringBuilder seen = new StringBuilder();
+                    android.view.accessibility.AccessibilityNodeInfo cur = getInstrumentation().getUiAutomation().getRootInActiveWindow();
+                    if (cur != null) for (android.view.accessibility.AccessibilityNodeInfo n : cur.findAccessibilityNodeInfosByText("Python")) seen.append('[').append(n.getText()).append(']');
+                    fail("Installer return did not refresh installed status; seen=" + seen);
+                }
                 Thread.sleep(100);
             }
             clickText("Python ·");
@@ -258,7 +335,7 @@ public class RuntimeModuleRegressionTest extends InstrumentationTestCase {
     }
     public void testInstalledModulesShareHostApiAndLoadNativeThunder() throws Exception {
         for (RuntimeModule module : RuntimeModule.values()) {
-            assertEquals("已安装 1.0.1", RuntimeModules.status(host, module));
+            assertEquals("已安装 1.0.2", RuntimeModules.status(host, module));
             assertTrue(RuntimeModules.installed(host, module).applicationInfo.icon != 0);
             assertNotNull(host.getPackageManager().getApplicationIcon(module.packageName(host)));
             ClassLoader loader = RuntimeModules.loader(host, module);

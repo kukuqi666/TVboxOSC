@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+
+<head>
+    <title>爬虫测试</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0,viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+    <link rel="stylesheet" href="css/ui.css">
+    <style>
+        .bench-grid { display: flex; flex-direction: column; gap: 12px; }
+        .bench-row { display: flex; gap: 12px; }
+        .bench-hint { color: var(--md-on-surface-variant); font-size: 12px; line-height: 1.5; }
+        .bench-out {
+            width: 100%; min-height: 220px; box-sizing: border-box;
+            font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px;
+            white-space: pre-wrap; word-break: break-all;
+            background: var(--md-surface-variant); color: var(--md-on-surface-variant);
+            border: none; border-radius: 12px; padding: 12px;
+        }
+        .bench-status { font-size: 13px; padding: 8px 12px; border-radius: 8px; background: var(--md-secondary-container); color: var(--md-on-secondary-container); }
+        .bench-status.error { background: var(--md-error-container); color: var(--md-on-error-container); }
+        .bench-hidden { display: none; }
+        select.md-input { padding-right: 8px; }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="app-body">
+            <div class="panel-content">
+                <div class="bench-grid">
+                    <div class="bench-row">
+                        <div class="md-field">
+                            <input id="api" class="md-input" type="text" placeholder="csp_Demo 或 ./demo.py 或 ./demo.js" />
+                        </div>
+                    </div>
+                    <div class="bench-row">
+                        <div class="md-field">
+                            <input id="jar" class="md-input" type="text" placeholder="JAR 绝对路径（Java 来源必填）" />
+                        </div>
+                    </div>
+                    <div class="bench-row">
+                        <div class="md-field">
+                            <input id="ext" class="md-input" type="text" placeholder="ext（选填，可以是 JSON）" />
+                        </div>
+                        <div class="md-field short">
+                            <input id="timeout" class="md-input" type="number" min="1" max="300" value="30" />
+                        </div>
+                    </div>
+                    <button class="md-btn md-btn-filled md-btn-full" onclick="load()">载入来源</button>
+                    <div id="status" class="bench-status bench-hidden"></div>
+                </div>
+
+                <div id="caller" class="bench-grid bench-hidden">
+                    <div class="bench-row">
+                        <div class="md-field">
+                            <select id="method" class="md-input" onchange="applyArgs()"></select>
+                        </div>
+                    </div>
+                    <div class="md-field">
+                        <input id="args" class="md-input" type="text" placeholder='["movie", "1", false, {}]' />
+                    </div>
+                    <div class="bench-hint" id="signature"></div>
+                    <button class="md-btn md-btn-tonal md-btn-full" onclick="call()">执行</button>
+                </div>
+
+                <div class="bench-grid">
+                    <textarea id="output" class="bench-out" readonly placeholder="结果会显示在这里"></textarea>
+                    <div class="bench-row">
+                        <button class="md-btn md-btn-tonal md-btn-full" onclick="clearLog()">清空</button>
+                        <button class="md-btn md-btn-tonal md-btn-full" onclick="unload()">释放来源</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const sessionId = Math.random().toString(36).slice(2, 10);
+        let methods = [];
+
+        function status(text, error) {
+            const node = document.getElementById('status');
+            node.textContent = text;
+            node.classList.toggle('error', !!error);
+            node.classList.remove('bench-hidden');
+        }
+
+        function print(text) {
+            document.getElementById('output').value = text;
+        }
+
+        async function post(params) {
+            const body = new URLSearchParams(Object.assign({ id: sessionId }, params));
+            const response = await fetch('spider/api', { method: 'POST', body });
+            const text = await response.text();
+            if (!response.ok) throw new Error(text || ('HTTP ' + response.status));
+            return text;
+        }
+
+        function pretty(text) {
+            try {
+                return JSON.stringify(JSON.parse(text), null, 2);
+            } catch (e) {
+                return text;
+            }
+        }
+
+        async function load() {
+            const api = document.getElementById('api').value.trim();
+            if (!api) return status('请先填写 api', true);
+            status('载入中…');
+            try {
+                const text = await post({
+                    do: 'load',
+                    api,
+                    jar: document.getElementById('jar').value.trim(),
+                    ext: document.getElementById('ext').value
+                });
+                const result = JSON.parse(text);
+                methods = result.methods || [];
+                const select = document.getElementById('method');
+                select.innerHTML = '';
+                methods.forEach((item, index) => {
+                    const option = document.createElement('option');
+                    option.value = String(index);
+                    option.textContent = item.name + '(' + (item.args || []).join(', ') + ')';
+                    select.appendChild(option);
+                });
+                document.getElementById('caller').classList.toggle('bench-hidden', methods.length === 0);
+                applyArgs();
+                status('已载入 ' + result.api + '，耗时 ' + result.loadMillis + ' ms');
+                print('');
+            } catch (e) {
+                document.getElementById('caller').classList.add('bench-hidden');
+                status('载入失败：' + e.message, true);
+            }
+        }
+
+        function applyArgs() {
+            const select = document.getElementById('method');
+            const item = methods[select.selectedIndex];
+            if (!item) return;
+            document.getElementById('signature').textContent = '参数顺序：' + (item.args || []).join(', ') || '无参数';
+            const defaults = {
+                'homeContent': '[true]',
+                'homeVideoContent': '[]',
+                'categoryContent': '["movie", "1", false, {}]',
+                'detailContent': '["123"]',
+                'searchContent': '["关键词", false]',
+                'playerContent': '["线路", "播放地址", []]',
+                'action': '["{}"]',
+                'proxy': '[{}]',
+                'manualVideoCheck': '[]'
+            };
+            document.getElementById('args').value = defaults[item.name] || '[]';
+        }
+
+        async function call() {
+            const select = document.getElementById('method');
+            const item = methods[select.selectedIndex];
+            if (!item) return status('请先选择方法', true);
+            status('执行中…');
+            const started = Date.now();
+            try {
+                const text = await post({
+                    do: 'call',
+                    method: item.name,
+                    overload: String(item.overload || 0),
+                    args: document.getElementById('args').value,
+                    timeout: document.getElementById('timeout').value || '30'
+                });
+                const result = JSON.parse(text);
+                const lines = [];
+                lines.push('方法：' + result.method + '  类型：' + result.type + '  耗时：' + result.elapsed + ' ms');
+                if (result.play) lines.push('可送播放：是');
+                lines.push('');
+                lines.push(pretty(result.value));
+                print(lines.join('\n'));
+                status('完成，耗时 ' + (Date.now() - started) + ' ms');
+            } catch (e) {
+                print(e.message);
+                status('执行失败：' + e.message, true);
+            }
+        }
+
+        function clearLog() {
+            print('');
+            status('');
+            document.getElementById('status').classList.add('bench-hidden');
+        }
+
+        async function unload() {
+            try {
+                await post({ do: 'clear' });
+            } catch (e) {
+                // 释放失败不影响页面状态
+            }
+            methods = [];
+            document.getElementById('caller').classList.add('bench-hidden');
+            clearLog();
+        }
+
+        window.addEventListener('pagehide', () => {
+            navigator.sendBeacon && fetch('spider/api?do=clear&id=' + sessionId, { method: 'POST', keepalive: true }).catch(() => {});
+        });
+    </script>
+</body>
+
+</html>

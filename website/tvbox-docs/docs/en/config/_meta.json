@@ -1,0 +1,11 @@
+[
+  { "type": "file", "name": "examples", "label": "Full Examples" },
+  { "type": "file", "name": "vod", "label": "Vod Top Level" },
+  { "type": "file", "name": "site", "label": "Site" },
+  { "type": "file", "name": "parse", "label": "Parse" },
+  { "type": "file", "name": "live", "label": "Live" },
+  { "type": "file", "name": "channel", "label": "Group / Channel" },
+  { "type": "file", "name": "formats", "label": "Live Formats" },
+  { "type": "file", "name": "core", "label": "Core" },
+  { "type": "file", "name": "common", "label": "Shared Objects" }
+]

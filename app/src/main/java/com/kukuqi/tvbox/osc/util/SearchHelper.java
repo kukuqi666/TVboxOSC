@@ -23,6 +23,7 @@ public class SearchHelper {
             return null;
         }
         if (mCheckSources == null || mCheckSources.isEmpty()) mCheckSources = getSources();
+        dropHiddenSources(mCheckSources);
         return mCheckSources;
     }
 
@@ -46,13 +47,31 @@ public class SearchHelper {
 
     public static HashMap<String, String> getSources(){
         HashMap<String, String> mCheckSources = new HashMap<>();
-        for (SourceBean bean : ApiConfig.get().getSourceBeanList()) {
+        // 订阅用 hide 标记的站点只供推送、代理与深链使用，不参与搜索候选
+        for (SourceBean bean : ApiConfig.get().getVisibleSourceBeanList()) {
             if (!bean.isSearchable()) {
                 continue;
             }
             mCheckSources.put(bean.getKey(), "1");
         }
         return mCheckSources;
+    }
+
+    /** 丢弃已保存选择里指向隐藏站点的条目，避免旧配置把隐藏站点重新带进搜索。 */
+    public static void dropHiddenSources(HashMap<String, String> sources) {
+        dropHiddenSources(sources, ApiConfig.get().getSourceBeanList());
+    }
+
+    /**
+     * 纯逻辑版本，便于单测。
+     *
+     * <p>找不到配置的 key 保留原状，交给后续流程报告来源失效；只剔除明确标记为隐藏的站点。</p>
+     */
+    public static void dropHiddenSources(HashMap<String, String> sources, List<SourceBean> known) {
+        if (sources == null || sources.isEmpty()) return;
+        HashMap<String, Boolean> hidden = new HashMap<>();
+        if (known != null) for (SourceBean bean : known) if (bean != null && bean.getKey() != null) hidden.put(bean.getKey(), bean.isHide());
+        sources.keySet().removeIf(key -> Boolean.TRUE.equals(hidden.get(key)));
     }
 
     public static List<String> splitWords(String text) {

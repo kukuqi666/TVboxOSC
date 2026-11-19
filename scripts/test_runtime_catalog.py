@@ -98,5 +98,67 @@ class RuntimeCatalogTest(unittest.TestCase):
             self.assertFalse((self.out / 'catalog.json').exists())
 
 
+class RuntimeInputRecoveryTest(unittest.TestCase):
+    """冷缓存构建必须保留两层内容校验，不能依赖已消失的上游发布。"""
+
+    def setUp(self):
+        import prepare_optional_runtimes
+        self.prepare = prepare_optional_runtimes
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.cache = Path(self.temporary.name)
+        self.patch_cache = patch.object(self.prepare, 'CACHE', self.cache)
+        self.patch_cache.start()
+        self.addCleanup(self.patch_cache.stop)
+
+    def recovery(self, jre=b'original-pinned-jre', expected=None, corrupt_module=False):
+        import io
+        import urllib.error
+        import zipfile
+        content = io.BytesIO()
+        with zipfile.ZipFile(content, 'w') as archive:
+            archive.writestr('assets/bdj/jre.zip', jre)
+        module = content.getvalue()
+        inputs = {
+            'jre.zip': ('https://example.org/removed.zip', expected or hashlib.sha256(jre).hexdigest()),
+            'bdj-recovery.apk': ('https://example.org/verified.apk', hashlib.sha256(module).hexdigest()),
+        }
+
+        def download(url, part):
+            if url.endswith('removed.zip'):
+                raise urllib.error.HTTPError(url, 404, 'removed', {}, None)
+            part.write_bytes(b'corrupt' if corrupt_module else module)
+
+        with patch.object(self.prepare, 'INPUTS', inputs), patch.object(self.prepare, 'download', side_effect=download):
+            return self.prepare.fetch('jre.zip')
+
+    def test_recovers_original_jre_from_verified_published_apk(self):
+        result = self.recovery()
+        self.assertEqual(b'original-pinned-jre', result.read_bytes())
+        self.assertTrue((self.cache / 'bdj-recovery.apk').exists())
+
+    def test_rejects_modified_recovery_apk(self):
+        with self.assertRaises(ValueError):
+            self.recovery(corrupt_module=True)
+        self.assertFalse((self.cache / 'jre.zip').exists())
+        self.assertEqual([], list(self.cache.glob('*.part')))
+
+    def test_rejects_jre_with_wrong_hash_inside_verified_apk(self):
+        with self.assertRaises(ValueError):
+            self.recovery(expected='0' * 64)
+        self.assertFalse((self.cache / 'jre.zip').exists())
+        self.assertEqual([], list(self.cache.glob('*.part')))
+
+    def test_retries_transient_download_errors(self):
+        import io
+        import urllib.error
+        part = self.cache / 'input.part'
+        error = urllib.error.HTTPError('https://example.org/input', 503, 'retry', {}, None)
+        with patch.object(self.prepare.urllib.request, 'urlopen', side_effect=[error, io.BytesIO(b'verified')]), patch.object(self.prepare.time, 'sleep') as sleep:
+            self.prepare.download('https://example.org/input', part)
+        self.assertEqual(b'verified', part.read_bytes())
+        sleep.assert_called_once_with(1)
+
+
 if __name__ == '__main__':
     unittest.main()

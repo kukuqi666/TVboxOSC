@@ -97,6 +97,9 @@ public class JarLoader {
                 load(key, Download.create(jar, Path.jar(jar)).get());
             } else if (jar.startsWith("file")) {
                 load(key, Path.local(jar));
+            } else if (!jar.isEmpty() && new java.io.File(jar).isFile()) {
+                // 测试台与调试场景允许直接给出本机绝对路径，例如 /sdcard/demo.jar
+                load(key, Path.local(jar));
             }
         }
     }
@@ -120,7 +123,7 @@ public class JarLoader {
             try {
                 parseJar(jaKey, jar);
                 DexClassLoader loader = loaders.get(jaKey);
-                if (loader == null) throw new IllegalStateException("JAR 来源未加载");
+                if (loader == null) return new SpiderNull();
                 spider = (Spider) loader.loadClass("com.github.catvod.spider." + api.split("csp_")[1]).newInstance();
                 spider.prepare(key);
                 spider.init(App.get(), ext);
@@ -128,7 +131,8 @@ public class JarLoader {
             } catch (Throwable e) {
                 if (spider != null) try { spider.destroy(); } catch (Throwable ignored) {} finally { spider.releaseNetwork(); }
                 e.printStackTrace();
-                throw new IllegalStateException("JAR 来源初始化失败，可重试", e);
+                // 单个站点类名写错/初始化失败不该拖垮整个站点列表，与 FongMi 一致降级为 SpiderNull
+                return new SpiderNull();
             }
         });
     }

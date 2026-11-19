@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -93,6 +94,10 @@ public class Site implements Parcelable {
     @Ignore
     @SerializedName("danmaku")
     private Integer danmaku;
+
+    @Ignore
+    @SerializedName("lang")
+    private String lang;
 
     @Ignore
     @SerializedName("categories")
@@ -234,6 +239,29 @@ public class Site implements Parcelable {
         return danmaku == null ? 1 : danmaku;
     }
 
+    /**
+     * Search keyword script for this site.
+     *
+     * <p>Empty means "follow the device": the traditional/simplified mapping only applies on a
+     * Taiwanese locale. An explicit {@code zh_tw} or {@code zh_cn} forces one direction, and any
+     * other value leaves the keyword exactly as the user typed it.</p>
+     */
+    public String getLang() {
+        return lang == null ? "" : lang.trim().toLowerCase(Locale.ROOT);
+    }
+
+    public boolean isLangTw() {
+        return getLang().equals("zh_tw") || getLang().equals("zh-tw") || getLang().equals("tw");
+    }
+
+    public boolean isLangCn() {
+        return getLang().equals("zh_cn") || getLang().equals("zh-cn") || getLang().equals("cn");
+    }
+
+    public boolean hasLang() {
+        return !getLang().isEmpty();
+    }
+
     public List<String> getCategories() {
         return categories == null ? Collections.emptyList() : categories;
     }
@@ -316,10 +344,19 @@ public class Site implements Parcelable {
     }
 
     public Site trans() {
-        if (Trans.pass()) return this;
-        this.name = Trans.s2t(name);
-        setCategories(getCategories().stream().map(Trans::s2t).toList());
+        boolean pass = hasLang() ? !isLangTw() : Trans.pass();
+        if (pass) return this;
+        this.name = Trans.s2t(false, name);
+        setCategories(getCategories().stream().map(item -> Trans.s2t(false, item)).toList());
         return this;
+    }
+
+    /** Applies this site's {@code lang} rule to an outgoing search keyword. */
+    public String toSearchKey(String keyword) {
+        if (keyword == null || keyword.isEmpty()) return "";
+        if (isLangTw()) return Trans.s2t(false, keyword);
+        if (isLangCn()) return Trans.t2s(false, keyword);
+        return hasLang() ? keyword : Trans.t2s(keyword);
     }
 
     public Site sync(Site item) {

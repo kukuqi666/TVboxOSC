@@ -32,7 +32,7 @@ public class Local implements Process {
 
     @Override
     public boolean isRequest(IHTTPSession session, String url) {
-        return isFile(url) || url.equals("/upload") || url.equals("/newFolder") || url.equals("/delFolder") || url.equals("/delFile");
+        return isFile(url) || url.equals("/upload") || url.equals("/newFolder") || url.equals("/rename") || url.equals("/move") || url.equals("/delFolder") || url.equals("/delFile");
     }
 
     @Override
@@ -42,6 +42,8 @@ public class Local implements Process {
             Map<String, String> params = session.getParms();
             if (url.equals("/upload")) upload(params, files);
             else if (url.equals("/newFolder")) newFolder(params);
+            else if (url.equals("/rename")) rename(params);
+            else if (url.equals("/move")) move(params);
             else if (url.equals("/delFolder") || url.equals("/delFile")) delete(params);
             else return null;
             return Nano.ok();
@@ -87,6 +89,28 @@ public class Local implements Process {
         if (!directory.isDirectory()) throw new FileNotFoundException("Parent directory not found");
         File folder = resolveChild(directory, requireName(params.get("name")));
         if (!folder.mkdirs() && !folder.isDirectory()) throw new IOException("Unable to create directory");
+    }
+
+    private void rename(Map<String, String> params) throws IOException {
+        File target = resolvePath(requirePath(params));
+        if (!target.exists()) throw new FileNotFoundException("File not found");
+        File parent = target.getParentFile();
+        if (parent == null) throw new SecurityException("Storage root cannot be renamed");
+        File renamed = resolveChild(parent, requireName(params.get("name")));
+        if (renamed.exists()) throw new IOException("Target already exists");
+        if (!target.renameTo(renamed)) throw new IOException("Unable to rename");
+    }
+
+    private void move(Map<String, String> params) throws IOException {
+        File target = resolvePath(requirePath(params));
+        if (!target.exists()) throw new FileNotFoundException("File not found");
+        File directory = resolvePath(requirePath(params, "to"));
+        if (!directory.isDirectory()) throw new FileNotFoundException("Destination directory not found");
+        File moved = resolveChild(directory, target.getName());
+        if (moved.getCanonicalFile().equals(target.getCanonicalFile())) return;
+        if (moved.exists()) throw new IOException("Target already exists");
+        if (isWithin(directory, target)) throw new SecurityException("Directory cannot be moved into itself");
+        if (!target.renameTo(moved)) throw new IOException("Unable to move");
     }
 
     private void delete(Map<String, String> params) throws IOException {
@@ -150,8 +174,12 @@ public class Local implements Process {
     }
 
     private static String requirePath(Map<String, String> params) {
-        String path = params.get("path");
-        if (path == null) throw new IllegalArgumentException("Missing path");
+        return requirePath(params, "path");
+    }
+
+    private static String requirePath(Map<String, String> params, String key) {
+        String path = params.get(key);
+        if (path == null) throw new IllegalArgumentException("Missing " + key);
         return path;
     }
 

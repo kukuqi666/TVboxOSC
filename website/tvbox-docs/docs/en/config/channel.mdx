@@ -1,0 +1,77 @@
+﻿---
+description: Group and Channel fields, including lines, DRM, catch-up and override rules.
+---
+
+import { Flow, FlowNode, Arrow } from '@theme/components/Flow';
+
+
+# Group / Channel
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `Group.name` | string | yes | Group display name. |
+| `Group.pass` | string | no | Group password; hidden until it matches. |
+| `Group.channel` | `Channel[]` | yes | Channels in the group. |
+| `Channel.name` | string | yes | Channel display name. |
+| `Channel.urls` | `string[]` | yes | Playback locations; without `drm` you may add `$line name` labels. With `drm` set, URLs are used verbatim 鈥?do not add labels. |
+| `Channel.number` | string | no | Display channel number. |
+| `Channel.logo` | string | no | Overrides the configuration logo. |
+| `Channel.epg` | string | no | Overrides the configuration EPG. |
+| `Channel.ua` | string | no | Overrides the configuration User-Agent. |
+| `Channel.click` | string | no | Overrides the configuration JavaScript click handler. |
+| `Channel.format` | string | no | Explicit media MIME type. |
+| `Channel.origin` | string | no | Overrides Origin. |
+| `Channel.referer` | string | no | Overrides Referer. |
+| `Channel.tvgId` | string | no | EPG channel ID. |
+| `Channel.tvgName` | string | no | EPG channel name. |
+| `Channel.header` | object | no | Channel HTTP headers; external lists inherit `Live.header` only when the whole `header` is empty, with no per-key merge. |
+| `Channel.drm` | `Drm` | no | Media DRM parameters, sub-fields in [shared objects](/config/common). |
+| `Channel.parse` | integer | no | 0=do not parse, 1=parse. |
+| `Channel.timeshift` | object | no | Draggable live timeline, same format as `Result.timeshift`. |
+| `Channel.catchup` | `Catchup` | no | Overrides the configuration catch-up settings. |
+
+When the JSON is loaded from `Live.url`, the file's top level is a Group array as in the next section; when written inline in the configuration, put it inside `lives[].groups`.
+
+## Override order
+
+<Flow>
+  <FlowNode title="Live defaults">logo, ua, epg, catchup</FlowNode>
+  <Arrow label="Explicit channel value" />
+  <FlowNode title="Channel">Overrides per field</FlowNode>
+  <Arrow label="When loading" />
+  <FlowNode title="Saved in App" tone="muted">boot, pass, keep</FlowNode>
+</Flow>
+
+`Channel.header` is not merged key by key: as soon as a channel provides a non-empty `header`, the remaining keys of `Live.header` are no longer inherited.
+
+## Multiple lines and DRM
+
+```json
+{
+  "name": "Sample Channel 1",
+  "urls": [
+    "https://example.com/live/main.m3u8$main",
+    "https://example.com/live/backup.m3u8$backup"
+  ]
+}
+```
+
+```json
+{
+  "name": "DRM sample",
+  "urls": ["https://example.com/live/drm.mpd"],
+  "drm": {
+    "type": "widevine",
+    "key": "https://example.com/drm/license",
+    "header": { "Referer": "https://example.com/" }
+  }
+}
+```
+
+With `drm` set, URLs in `urls` are used verbatim and `$line name` labels are not parsed.
+
+## Related
+
+- List formats: [the three live list formats](/config/formats)
+- Catch-up: [shared objects 路 Catchup](/config/common)
+- Timeline catch-up: [Live timeshift](/spider/timeshift)

@@ -1,0 +1,24 @@
+{
+  "name": "tvboxosc-docs",
+  "version": "3.1.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:legacy": "node scripts/build-legacy.mjs",
+    "build": "pnpm run build:legacy && rspress build",
+    "dev": "pnpm run build:legacy && rspress dev",
+    "preview": "rspress preview"
+  },
+  "dependencies": {
+    "@rspress/core": "^2.0.22"
+  },
+  "devDependencies": {
+    "@types/node": "^22.8.1",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "typescript": "^6.0.3"
+  },
+  "packageManager": "pnpm@10.27.0"
+}

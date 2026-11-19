@@ -6,3 +6,6 @@ gradlew text eol=lf
 *.jks binary
 *.jar binary
 *.png binary
+
+# 保留来源素材字节；第三方原有行尾空格不作为代码格式错误
+website/tvbox-config/** -text -whitespace

@@ -122,6 +122,11 @@
     <Space android:layout_width="12dp" android:layout_height="wrap_content" android:layout_weight="0" />
     <ImageView android:layout_width="26dp" android:layout_height="26dp" android:layout_gravity="center" android:alpha="0.75" android:src="@drawable/icon_pre" app:tint="@color/text_foreground" android:layout_marginStart="8dp" />
   </LinearLayout>
+  <LinearLayout android:id="@+id/llCrashLogs" android:layout_width="match_parent" android:layout_height="60dp" android:focusable="true" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="24dp" android:foreground="?android:selectableItemBackground">
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="崩溃日志" android:textColor="@color/text_foreground" android:textSize="16sp" />
+    <Space android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" />
+    <ImageView android:layout_width="26dp" android:layout_height="26dp" android:alpha="0.75" android:src="@drawable/icon_pre" app:tint="@color/text_foreground" />
+  </LinearLayout>
   <LinearLayout android:id="@+id/llClearCache" android:layout_width="match_parent" android:layout_height="60dp" android:focusable="true" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="24dp" android:foreground="?android:selectableItemBackground">
     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="清空缓存" android:textColor="@color/text_foreground" android:textSize="16sp" />
     <Space android:layout_width="12dp" android:layout_height="wrap_content" android:layout_weight="0" />

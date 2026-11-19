@@ -2,23 +2,69 @@ package com.github.catvod;
 
 import android.app.Activity;
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
-import android.widget.Toast;
-import java.lang.ref.WeakReference;
 
-/** Host API available to compileOnly source plugins. */
-public final class Runtime {
-    private static volatile WeakReference<Activity> current = new WeakReference<>(null);
-    private Runtime() {}
-    public static Context context() { return Init.context().getApplicationContext(); }
-    public static Activity activity() {
-        Activity value = current.get();
-        return value == null || value.isFinishing() || value.isDestroyed() ? null : value;
+import com.github.catvod.utils.Task;
+
+import java.lang.ref.WeakReference;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+public class Runtime {
+
+    private volatile Supplier<Activity> activity;
+    private volatile Consumer<String> toast;
+    private volatile BiFunction<String, Function<String, CompletableFuture<String>>, CompletableFuture<String>> dialog;
+    private WeakReference<Context> context;
+    private volatile WeakReference<Activity> current;
+
+    private static Runtime get() {
+        return Loader.INSTANCE;
     }
-    public static void resumed(Activity activity) { current = new WeakReference<>(activity); }
-    public static void paused(Activity activity) { if (current.get() == activity) current.clear(); }
+
+    public static void set(Context context) {
+        get().context = new WeakReference<>(context);
+    }
+
+    public static Context context() {
+        return get().context.get();
+    }
+
+    public static void setActivity(Supplier<Activity> activity) {
+        get().activity = activity;
+    }
+
+    public static Activity activity() {
+        Supplier<Activity> supplier = get().activity;
+        Activity activity = supplier == null ? null : supplier.get();
+        return activity == null || activity.isFinishing() || activity.isDestroyed() ? null : activity;
+    }
+
+    public static void resumed(Activity activity) { get().current = new WeakReference<>(activity); }
+
+    public static void paused(Activity activity) { WeakReference<Activity> current = get().current; if (current != null && current.get() == activity) get().current.clear(); }
+
+    public static void setToast(Consumer<String> toast) {
+        get().toast = toast;
+    }
+
     public static void toast(String text) {
-        new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(context(), text, Toast.LENGTH_LONG).show());
+        get().toast.accept(text);
+    }
+
+    public static void setDialog(BiFunction<String, Function<String, CompletableFuture<String>>, CompletableFuture<String>> dialog) {
+        get().dialog = dialog;
+    }
+
+    public static CompletableFuture<String> dialog(String options, Function<String, CompletableFuture<String>> callback) {
+        var dialog = get().dialog;
+        if (dialog == null) return Task.failedFuture(new UnsupportedOperationException("Dialog requires a compatible App"));
+        return dialog.apply(options, callback);
+    }
+
+    private static class Loader {
+        static volatile Runtime INSTANCE = new Runtime();
     }
 }

@@ -1,0 +1,70 @@
+﻿---
+description: Chunked resumable uploads under /upload/* and the device download state machine under /download/*.
+---
+
+import { Flow, FlowNode, Arrow } from '@theme/components/Flow';
+
+
+# Resumable Transfers
+
+After an interrupted upload, reselect the same file to resume. **Device download** stores a URL's content on the App device.
+
+All of these use POST; `/upload/chunk` is multipart and the rest are forms. JSON responses use `text/plain` with no caching.
+
+## Endpoints
+
+| Endpoint | Parameters | Behavior |
+| --- | --- | --- |
+| `/upload/start` | `id`, `path`, `name`, `size`, `sha256`; `parallel` (optional) | Create or query a resumable upload. `id` is 32 lowercase hex characters; `size` is the file size in bytes and `sha256` is 64 lowercase hex characters. |
+| `/upload/chunk` | `id`, `offset`, `size`; multipart `chunk`, plus `revision` in parallel mode | Upload a chunk; split by the `chunkSize` returned by start, with `offset` and `size` in bytes. |
+| `/upload/finish` | `id`; plus `revision` in parallel mode | Verify the full size and SHA-256, then write the file or extract a ZIP; only `complete=true` means done. |
+| `/download/start` | `url`, `path`; `name` (optional) | Download an HTTP(S) file on the App device into an existing directory; `name` defaults to the last URL segment, or `download`. |
+| `/download/status` | `id` (optional) | Query the current task; omitting `id` returns the current task again. |
+| `/download/pause` | `id` | Pause a running task; confirm through the returned state, finished tasks keep their state. |
+| `/download/resume` | `id` | Resume a `paused` or `failed` task; resumability depends on source support and saved data. |
+| `/download/cancel` | `id` | Cancel the task; it ends as `cancelled`, which does not delete the destination file. |
+
+## Chunked upload
+
+1. Compute the SHA-256 of the whole file and call `start` with a fixed `id`; when resuming the same `id`, `path`, `name`, `size` and `sha256` must match.
+2. The response contains `offset`, `complete` and `chunkSize` (currently 4 MiB).
+3. Send the next chunk at `offset`, then call `finish`; the server verifies SHA-256 before writing.
+
+With `parallel=true` on `start`, the response also includes `revision`, `chunks` and `threads` (currently 4). `chunks` lists received chunk indexes; both `chunk` and `finish` must echo `revision`. Never rely on `offset` alone to decide whether parallel chunks are complete; if the revision changes, call `start` again for the state. Expired uploads return 404 鈥?reselect the original file to establish or restore the transfer.
+
+```bash
+# 1) Compute the digest and start
+SHA=$(sha256sum demo.mp4 | cut -d' ' -f1)
+curl --data-urlencode "id=$ID" --data-urlencode "path=/TV" --data-urlencode "name=demo.mp4" \
+     --data-urlencode "size=$(stat -c%s demo.mp4)" --data-urlencode "sha256=$SHA" \
+     "http://127.0.0.1:9978/upload/start"
+
+# 2) Send chunks by offset
+curl -F "id=$ID" -F "offset=0" -F "size=4194304" -F "chunk=@chunk-0" "http://127.0.0.1:9978/upload/chunk"
+
+# 3) Finish
+curl --data-urlencode "id=$ID" "http://127.0.0.1:9978/upload/finish"
+```
+
+## Device download tasks
+
+```sh
+curl --data-urlencode "url=https://example.com/video.mp4" --data-urlencode "path=/TV" --data-urlencode "name=demo.mp4" "http://127.0.0.1:9978/download/start"
+curl -X POST "http://127.0.0.1:9978/download/status"
+```
+
+Every response contains the task `id`, `name`, `path`, `state`, `total`, `downloaded`, `speed` and `error`. Sizes are bytes and `speed` is bytes per second; an unknown `total` is -1. `pause`, `resume` and `cancel` must carry the same `id`, older ids return 409, and 404 when no task exists. Each App service runs one device download at a time; starting another while one runs returns 409.
+
+Pause or cancel may first report `pausing`锛廯cancelling`; keep querying until the final state. Only `completed` means done 鈥?check `error` on `failed`. `status` can recover a lost task response, but task state is not guaranteed across App restarts. Download staging is managed by the App, and the file list hides the `.tv-downloads` directory.
+
+## State machine
+
+<Flow direction="column">
+  <FlowNode title="start" tone="accent">Create the task and enter running</FlowNode>
+  <Arrow label="pause / resume" />
+  <FlowNode title="pausing 鈫?paused">Pause completes; resume returns to running</FlowNode>
+  <Arrow label="cancel" />
+  <FlowNode title="cancelling 鈫?cancelled">Ends the task without deleting the destination file</FlowNode>
+  <Arrow label="Natural finish" />
+  <FlowNode title="completed / failed">Only completed means done; check error on failed</FlowNode>
+</Flow>

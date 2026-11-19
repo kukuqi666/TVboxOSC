@@ -6,8 +6,12 @@ android {
         applicationId 'com.kukuqi.tvbox.runtime.quickjs'
         minSdk 24
         targetSdk 34
-        versionCode 3
-        versionName '1.0.2'
+        // 回归素材可用 -PruntimeFixtureVersion=<n> 覆盖，保证目录声明与产物版本一致。
+        versionCode 4
+        if (providers.gradleProperty('runtimeFixtureVersion').isPresent()) {
+            versionCode providers.gradleProperty('runtimeFixtureVersion').get().toInteger()
+        }
+        versionName '1.0.3'
         ndk { abiFilters 'arm64-v8a' }
     }
     compileOptions {
@@ -17,7 +21,14 @@ android {
     }
     sourceSets.main.res.srcDir(rootProject.file("runtime/icons/quickjs"))
     packaging { jniLibs { useLegacyPackaging true } }
-    buildTypes { release { minifyEnabled false } }
+    buildTypes {
+        debug {
+            if (providers.gradleProperty('coreValidation').getOrElse('false').toBoolean()) {
+                applicationIdSuffix '.corevalidation'
+            }
+        }
+        release { minifyEnabled false }
+    }
 }
 // Release modules must use the same certificate as the host APK.
 def signingStore = rootProject.file('TVBoxOSC.jks')
@@ -31,8 +42,12 @@ if (signingStore.exists()) {
     android.buildTypes.configureEach { signingConfig android.signingConfigs.host }
 }
 dependencies {
-    implementation project(':js-runtime')
+    // FongMi 原版 QuickJS wrapper（com.fongmi.quickjs.*）+ 原生 runtime
+    api files('libs/wrapper-java.jar')
+    implementation files('libs/runtime-release.aar')
+
     compileOnly project(':source-runtime')
+    implementation libs.jsoup
 
     coreLibraryDesugaring libs.desugar
 }

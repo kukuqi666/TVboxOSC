@@ -41,9 +41,9 @@ public class UpdateResumeRegressionTest extends InstrumentationTestCase {
         assertTrue(payload.length > 131072);
         StringBuilder sha = new StringBuilder();
         for (byte value : MessageDigest.getInstance("SHA-256").digest(payload)) sha.append(String.format(java.util.Locale.ROOT, "%02x", value & 255));
-        JSONObject manifest = new JSONObject().put("version", "3.0.8").put("version_code", BuildConfig.VERSION_CODE + 1)
+        JSONObject manifest = new JSONObject().put("version", "3.1.2").put("version_code", BuildConfig.VERSION_CODE + 1)
                 .put("package_name", BuildConfig.APPLICATION_ID).put("sha256", sha.toString()).put("size", payload.length)
-                .put("apk_url", "https://github.com/kukuqi666/TVboxOSC/releases/download/v3.0.8/TVboxOSC-v3.0.8.apk");
+                .put("apk_url", "https://github.com/kukuqi666/TVboxOSC/releases/download/v3.1.2/TVboxOSC-v3.1.2.apk");
         store.prefs.edit().clear().putBoolean("auto_download", false).putString("manifest", manifest.toString()).commit();
         store.partial(store.manifest()).delete(); store.apk(store.manifest()).delete();
         executor = Executors.newSingleThreadExecutor();

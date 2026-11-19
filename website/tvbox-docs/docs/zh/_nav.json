@@ -1,0 +1,32 @@
+[
+  {
+    "text": "开始使用",
+    "link": "/guide/start/introduction",
+    "activeMatch": "/guide/"
+  },
+  {
+    "text": "爬虫介接",
+    "link": "/spider/load",
+    "activeMatch": "/spider/"
+  },
+  {
+    "text": "配置字典",
+    "link": "/config/examples",
+    "activeMatch": "/config/"
+  },
+  {
+    "text": "本地 API",
+    "link": "/local/connection",
+    "activeMatch": "/local/"
+  },
+  {
+    "text": "App 功能",
+    "link": "/features/features",
+    "activeMatch": "/features/"
+  },
+  {
+    "text": "播放指令",
+    "link": "/commands/start",
+    "activeMatch": "/commands/"
+  }
+]

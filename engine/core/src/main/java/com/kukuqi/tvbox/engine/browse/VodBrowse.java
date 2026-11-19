@@ -37,6 +37,7 @@ class VodBrowse {
     static final String VOD_SEARCH = "VS:";
 
     private static final int SEARCH_LIMIT = 50;
+    private static final String FIRST_PAGE = "1";
     private static final int SEARCH_TIMEOUT = 5;
     private static final char KEY_SEPARATOR = '|';
     private static final VodHistoryPolicy policy = new VodHistoryPolicy();
@@ -66,11 +67,24 @@ class VodBrowse {
 
     @NonNull
     static ImmutableList<MediaItem> search(@NonNull String query) {
+        return search(query, FIRST_PAGE);
+    }
+
+    /**
+     * Paged search.
+     *
+     * <p>Sources may return search results across several pages; asking every site for page one
+     * caps the catalogue at whatever the first screen holds.</p>
+     */
+    @NonNull
+    static ImmutableList<MediaItem> search(@NonNull String query, @NonNull String page) {
         VodConfig.get().ensureLoaded();
         String keyword = searchKey(query);
         if (TextUtils.isEmpty(keyword)) return ImmutableList.of();
-        List<Site> sites = VodConfig.get().getSites().stream().filter(Site::isSearchable).toList();
-        List<ListenableFuture<List<MediaItem>>> futures = sites.stream().map(site -> Task.largeExecutor().submit(() -> searchSite(site, keyword))).toList();
+        String target = page.trim().isEmpty() ? FIRST_PAGE : page.trim();
+        // Hidden sites stay out of media browsing: they are infrastructure, not catalogue entries.
+        List<Site> sites = VodConfig.get().getVisibleSites().stream().filter(Site::isSearchable).toList();
+        List<ListenableFuture<List<MediaItem>>> futures = sites.stream().map(site -> Task.largeExecutor().submit(() -> searchSite(site, keyword, target))).toList();
         List<MediaItem> items = collectResults(futures);
         items.sort((a, b) -> matchScore(b, keyword) - matchScore(a, keyword));
         ImmutableList<MediaItem> results = ImmutableList.copyOf(items.subList(0, Math.min(items.size(), SEARCH_LIMIT)));
@@ -79,8 +93,8 @@ class VodBrowse {
         return results;
     }
 
-    private static List<MediaItem> searchSite(@NonNull Site site, @NonNull String keyword) throws Exception {
-        Result result = SiteApi.searchContent(site, keyword, false, "1");
+    private static List<MediaItem> searchSite(@NonNull Site site, @NonNull String keyword, @NonNull String page) throws Exception {
+        Result result = SiteApi.searchContent(site, keyword, false, page);
         return result.getList().stream().map(vod -> BrowseTree.playable(searchId(site.getKey(), vod.getId()), vod.getName(), vod.getRemarks(), vod.getPic())).toList();
     }
 

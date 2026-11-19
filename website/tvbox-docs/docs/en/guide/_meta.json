@@ -1,0 +1,12 @@
+[
+  {
+    "type": "file",
+    "name": "start/introduction",
+    "label": "Introduction"
+  },
+  {
+    "type": "file",
+    "name": "start/getting-started",
+    "label": "Quick Start"
+  }
+]

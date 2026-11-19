@@ -2,6 +2,8 @@ package com.github.catvod.net;
 
 import androidx.annotation.NonNull;
 
+import com.github.catvod.utils.Auth;
+
 import java.io.IOException;
 import java.net.ProtocolException;
 
@@ -13,6 +15,8 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 final class ProxyRedirectInterceptor implements Interceptor {
+
+    private static final int MAX_FOLLOW_UPS = 20;
 
     private final OkProxySelector selector;
 
@@ -28,31 +32,48 @@ final class ProxyRedirectInterceptor implements Interceptor {
         Response previousResponse = null;
         int followUpCount = 0;
         while (true) {
-            OkProxySelector.Policy policy = null;
-            Chain routed = chain;
-            if (chain.getProxy() == null && chain.getProxySelector() == selector) {
-                policy = selector.policy(request.url().uri(), previousPolicy);
-                if (previousPolicy != null && !policy.sharesProxyCredentials(previousPolicy)) request = request.newBuilder().removeHeader("Proxy-Authorization").build();
-                request = request.newBuilder().tag(OkProxySelector.Policy.class, policy).build();
-                routed = chain.withProxySelector(policy);
-            }
+            OkProxySelector.Policy policy = selectPolicy(chain, request, previousPolicy);
+            request = withPolicy(request, policy, previousPolicy);
+            Chain routed = policy == null ? chain : chain.withProxySelector(policy);
             Response response = routed.proceed(request);
-            for (Response prior = response.priorResponse(); prior != null; prior = prior.priorResponse()) followUpCount++;
+            followUpCount += countFollowUps(response);
             response = withPriorResponse(response, previousResponse);
-            if (followUpCount > 20) {
-                response.close();
-                throw new ProtocolException("Too many follow-up requests: " + followUpCount);
-            }
+            checkFollowUps(response, followUpCount);
+            NetOptions options = request.tag(NetOptions.class);
+            if (options != null && !options.isRedirect()) return response;
             Request followUp = redirect(response, chain.getFollowSslRedirects());
             if (followUp == null) return response;
             RequestBody body = followUp.body();
             if (body != null && body.isOneShot()) return response;
             response.close();
-            if (++followUpCount > 20) throw new ProtocolException("Too many follow-up requests: " + followUpCount);
+            if (++followUpCount > MAX_FOLLOW_UPS) throw new ProtocolException("Too many follow-up requests: " + followUpCount);
             previousResponse = response.newBuilder().body(ResponseBody.EMPTY).build();
             previousPolicy = policy;
             request = followUp;
         }
+    }
+
+    private OkProxySelector.Policy selectPolicy(Chain chain, Request request, OkProxySelector.Policy previous) {
+        return chain.getProxy() == null && chain.getProxySelector() == selector ? selector.policy(request.url(), previous) : null;
+    }
+
+    private Request withPolicy(Request request, OkProxySelector.Policy policy, OkProxySelector.Policy previous) {
+        if (policy == null) return request;
+        Request.Builder builder = request.newBuilder();
+        if (previous != null && !policy.sharesProxyCredentials(previous)) builder.removeHeader("Proxy-Authorization");
+        return builder.tag(OkProxySelector.Policy.class, policy).build();
+    }
+
+    private int countFollowUps(Response response) {
+        int count = 0;
+        for (Response prior = response.priorResponse(); prior != null; prior = prior.priorResponse()) count++;
+        return count;
+    }
+
+    private void checkFollowUps(Response response, int count) throws ProtocolException {
+        if (count <= MAX_FOLLOW_UPS) return;
+        response.close();
+        throw new ProtocolException("Too many follow-up requests: " + count);
     }
 
     private Response withPriorResponse(Response response, Response previous) {
@@ -62,6 +83,17 @@ final class ProxyRedirectInterceptor implements Interceptor {
     }
 
     private Request redirect(Response response, boolean followSslRedirects) {
+        HttpUrl target = redirectUrl(response, followSslRedirects);
+        if (target == null) return null;
+        Request.Builder builder = response.request().newBuilder();
+        redirectMethod(builder, response.request(), response.code());
+        if (!sameOrigin(response.request().url(), target)) builder.removeHeader("Authorization");
+        Request redirected = builder.url(target).build();
+        Auth.Context auth = redirected.tag(Auth.Context.class);
+        return auth == null ? redirected : OkHttp.applyAuth(redirected, auth);
+    }
+
+    private HttpUrl redirectUrl(Response response, boolean followSslRedirects) {
         int code = response.code();
         if (code != 300 && code != 301 && code != 302 && code != 303 && code != 307 && code != 308) return null;
         String location = response.header("Location");
@@ -69,17 +101,18 @@ final class ProxyRedirectInterceptor implements Interceptor {
         HttpUrl source = response.request().url();
         HttpUrl target = source.resolve(location);
         if (target == null || !source.scheme().equals(target.scheme()) && !followSslRedirects) return null;
-        Request.Builder builder = response.request().newBuilder();
-        String method = response.request().method();
-        if (!"GET".equals(method) && !"HEAD".equals(method)) {
-            if (redirectsToGet(method, code)) {
-                builder.method("GET", null).removeHeader("Transfer-Encoding").removeHeader("Content-Length").removeHeader("Content-Type");
-            } else {
-                builder.method(method, response.request().body());
-            }
-        }
-        if (!source.scheme().equals(target.scheme()) || !source.host().equals(target.host()) || source.port() != target.port()) builder.removeHeader("Authorization");
-        return builder.url(target).build();
+        return target;
+    }
+
+    private void redirectMethod(Request.Builder builder, Request request, int code) {
+        String method = request.method();
+        if ("GET".equals(method) || "HEAD".equals(method)) return;
+        if (redirectsToGet(method, code)) builder.method("GET", null).removeHeader("Transfer-Encoding").removeHeader("Content-Length").removeHeader("Content-Type");
+        else builder.method(method, request.body());
+    }
+
+    private boolean sameOrigin(HttpUrl source, HttpUrl target) {
+        return source.scheme().equals(target.scheme()) && source.host().equals(target.host()) && source.port() == target.port();
     }
 
     private boolean redirectsToGet(String method, int code) {

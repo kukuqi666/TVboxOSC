@@ -1,0 +1,61 @@
+---
+description: 用 Site 配置载入 Java JAR、Python 或 QuickJS 爬虫。
+---
+
+import { Flow, FlowNode, Arrow } from '@theme/components/Flow';
+
+# 载入爬虫
+
+写爬虫之前，先让 App 找得到它。Site 配置里的 `api` 决定执行方式。
+
+## Site 最小配置
+
+```json
+{
+  "key": "demo",
+  "name": "Demo",
+  "type": 3,
+  "api": "./demo.js",
+  "ext": {}
+}
+```
+
+`type` 固定填 `3`；`key` 不可重复，`name` 是显示名称。
+
+<Flow>
+  <FlowNode title="Site.api" tone="accent">配置里的 api 栏位</FlowNode>
+  <Arrow label="csp_" />
+  <FlowNode title="Java JAR">JAR 内继承 Spider</FlowNode>
+  <Arrow label=".js" />
+  <FlowNode title="QuickJS">ES module 预设汇出</FlowNode>
+  <Arrow label=".py" />
+  <FlowNode title="Python">继承 base.spider.Spider</FlowNode>
+</Flow>
+
+## Java JAR
+
+配置写法：`api: "csp_Demo"`
+
+类别放在 `com.github.catvod.spider.Demo`，并继承抽象 `Spider`；主配置必须提供 `spider` 或站点的 `jar`。使用 `catvod-api.jar` 作为 `compileOnly` 编译依赖，由 TV 根任务 `:apiJar` 产生于 `build/outputs/api/catvod-api.jar`。
+
+## Python
+
+配置写法：`api: "./demo.py"`
+
+相对路径以配置档所在位置为基准；输出 `Spider` 类别并继承 `base.spider.Spider`。
+
+## QuickJS
+
+配置写法：`api: "./demo.js"`
+
+JavaScript 由 QuickJS 执行；相对路径以配置档所在位置为基准。使用 ES module，预设汇出物件或建立物件的函式。
+
+:::tip
+相对路径也适用于 `ext` 与 `jar`。完整栏位说明见[配置字典 · Site](/config/site)。
+:::
+
+## 下一步
+
+- 首次执行前先[安装执行模组](/spider/modules)。
+- 载入后用[测试爬虫](/spider/testing)确认回传。
+- 直接看[三语言 Demo](/spider/demo)。

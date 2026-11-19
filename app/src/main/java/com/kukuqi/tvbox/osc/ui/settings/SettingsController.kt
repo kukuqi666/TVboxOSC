@@ -83,8 +83,51 @@ class SettingsController(
         mBinding.tvWallpaper.text = WallpaperManager.get().sourceDescription()
     }
 
+    private fun showCrashReports() {
+        val reports = cat.ereza.customactivityoncrash.CustomActivityOnCrash.getCrashReports(host)
+        if (reports.isEmpty()) {
+            ToastUtils.showShort("暂无崩溃日志")
+            return
+        }
+        val format = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.CHINA)
+        val labels = reports.map { format.format(java.util.Date(it.lastModified())) + " · " + it.length() / 1024 + " KB" }.toTypedArray()
+        androidx.appcompat.app.AlertDialog.Builder(host)
+            .setTitle("崩溃日志（最近十份）")
+            .setItems(labels) { _, index ->
+                val file = reports[index]
+                val report = cat.ereza.customactivityoncrash.CustomActivityOnCrash.readCrashReport(host, file.name)
+                if (report.isEmpty()) {
+                    ToastUtils.showShort("报告已清理，请重新打开列表")
+                    return@setItems
+                }
+                val dialog = androidx.appcompat.app.AlertDialog.Builder(host)
+                    .setTitle(labels[index])
+                    .setMessage(report)
+                    .setPositiveButton("关闭", null)
+                    .setNeutralButton("复制") { _, _ ->
+                        val clipboard = host.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as? android.content.ClipboardManager
+                        clipboard?.setPrimaryClip(android.content.ClipData.newPlainText("崩溃日志", report))
+                        ToastUtils.showShort("已复制崩溃日志")
+                    }
+                    .setNegativeButton("分享文件") { _, _ ->
+                        try {
+                            val uri = androidx.core.content.FileProvider.getUriForFile(host, host.applicationInfo.packageName + ".fileprovider", file)
+                            val intent = Intent(Intent.ACTION_SEND).setType("text/plain")
+                                .putExtra(Intent.EXTRA_STREAM, uri)
+                                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            host.startActivity(Intent.createChooser(intent, "分享崩溃日志"))
+                        } catch (error: Exception) {
+                            ToastUtils.showShort("无法分享，请使用复制或网页下载")
+                        }
+                    }.show()
+                dialog.findViewById<android.widget.TextView>(android.R.id.message)?.setTextIsSelectable(true)
+            }
+            .setPositiveButton("关闭", null).show()
+    }
+
     fun init() {
         EventBus.getDefault().register(this)
+        mBinding.llCrashLogs.setOnClickListener { showCrashReports() }
         mBinding.llModuleManager.setOnClickListener { com.kukuqi.tvbox.osc.ui.dialog.FeatureSettingsDialog.modules(host) }
         mBinding.llPlaybackSettings.setOnClickListener { com.kukuqi.tvbox.osc.ui.dialog.FeatureSettingsDialog.advancedPlayback(host) }
         mBinding.llDanmakuSettings.setOnClickListener { com.kukuqi.tvbox.osc.ui.dialog.FeatureSettingsDialog.danmaku(host) }

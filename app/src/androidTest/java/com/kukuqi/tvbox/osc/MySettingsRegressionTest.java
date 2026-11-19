@@ -75,6 +75,57 @@ public class MySettingsRegressionTest extends InstrumentationTestCase {
             if (importedImage[0] != null) new File(Uri.parse(importedImage[0]).getPath()).delete();
         }
     }
+    public void testCrashReportsPersistRotateAndHideCredentials() throws Exception {
+        File storage = new File(getInstrumentation().getTargetContext().getCacheDir(), "crash-report-regression");
+        storage.mkdirs();
+        android.content.Context context = new android.content.ContextWrapper(getInstrumentation().getTargetContext()) {
+            @Override public File getFilesDir() { return storage; }
+        };
+        cat.ereza.customactivityoncrash.config.CaocConfig config = cat.ereza.customactivityoncrash.CustomActivityOnCrash.getConfig();
+        var collector = config.getCustomCrashDataCollector();
+        try {
+            com.kukuqi.tvbox.osc.util.LOG.i("保存前的诊断线索");
+            RuntimeException failure = new RuntimeException("测试崩溃 https://user:pass@example.com/play?token=private",
+                    new IllegalArgumentException("根本原因"));
+            failure.addSuppressed(new IllegalStateException("附加异常"));
+            String last = null;
+            for (int i = 0; i < 12; i++) {
+                last = cat.ereza.customactivityoncrash.CustomActivityOnCrash.saveCrashReport(context, Thread.currentThread(), failure);
+                assertNotNull(last);
+                Thread.sleep(2);
+            }
+            var reports = cat.ereza.customactivityoncrash.CustomActivityOnCrash.getCrashReports(context);
+            assertEquals(10, reports.size());
+            assertEquals(last, reports.get(0).getName());
+            String report = cat.ereza.customactivityoncrash.CustomActivityOnCrash.readCrashReport(context, last);
+            assertTrue(report.contains("根本原因"));
+            assertTrue(report.contains("附加异常"));
+            assertTrue(report.contains("保存前的诊断线索"));
+            assertTrue(report.contains("应用版本:"));
+            assertTrue(report.contains("线程:"));
+            assertFalse(report.contains("private"));
+            assertFalse(report.contains("user:pass"));
+            assertEquals("", cat.ereza.customactivityoncrash.CustomActivityOnCrash.readCrashReport(context, "../" + last));
+            assertEquals("", cat.ereza.customactivityoncrash.CustomActivityOnCrash.readCrashReport(context, "missing.txt"));
+            // 模拟采集器自身失败，原始异常仍必须保存。
+            config.setCustomCrashDataCollector(() -> { throw new IllegalStateException("采集器失败"); });
+            last = cat.ereza.customactivityoncrash.CustomActivityOnCrash.saveCrashReport(context, Thread.currentThread(), failure);
+            report = cat.ereza.customactivityoncrash.CustomActivityOnCrash.readCrashReport(context, last);
+            assertTrue(report.contains("根本原因"));
+            assertTrue(report.contains("附加信息采集失败"));
+            config.setCustomCrashDataCollector(() -> "诊断".repeat(200000));
+            last = cat.ereza.customactivityoncrash.CustomActivityOnCrash.saveCrashReport(context, Thread.currentThread(),
+                    new RuntimeException("超大报告".repeat(200000)));
+            assertNotNull(last);
+            assertTrue(new File(new File(storage, "crash-reports"), last).length() <= 128 * 1024 * 4L);
+        } finally {
+            config.setCustomCrashDataCollector(collector);
+            for (File file : cat.ereza.customactivityoncrash.CustomActivityOnCrash.getCrashReports(context)) file.delete();
+            new File(storage, "crash-reports").delete();
+            storage.delete();
+        }
+    }
+
     private MainActivity openMy() throws Exception {
         onMain(() -> App.getInstance().isNormalStart = true);
         MainActivity main = (MainActivity) getInstrumentation().startActivitySync(new Intent(getInstrumentation().getTargetContext(), MainActivity.class)

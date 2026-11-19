@@ -2,9 +2,12 @@ package com.github.catvod.utils;
 
 import android.text.TextUtils;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.Strictness;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -15,9 +18,18 @@ import java.util.List;
 import java.util.Map;
 
 public class Json {
-    public static String link(String name, Object target) {
-        String json = target instanceof String ? (String) target : target instanceof org.json.JSONObject ? target.toString() : new com.google.gson.Gson().toJson(target);
-        return "<a href=\"catvod://" + android.net.Uri.encode(json) + "\">" + android.text.TextUtils.htmlEncode(name == null ? "" : name) + "</a>";
+
+    private static final Gson OUTPUT = new GsonBuilder().disableHtmlEscaping().create();
+    private static final Gson STRICT = new GsonBuilder().setStrictness(Strictness.STRICT).create();
+
+    public static JsonElement strict(String value) {
+        if (value == null || value.isBlank()) throw new IllegalArgumentException("Value must be JSON");
+        return STRICT.fromJson(value, JsonElement.class);
+    }
+
+    public static String link(String name, JsonObject target) {
+        if (target == null) throw new IllegalArgumentException("Link requires a target object");
+        return "[a=cr:" + OUTPUT.toJson(target) + "/]" + name + "[/a]";
     }
 
     public static JsonElement parse(String json) {

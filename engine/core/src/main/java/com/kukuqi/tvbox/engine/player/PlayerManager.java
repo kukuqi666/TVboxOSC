@@ -59,6 +59,10 @@ public class PlayerManager implements ParseCallback {
     private VideoSize videoSize;
     private ParseJob parseJob;
     private PlaySpec spec;
+    private PlayerView playerView;
+    private float videoScaleX = 1f;
+    private float videoScaleY = 1f;
+    private float videoAspect = Float.NaN;
     private Player player;
 
     private long pendingStartPositionMs;
@@ -292,6 +296,10 @@ public class PlayerManager implements ParseCallback {
         return Util.timeMs(Math.max(0, getDuration()));
     }
 
+    public List<Sub> getSubs() {
+        return spec == null ? List.of() : spec.getSubs();
+    }
+
     public void setSub(Sub sub) {
         if (sub == null || sub.isEmpty()) return;
         if (spec != null) spec.setSub(sub);
@@ -464,7 +472,56 @@ public class PlayerManager implements ParseCallback {
     }
 
     public void bindPlayerView(PlayerView playerView) {
+        this.playerView = playerView;
         if (engine != null) engine.bindPlayerView(playerView);
+        applyVideoTransform();
+    }
+
+    public float getVideoScaleX() {
+        return videoScaleX;
+    }
+
+    public float getVideoScaleY() {
+        return videoScaleY;
+    }
+
+    /** {@code NaN} leaves the axis untouched, so {@code set video-scale-x 1.2} keeps the Y scale. */
+    public void setVideoScale(float scaleX, float scaleY) {
+        if (!Float.isNaN(scaleX)) videoScaleX = Math.max(0.1f, Math.min(4f, scaleX));
+        if (!Float.isNaN(scaleY)) videoScaleY = Math.max(0.1f, Math.min(4f, scaleY));
+        applyVideoTransform();
+    }
+
+    /** {@code NaN} restores the media's own aspect ratio. */
+    public void setVideoAspect(float ratio) {
+        videoAspect = Float.isNaN(ratio) || ratio <= 0 ? Float.NaN : ratio;
+        applyVideoTransform();
+    }
+
+    /** Aspect override is kept as state only: media3 PlayerView has no ratio setter of its own. */
+    public float getVideoAspect() {
+        return videoAspect;
+    }
+
+    private void applyVideoTransform() {
+        if (playerView == null) return;
+        playerView.setScaleX(videoScaleX);
+        playerView.setScaleY(videoScaleY);
+    }
+
+    public float getVolume() {
+        return player.isCommandAvailable(Player.COMMAND_GET_VOLUME) ? player.getVolume() : 1f;
+    }
+
+    public void setVolume(float volume) {
+        if (player.isCommandAvailable(Player.COMMAND_SET_VOLUME)) player.setVolume(Math.max(0f, Math.min(1f, volume)));
+    }
+
+    /** Seeks to the Nth chapter; indexes outside the list are ignored. */
+    public void seekToChapter(int index) {
+        List<MediaChapter> chapters = getCurrentMediaChapters();
+        if (index < 0 || index >= chapters.size()) return;
+        selectChapter(chapters.get(index));
     }
 
     public void resetTrack() {

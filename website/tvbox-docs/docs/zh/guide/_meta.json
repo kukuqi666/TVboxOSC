@@ -1,0 +1,12 @@
+[
+  {
+    "type": "file",
+    "name": "start/introduction",
+    "label": "介绍"
+  },
+  {
+    "type": "file",
+    "name": "start/getting-started",
+    "label": "快速开始"
+  }
+]

@@ -293,6 +293,33 @@ public class VodConfig extends BaseConfig {
         return getSites().stream().filter(item -> item.getKey().equals(key)).findFirst().orElse(new Site());
     }
 
+    /**
+     * Sites the user is allowed to see.
+     *
+     * <p>A subscription marks maintained infrastructure with {@code "hide": 1}; such a site stays
+     * usable for push, proxies and deep links, but is dropped from pickers and search so the list
+     * only shows what the provider meant to expose.</p>
+     */
+    public List<Site> getVisibleSites() {
+        return getSites().stream().filter(item -> !item.isHide()).toList();
+    }
+
+    /**
+     * Sites pinned to the home screen.
+     *
+     * <p>{@code "indexs": 1} asks for the site to appear in the first level list; when no site is
+     * pinned, every visible site qualifies and the caller keeps its own ordering.</p>
+     */
+    public List<Site> getIndexSites() {
+        List<Site> pinned = getVisibleSites().stream().filter(Site::isIndex).toList();
+        return pinned.isEmpty() ? getVisibleSites() : pinned;
+    }
+
+    /** Picker entry points: hidden sites never appear here. */
+    public List<Site> getSitesView() {
+        return getSites().stream().filter(item -> !item.isHide()).collect(Collectors.toCollection(ArrayList::new));
+    }
+
     private void setParse(Config config, Parse parse, boolean save) {
         this.parse = parse;
         this.parse.setSelected(true);

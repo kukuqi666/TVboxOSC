@@ -1,0 +1,51 @@
+{
+
+"urls": [
+
+{"name": "自建","url": "https://cf.ghproxy.cc/https://raw.githubusercontent.com/Dong-learn9/TVBox-zyjk/main/tvbox2.json"},
+
+{"name": "短剧一","url": "http://box.ufuzi.com/tv/qq/短剧频道/api.json"},
+
+{"name": "短剧二","url": "https://codeberg.org/Xym/TVBOX/raw/branch/main/%E7%9F%AD%E5%89%A7/dj.json"},
+
+{"name": "饭太硬","url": "http://www.饭太硬.com/tv/"},
+
+{"name": "多多","url": "https://gitea.moe/NB666/netdisk/raw/branch/main/jsm.json"},
+
+{"name": "PG正版","url": "http://tv.devopser.org/p/jsm.json"},
+
+{"name": "雷蒙","url": "https://cf.ghproxy.cc/https://raw.githubusercontent.com/n3rddd/N3RD/master/JN/lemj.json"},
+
+{"name": "肥猫","url": "http://我不是.肥猫.live/接口禁止贩卖"},
+
+{"name": "讴歌","url": "https://xn--evve-rp5imh.v.nxog.top/apitv.php?id=1"},
+
+{"name": "潇洒","url": "https://cf.ghproxy.cc/https://raw.githubusercontent.com/PizazzGY/TVBox/main/api.json"},
+
+{"name": "小米","url": "http://www.mpanso.com/小米/DEMO.json"},
+
+{"name": "香雅情","url": "https://cf.ghproxy.cc/https://raw.githubusercontent.com/xyq254245/xyqonlinerule/main/XYQTVBox.json"},
+
+{"name":"RAY线路","url":"https://100km.top/0"},
+
+{"name":"爬虫接口","url":"https://dxawi.github.io/0/0.json"},
+
+{"name": "南风", "url": "https://cf.ghproxy.cc/https://raw.githubusercontent.com/yoursmile66/TVBox/main/XC.json"},
+
+{"name": "技巧","url": "http://pandown.pro/tvbox/tvbox.json"},
+
+{"name": "高饭","url": "https://cf.ghproxy.cc/https://raw.githubusercontent.com/gaotianliuyun/gao/master/0821.json"},
+
+{"name": "王小二","url": "http://tvbox.王二小放牛娃.top"},
+
+{"name": "云星","url": "http://itvbox.cc/云星日记"},
+
+{"name": "业余","url": "https://yydf.540734621.xyz/QQ/yydf2024.json"},
+
+{"name": "不良","url": "https://notabug.org/qizhen15800/My9394/raw/master/%e4%b8%8d%e8%89%af%e5%b8%85.json"},
+
+{"name": "夜猫BPQ","url": "https://codeberg.org/Xym/ymz/raw/branch/main/ymz/ymz"}
+                   
+]
+
+}

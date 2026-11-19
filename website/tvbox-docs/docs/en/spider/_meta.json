@@ -1,0 +1,23 @@
+[
+  { "type": "file", "name": "load", "label": "Loading a Spider" },
+  { "type": "file", "name": "modules", "label": "Runtime Modules" },
+  { "type": "file", "name": "testing", "label": "Testing a Spider" },
+  { "type": "file", "name": "demo", "label": "Three-Language Demo" },
+  { "type": "file", "name": "lifecycle", "label": "Methods and Timing" },
+  { "type": "file", "name": "network", "label": "Shared Networking" },
+  { "type": "file", "name": "streams", "label": "Streams and Proxy" },
+  { "type": "file", "name": "websocket", "label": "WebSocket" },
+  { "type": "file", "name": "cache", "label": "Cache and Storage" },
+  { "type": "file", "name": "scripts", "label": "Run JavaScript" },
+  { "type": "file", "name": "android-ui", "label": "Android UI" },
+  { "type": "file", "name": "dialog", "label": "Dialog" },
+  { "type": "file", "name": "result", "label": "Result Format" },
+  { "type": "file", "name": "objects", "label": "Data Objects" },
+  { "type": "file", "name": "episodes", "label": "Groups and Episodes" },
+  { "type": "file", "name": "proxy", "label": "Proxy Response" },
+  { "type": "file", "name": "live-danmaku", "label": "Live Danmaku" },
+  { "type": "file", "name": "timeshift", "label": "Live Timeshift" },
+  { "type": "file", "name": "skips", "label": "Skip Segments" },
+  { "type": "file", "name": "web", "label": "Open a Web Page" },
+  { "type": "file", "name": "node", "label": "Node.js Loading" }
+]

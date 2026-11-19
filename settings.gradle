@@ -1,14 +1,17 @@
 rootProject.name = "TVBoxMobile"
 include ':app'
 include ':player'
-include ':quickjs'
 include ':TabLayout'
 include ':ViewPager1Delegate'
 include ':crash'
-include ':tvbox-engine', ':source-runtime', ':js-runtime', ':python-runtime'
+// 本地组件：保留模块标识，集中维护播放器适配、崩溃页与分页控件。
+project(':player').projectDir = file('components/player')
+project(':crash').projectDir = file('components/crash')
+project(':TabLayout').projectDir = file('components/tablayout')
+project(':ViewPager1Delegate').projectDir = file('components/viewpager')
+include ':tvbox-engine', ':source-runtime', ':python-runtime'
 project(':tvbox-engine').projectDir = file('engine/core')
 project(':source-runtime').projectDir = file('engine/catvod')
-project(':js-runtime').projectDir = file('engine/quickjs')
 project(':python-runtime').projectDir = file('engine/chaquo')
 
 include ':runtime-python'

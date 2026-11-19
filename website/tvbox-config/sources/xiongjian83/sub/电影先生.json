@@ -1,0 +1,23 @@
+{
+"站名":"电影先生",
+"主页url":"https://dianyi.ng/",
+"数组": "module-item-pic&&</div>",
+"图片":"data-src=\"&&\"",
+"标题":"title=\"&&\"",
+"链接":"href=\"&&\"",
+"副标题":"module-item-text\">&&</div>",
+"状态":"地区：&&</div>",
+"导演":"导演：&&</div>",
+"主演":"主演：&&</div>",
+"简介":"剧情：&&</div>",
+"线路数组":"data-dropdown-value=&&</div>",
+"线路标题":"+<span>&&</small>[替换:</span><small>>>共]+集",
+"播放数组":"scroll-content&&</div>",
+"播放标题":"<span>&&</span>",
+"播放列表":"<a&&</a>",
+"搜索url":"https://dianyi.ng/search-{wd}-------------.html",
+"搜索链接":"href=\"&&\"",
+"搜索模式": "0",
+"分类":"电影$dianying#电视剧$dianshiju#综艺$zongyi#动漫$dongman",
+"分类url":"https://dianyi.ng/pianku-{cateId}-{area}-{by}-{class}-{lang}----{catePg}---{year}.html"
+}

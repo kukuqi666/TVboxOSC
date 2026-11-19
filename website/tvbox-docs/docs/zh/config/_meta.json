@@ -1,0 +1,47 @@
+[
+  {
+    "type": "file",
+    "name": "examples",
+    "label": "完整范例"
+  },
+  {
+    "type": "file",
+    "name": "vod",
+    "label": "Vod 顶层"
+  },
+  {
+    "type": "file",
+    "name": "site",
+    "label": "Site"
+  },
+  {
+    "type": "file",
+    "name": "parse",
+    "label": "Parse"
+  },
+  {
+    "type": "file",
+    "name": "live",
+    "label": "Live"
+  },
+  {
+    "type": "file",
+    "name": "channel",
+    "label": "Group / Channel"
+  },
+  {
+    "type": "file",
+    "name": "formats",
+    "label": "直播格式"
+  },
+  {
+    "type": "file",
+    "name": "core",
+    "label": "Core"
+  },
+  {
+    "type": "file",
+    "name": "common",
+    "label": "共用物件"
+  }
+]

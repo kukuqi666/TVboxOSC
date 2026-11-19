@@ -1,0 +1,60 @@
+﻿---
+description: Spider methods for Java, Python and QuickJS, when the App calls them, what they own and what they return.
+---
+
+import { Flow, FlowNode, Arrow } from '@theme/components/Flow';
+
+
+# Methods and Timing
+
+This table applies to Java, Python and QuickJS; Node.js uses a [separate HTTP endpoint](/spider/node).
+
+Release your own sessions, WebSockets and background work in `destroy`. QuickJS waits at most 5 seconds (including promises) and then still disposes the engine.
+
+| Method | Called when | Responsibility | Main return |
+| --- | --- | --- | --- |
+| `init` | The spider initializes | Read `ext`, open connections or caches | none |
+| `homeContent` / `home` | Entering the home page | Categories and optional `filters` | Result.class |
+| `homeVideoContent` / `homeVod` | Categories have loaded | Recommended cards on the home page | Result.list |
+| `categoryContent` / `category` | Changing category, page or filters | Cards for that page and total pages | list + pagecount |
+| `detailContent` / `detail` | Tapping a card | Full details and play groups | list[0] |
+| `searchContent` / `search` | Searching | Search results, optional paging | list + pagecount |
+| `playerContent` / `play` | Selecting an episode | Final URL and playback parameters | Result |
+| `danmaku` | When the site provides live danmaku | Danmaku or subscription state objects | Java AutoCloseable锛廝ython, QuickJS stop function |
+| `liveContent` / `live` | Loading live configuration | TXT, M3U or Group JSON | text / Group array |
+| `proxy` / `localProxy` | The local proxy receives a request | Status, type, content and headers per runtime | array / HTTP response |
+| `action` | Custom action | Anything parseable from Result | Java JSON string锛廝ython, QuickJS object |
+| `destroy` | Reload or teardown | Release threads and connections; QuickJS cleanup hook up to 5 s | none |
+
+## Flow
+
+<Flow>
+  <FlowNode title="init" tone="accent">Initialize</FlowNode>
+  <Arrow />
+  <FlowNode title="homeContent / home">Categories and filters</FlowNode>
+  <Arrow />
+  <FlowNode title="categoryContent / category">List and total pages</FlowNode>
+  <Arrow />
+  <FlowNode title="detailContent / detail">Details and episodes</FlowNode>
+  <Arrow />
+  <FlowNode title="playerContent / play">Final URL</FlowNode>
+</Flow>
+
+`searchContent` and `homeVideoContent` are two other paths into details: search yields a list directly, while the App decides whether to show home recommendations.
+
+## Name mapping
+
+| Java | Python | QuickJS |
+| --- | --- | --- |
+| `homeContent` | `homeContent` | `home` |
+| `homeVideoContent` | `homeVideoContent` | `homeVod` |
+| `categoryContent` | `categoryContent` | `category` |
+| `detailContent` | `detailContent` | `detail` |
+| `searchContent` | `searchContent` | `search` |
+| `playerContent` | `playerContent` | `play` |
+| `liveContent` | `liveContent` | `live` |
+| `proxy` | `localProxy` | `proxy` |
+
+:::tip
+Close every session, WebSocket and background thread you created in `destroy`. Without it, reloading a spider accumulates connections.
+:::

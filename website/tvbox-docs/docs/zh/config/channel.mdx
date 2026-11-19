@@ -1,0 +1,76 @@
+---
+description: Group 与 Channel 物件栏位，包含线路、DRM、回看与 timeShift 覆盖规则。
+---
+
+import { Flow, FlowNode, Arrow } from '@theme/components/Flow';
+
+# Group / Channel
+
+| 栏位 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| `Group.name` | string | 是 | 分组显示名称。 |
+| `Group.pass` | string | 否 | 分组密码；未通过前视为隐藏。 |
+| `Group.channel` | `Channel[]` | 是 | 分组内频道清单。 |
+| `Channel.name` | string | 是 | 频道显示名称。 |
+| `Channel.urls` | `string[]` | 是 | 播放位置清单；未设定 `drm` 时可用 `$线路名称` 指定标签。设定 `drm` 时 URL 原样使用，请勿附加标签。 |
+| `Channel.number` | string | 否 | 显示用频道号码。 |
+| `Channel.logo` | string | 否 | 覆盖配置预设 Logo。 |
+| `Channel.epg` | string | 否 | 覆盖配置预设 EPG。 |
+| `Channel.ua` | string | 否 | 覆盖配置预设 User-Agent。 |
+| `Channel.click` | string | 否 | 覆盖配置的 JavaScript 点击程式。 |
+| `Channel.format` | string | 否 | 直接指定媒体 MIME type。 |
+| `Channel.origin` | string | 否 | 覆盖 Origin。 |
+| `Channel.referer` | string | 否 | 覆盖 Referer。 |
+| `Channel.tvgId` | string | 否 | EPG 频道 ID。 |
+| `Channel.tvgName` | string | 否 | EPG 频道名称。 |
+| `Channel.header` | object | 否 | 频道 HTTP 标头；外部列表仅在整份 `header` 为空时继承 `Live.header`，不逐键合并。 |
+| `Channel.drm` | `Drm` | 否 | 媒体 DRM 参数，子栏位见[共用物件](/config/common)。 |
+| `Channel.parse` | integer | 否 | 0=不解析、1=解析。 |
+| `Channel.timeshift` | object | 否 | 可拖曳的直播回看时间轴，格式与 `Result.timeshift` 相同。 |
+| `Channel.catchup` | `Catchup` | 否 | 覆盖配置的节目回看设定。 |
+
+若 JSON 是由 `Live.url` 载入，档案最外层直接放 Group 阵列，如下一节的 JSON 范例；若写在主配置内，则放进 `lives[].groups`。
+
+## 覆盖顺序
+
+<Flow>
+  <FlowNode title="Live 预设">logo、ua、epg、catchup</FlowNode>
+  <Arrow label="频道明确值" />
+  <FlowNode title="Channel">逐栏位覆盖</FlowNode>
+  <Arrow label="载入配置时" />
+  <FlowNode title="App 已保存" tone="muted">boot、pass、keep</FlowNode>
+</Flow>
+
+`Channel.header` 不是逐键合并：只要频道提供了非空 `header`，就不再继承 `Live.header` 的其余键。
+
+## 多线路与 DRM
+
+```json
+{
+  "name": "范例一台",
+  "urls": [
+    "https://example.com/live/main.m3u8$主线",
+    "https://example.com/live/backup.m3u8$备线"
+  ]
+}
+```
+
+```json
+{
+  "name": "DRM 范例",
+  "urls": ["https://example.com/live/drm.mpd"],
+  "drm": {
+    "type": "widevine",
+    "key": "https://example.com/drm/license",
+    "header": { "Referer": "https://example.com/" }
+  }
+}
+```
+
+设定 `drm` 时，`urls` 中的网址会原样使用，`$线路名称` 标签不会被解析。
+
+## 相关章节
+
+- 列表格式：[直播列表的三种完整输入](/config/formats)
+- 节目回看：[共用物件 · Catchup](/config/common)
+- 时间轴回看：[直播回看](/spider/timeshift)

@@ -1,0 +1,107 @@
+[
+  {
+    "type": "file",
+    "name": "load",
+    "label": "载入爬虫"
+  },
+  {
+    "type": "file",
+    "name": "modules",
+    "label": "安装执行模组"
+  },
+  {
+    "type": "file",
+    "name": "testing",
+    "label": "测试爬虫"
+  },
+  {
+    "type": "file",
+    "name": "demo",
+    "label": "三语言 Demo"
+  },
+  {
+    "type": "file",
+    "name": "lifecycle",
+    "label": "方法与呼叫时机"
+  },
+  {
+    "type": "file",
+    "name": "network",
+    "label": "共用网络"
+  },
+  {
+    "type": "file",
+    "name": "streams",
+    "label": "串流读取与代理"
+  },
+  {
+    "type": "file",
+    "name": "websocket",
+    "label": "WebSocket"
+  },
+  {
+    "type": "file",
+    "name": "cache",
+    "label": "快取与储存"
+  },
+  {
+    "type": "file",
+    "name": "scripts",
+    "label": "执行 JavaScript"
+  },
+  {
+    "type": "file",
+    "name": "android-ui",
+    "label": "Android UI"
+  },
+  {
+    "type": "file",
+    "name": "dialog",
+    "label": "Dialog 对话窗"
+  },
+  {
+    "type": "file",
+    "name": "result",
+    "label": "Result 回传格式"
+  },
+  {
+    "type": "file",
+    "name": "objects",
+    "label": "数据物件"
+  },
+  {
+    "type": "file",
+    "name": "episodes",
+    "label": "播放分组与集数"
+  },
+  {
+    "type": "file",
+    "name": "proxy",
+    "label": "Proxy 回传"
+  },
+  {
+    "type": "file",
+    "name": "live-danmaku",
+    "label": "即时弹幕"
+  },
+  {
+    "type": "file",
+    "name": "timeshift",
+    "label": "直播回看"
+  },
+  {
+    "type": "file",
+    "name": "skips",
+    "label": "片段跳过"
+  },
+  {
+    "type": "file",
+    "name": "web",
+    "label": "开网页"
+  },
+  {
+    "type": "file",
+    "name": "node",
+    "label": "Node.js 载入"
+  }
+]

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+
+<head>
+    <title>遥控器</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0,viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+    <link rel="stylesheet" href="css/ui.css">
+    <style>
+        .remote-card { display: flex; flex-direction: column; gap: 16px; }
+        .remote-state { font-size: 13px; color: var(--md-on-surface-variant); line-height: 1.6; white-space: pre-wrap; }
+        .remote-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .remote-pad .md-btn { min-height: 56px; padding: 0; }
+        .remote-pad .span3 { grid-column: span 3; }
+        .remote-row { display: flex; gap: 10px; }
+        .remote-row .md-btn { flex: 1; }
+        .remote-slider { width: 100%; }
+        .remote-error { color: var(--md-error); }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="app-body">
+            <div class="panel-content remote-card">
+                <div id="state" class="remote-state">正在读取状态…</div>
+                <input id="seek" class="remote-slider" type="range" min="0" max="100" value="0" oninput="seekLabel()" onchange="seek()" />
+                <div id="seekLabel" class="remote-state">00:00 / 00:00</div>
+
+                <div class="remote-row">
+                    <button class="md-btn md-btn-filled" onclick="command('play')">播放</button>
+                    <button class="md-btn md-btn-tonal" onclick="command('pause')">暂停</button>
+                    <button class="md-btn md-btn-tonal" onclick="command('stop')">停止</button>
+                </div>
+                <div class="remote-row">
+                    <button class="md-btn md-btn-tonal" onclick="command('prev')">上一集</button>
+                    <button class="md-btn md-btn-tonal" onclick="command('next')">下一集</button>
+                </div>
+                <div class="remote-row">
+                    <button class="md-btn md-btn-tonal" onclick="command('repeat_on')">单集循环</button>
+                    <button class="md-btn md-btn-tonal" onclick="command('repeat_off')">取消循环</button>
+                </div>
+                <div class="remote-row">
+                    <button class="md-btn md-btn-tonal" onclick="command('speed', { speed: 0.5 })">0.5x</button>
+                    <button class="md-btn md-btn-tonal" onclick="command('speed', { speed: 1 })">1x</button>
+                    <button class="md-btn md-btn-tonal" onclick="command('speed', { speed: 1.5 })">1.5x</button>
+                    <button class="md-btn md-btn-tonal" onclick="command('speed', { speed: 2 })">2x</button>
+                </div>
+
+                <div class="remote-pad">
+                    <span></span>
+                    <button class="md-btn md-btn-tonal" onclick="key('up')">上</button>
+                    <span></span>
+                    <button class="md-btn md-btn-tonal" onclick="key('left')">左</button>
+                    <button class="md-btn md-btn-filled" onclick="key('ok')">确定</button>
+                    <button class="md-btn md-btn-tonal" onclick="key('right')">右</button>
+                    <span></span>
+                    <button class="md-btn md-btn-tonal" onclick="key('down')">下</button>
+                    <span></span>
+                    <button class="md-btn md-btn-tonal" onclick="key('back')">返回</button>
+                    <button class="md-btn md-btn-tonal span3" onclick="key('menu')">菜单</button>
+                </div>
+
+                <div class="remote-row" id="digits"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const keyId = Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+        let pollTimer = null;
+
+        function text(id, value) {
+            document.getElementById(id).textContent = value;
+        }
+
+        function time(ms) {
+            const total = Math.max(0, Math.floor((ms || 0) / 1000));
+            const h = Math.floor(total / 3600);
+            const m = Math.floor((total % 3600) / 60);
+            const s = total % 60;
+            const pad = (n) => String(n).padStart(2, '0');
+            return h > 0 ? h + ':' + pad(m) + ':' + pad(s) : pad(m) + ':' + pad(s);
+        }
+
+        async function request(path, params) {
+            const options = params === undefined ? {} : { method: 'POST', body: new URLSearchParams(params) };
+            const response = await fetch(path, options);
+            const body = await response.text();
+            if (!response.ok) throw new Error(body || ('HTTP ' + response.status));
+            try {
+                return JSON.parse(body);
+            } catch (e) {
+                return body;
+            }
+        }
+
+        function render(state) {
+            if (!state || !state.active) {
+                text('state', '当前没有播放中的媒体');
+                return;
+            }
+            const lines = [];
+            lines.push(state.title || '未命名');
+            lines.push((state.state === 'playing' ? '播放中' : '已暂停') + (state.live ? ' · 直播' : '') + ' · ' + (state.speed || 1) + 'x');
+            lines.push('位置 ' + time(state.position) + ' / ' + time(state.duration));
+            if (state.video && state.video.width) lines.push('分辨率 ' + state.video.width + ' x ' + state.video.height);
+            text('state', lines.join('\n'));
+            const seek = document.getElementById('seek');
+            seek.max = String(Math.max(1, state.duration || 0));
+            if (!seek.matches(':active')) seek.value = String(state.position || 0);
+            text('seekLabel', time(seek.value) + ' / ' + time(state.duration));
+        }
+
+        function seekLabel() {
+            text('seekLabel', time(Number(document.getElementById('seek').value)) + ' / ' + time(Number(document.getElementById('seek').max)));
+        }
+
+        async function refresh() {
+            try {
+                render(await request('remote'));
+            } catch (e) {
+                text('state', '读取失败：' + e.message);
+            }
+        }
+
+        async function command(name, extra) {
+            try {
+                render(await request('remote', Object.assign({ command: name }, extra || {})));
+            } catch (e) {
+                text('state', '命令失败：' + e.message);
+            }
+        }
+
+        function seek() {
+            command('seek', { position: document.getElementById('seek').value });
+        }
+
+        async function key(name) {
+            try {
+                await request('remote/key', { key: name, action: 'press', id: keyId });
+            } catch (e) {
+                text('state', '按键失败：' + e.message);
+            }
+        }
+
+        (function digits() {
+            const row = document.getElementById('digits');
+            for (let i = 0; i <= 9; i++) {
+                const button = document.createElement('button');
+                button.className = 'md-btn md-btn-tonal';
+                button.textContent = String(i);
+                button.onclick = () => key(String(i));
+                row.appendChild(button);
+            }
+        })();
+
+        refresh();
+        pollTimer = setInterval(refresh, 2000);
+        window.addEventListener('pagehide', () => clearInterval(pollTimer));
+    </script>
+</body>
+
+</html>

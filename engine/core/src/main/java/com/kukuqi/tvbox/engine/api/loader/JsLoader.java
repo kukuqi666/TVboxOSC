@@ -11,6 +11,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class JsLoader {
 
+    private static volatile com.fongmi.quickjs.host.Host host = com.fongmi.quickjs.host.Host.NONE;
+
+    public static void setHost(com.fongmi.quickjs.host.Host value) {
+        host = value == null ? com.fongmi.quickjs.host.Host.NONE : value;
+    }
+
     private final ConcurrentHashMap<String, Spider> spiders;
     private Object loader;
     private volatile String recent;
@@ -36,7 +42,7 @@ public class JsLoader {
         return spiders.computeIfAbsent(key, k -> {
             Spider spider = null;
             try {
-                spider = (Spider) RuntimeModules.call(loader, "spider", new Class<?>[]{String.class, dalvik.system.DexClassLoader.class}, api, BaseLoader.get().dex(jar));
+                spider = (Spider) RuntimeModules.call(loader, "spider", new Class<?>[]{String.class, dalvik.system.DexClassLoader.class, com.fongmi.quickjs.host.Host.class}, api, BaseLoader.get().dex(jar), host);
                 spider.prepare(key);
                 spider.init(App.get(), ext);
                 return spider;

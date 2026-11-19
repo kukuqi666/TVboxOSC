@@ -250,6 +250,8 @@ public class ApiConfig {
             sb.setPlayerType(DefaultConfig.safeJsonInt(obj, "playerType", -1));
             sb.setCategories(DefaultConfig.safeJsonStringList(obj, "categories"));
             sb.setClickSelector(DefaultConfig.safeJsonString(obj, "click", ""));
+            sb.setHide(DefaultConfig.safeJsonInt(obj, "hide", 0) == 1 ? 1 : 0);
+            sb.setIndexs(DefaultConfig.safeJsonInt(obj, "indexs", 0) == 1 ? 1 : 0);
             sb.setHeaders(com.kukuqi.tvbox.osc.util.ConfigCompat.headers(obj.get("header")));
             if (firstSite == null)
                 firstSite = sb;
@@ -561,6 +563,17 @@ public class ApiConfig {
 
     public List<SourceBean> getSourceBeanList() {
         return new ArrayList<>(sourceBeanList.values());
+    }
+
+    /** 选择器可见列表：隐藏站点仅供推送、代理与深链使用。 */
+    public List<SourceBean> getVisibleSourceBeanList() {
+        return getSourceBeanList().stream().filter(bean -> !bean.isHide()).toList();
+    }
+
+    /** 首页一级列表：有站点声明 indexs 时只保留这些站点。 */
+    public List<SourceBean> getIndexSourceBeanList() {
+        List<SourceBean> pinned = getVisibleSourceBeanList().stream().filter(SourceBean::isIndex).toList();
+        return pinned.isEmpty() ? getVisibleSourceBeanList() : pinned;
     }
 
     public List<ParseBean> getParseBeanList() {

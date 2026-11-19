@@ -88,9 +88,9 @@ public class LocalVideoController extends BaseController {
                     case 1004: { // 设置速度
                         if (isInPlaybackState()) {
                             try {
-                                float speed = (float) mPlayerConfig.getDouble("sp");
+                                float speed = readSpeed();
                                 mControlWrapper.setSpeed(speed);
-                            } catch (JSONException e) {
+                            } catch (Exception e) {
                                 e.printStackTrace();
                             }
                         } else
@@ -318,7 +318,7 @@ public class LocalVideoController extends BaseController {
                 myHandle.removeCallbacks(myRunnable);
                 myHandle.postDelayed(myRunnable, myHandleSeconds);
                 try {
-                    int scaleType = mPlayerConfig.getInt("sc");
+                    int scaleType = readInt("sc", 0);
                     scaleType++;
                     if (scaleType > 5)
                         scaleType = 0;
@@ -339,7 +339,7 @@ public class LocalVideoController extends BaseController {
                 myHandle.removeCallbacks(myRunnable);
                 myHandle.postDelayed(myRunnable, myHandleSeconds);
                 try {
-                    int playerType = mPlayerConfig.getInt("pl");
+                    int playerType = readInt("pl", 1);
                     ArrayList<Integer> exsitPlayerTypes = PlayerHelper.getExistPlayerTypes();
                     int playerTypeIdx = 0;
                     int playerTypeSize = exsitPlayerTypes.size();
@@ -373,7 +373,7 @@ public class LocalVideoController extends BaseController {
                 myHandle.postDelayed(myRunnable, myHandleSeconds);
                 FastClickCheckUtil.check(view);
                 try {
-                    int playerType = mPlayerConfig.getInt("pl");
+                    int playerType = readInt("pl", 1);
                     int defaultPos = 0;
                     ArrayList<Integer> players = PlayerHelper.getExistPlayerTypes();
                     ArrayList<Integer> renders = new ArrayList<>();
@@ -422,7 +422,7 @@ public class LocalVideoController extends BaseController {
                         }
                     }, renders, defaultPos);
                     dialog.show();
-                } catch (JSONException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 return true;
@@ -434,7 +434,7 @@ public class LocalVideoController extends BaseController {
                 myHandle.removeCallbacks(myRunnable);
                 myHandle.postDelayed(myRunnable, myHandleSeconds);
                 try {
-                    String ijk = mPlayerConfig.getString("ijk");
+                    String ijk = readString("ijk");
                     List<IJKCode> codecs = ApiConfig.get().getIjkCodes();
                     for (int i = 0; i < codecs.size(); i++) {
                         if (ijk.equals(codecs.get(i).getName())) {
@@ -624,26 +624,44 @@ public class LocalVideoController extends BaseController {
         return R.layout.player_vod_control_view;
     }
 
-    private JSONObject mPlayerConfig = null;
+    private JSONObject mPlayerConfig = new JSONObject();
 
     public void setPlayerConfig(JSONObject playerCfg) {
-        this.mPlayerConfig = playerCfg;
+        // 配置可能尚未初始化或传入 null；保持非空对象，避免长按/倍速等交互触发 NPE。
+        this.mPlayerConfig = playerCfg == null ? new JSONObject() : playerCfg;
         updatePlayerCfgView();
+    }
+
+    private JSONObject playerConfig() {
+        if (mPlayerConfig == null) mPlayerConfig = new JSONObject();
+        return mPlayerConfig;
+    }
+
+    private float readSpeed() {
+        return (float) playerConfig().optDouble("sp", 1.0);
+    }
+
+    private int readInt(String key, int fallback) {
+        return playerConfig().optInt(key, fallback);
+    }
+
+    private String readString(String key) {
+        return playerConfig().optString(key, "");
     }
 
     void updatePlayerCfgView() {
         try {
-            int playerType = mPlayerConfig.getInt("pl");
+            int playerType = readInt("pl", 1);
             mPlayerBtn.setText(PlayerHelper.getPlayerName(playerType));
-            mPlayerScaleBtn.setText(PlayerHelper.getScaleName(mPlayerConfig.getInt("sc")));
-            mPlayerIJKBtn.setText(mPlayerConfig.getString("ijk"));
+            mPlayerScaleBtn.setText(PlayerHelper.getScaleName(readInt("sc", 0)));
+            mPlayerIJKBtn.setText(readString("ijk"));
             mPlayerIJKBtn.setVisibility(playerType == 1 ? VISIBLE : GONE);
-            mPlayerScaleBtn.setText(PlayerHelper.getScaleName(mPlayerConfig.getInt("sc")));
-            mPlayerSpeedBtn.setText("x" + mPlayerConfig.getDouble("sp"));
-            mPlayerTimeStartBtn.setText(PlayerUtils.stringForTime(mPlayerConfig.getInt("st") * 1000));
-            mPlayerTimeSkipBtn.setText(PlayerUtils.stringForTime(mPlayerConfig.getInt("et") * 1000));
+            mPlayerScaleBtn.setText(PlayerHelper.getScaleName(readInt("sc", 0)));
+            mPlayerSpeedBtn.setText("x" + readSpeed());
+            mPlayerTimeStartBtn.setText(PlayerUtils.stringForTime(readInt("st", 0) * 1000));
+            mPlayerTimeSkipBtn.setText(PlayerUtils.stringForTime(readInt("et", 0) * 1000));
             mAudioTrackBtn.setVisibility((playerType == 1) ? VISIBLE : GONE);
-        } catch (JSONException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -737,8 +755,8 @@ public class LocalVideoController extends BaseController {
         if (skipEnd && position != 0 && duration != 0) {
             int et = 0;
             try {
-                et = mPlayerConfig.getInt("et");
-            } catch (JSONException e) {
+                et = readInt("et", 0);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             if (et > 0 && position + (et * 1000) >= duration) {

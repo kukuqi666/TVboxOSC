@@ -97,9 +97,8 @@ public class VodController extends BaseController {
                     case 1004: { // 设置速度
                         if (isInPlaybackState()) {
                             try {
-                                float speed = (float) mPlayerConfig.getDouble("sp");
-                                mControlWrapper.setSpeed(speed);
-                            } catch (JSONException e) {
+                                mControlWrapper.setSpeed(readSpeed());
+                            } catch (Exception e) {
                                 e.printStackTrace();
                             }
                         } else
@@ -370,7 +369,7 @@ public class VodController extends BaseController {
             myHandle.removeCallbacks(myRunnable);
             myHandle.postDelayed(myRunnable, dismissTimeOperationBar);
             try {
-                int scaleType = mPlayerConfig.getInt("sc");
+                int scaleType = readInt("sc", 0);
                 scaleType++;
                 if (scaleType > 5)
                     scaleType = 0;
@@ -391,7 +390,7 @@ public class VodController extends BaseController {
                 listener.updatePlayerCfg();
                 speed_old = 1.0f;
                 mControlWrapper.setSpeed(1.0f);
-            } catch (JSONException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             return true;
@@ -400,7 +399,7 @@ public class VodController extends BaseController {
             myHandle.removeCallbacks(myRunnable);
             myHandle.postDelayed(myRunnable, dismissTimeOperationBar);
             try {
-                int playerType = mPlayerConfig.getInt("pl");
+                int playerType = readInt("pl", 1);
                 ArrayList<Integer> exsitPlayerTypes = PlayerHelper.getExistPlayerTypes();
                 int playerTypeIdx = 0;
                 int playerTypeSize = exsitPlayerTypes.size();
@@ -431,7 +430,7 @@ public class VodController extends BaseController {
             myHandle.postDelayed(myRunnable, dismissTimeOperationBar);
             FastClickCheckUtil.check(view);
             try {
-                int playerType = mPlayerConfig.getInt("pl");
+                int playerType = readInt("pl", 1);
                 int defaultPos = 0;
                 ArrayList<Integer> players = PlayerHelper.getExistPlayerTypes();
                 ArrayList<Integer> renders = new ArrayList<>();
@@ -480,7 +479,7 @@ public class VodController extends BaseController {
                     }
                 }, renders, defaultPos);
                 dialog.show();
-            } catch (JSONException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             return true;
@@ -616,7 +615,7 @@ public class VodController extends BaseController {
         myHandle.removeCallbacks(myRunnable);
         myHandle.postDelayed(myRunnable, dismissTimeOperationBar);
         try {
-            float speed = (float) mPlayerConfig.getDouble("sp");
+            float speed = readSpeed();
             if (TextUtils.isEmpty(speedStr)) {// 未设置.点击切换
                 speed += 0.25f;
                 if (speed > 3)
@@ -694,24 +693,40 @@ public class VodController extends BaseController {
         }
     }
 
-    private JSONObject mPlayerConfig = null;
+    private JSONObject mPlayerConfig = new JSONObject();
 
     public void setPlayerConfig(JSONObject playerCfg) {
-        this.mPlayerConfig = playerCfg;
+        // 配置可能尚未初始化或传入 null；保持非空对象，避免播放器控件在长按/倍速等交互时 NPE。
+        this.mPlayerConfig = playerCfg == null ? new JSONObject() : playerCfg;
         updatePlayerCfgView();
+    }
+
+    private JSONObject playerConfig() {
+        if (mPlayerConfig == null) mPlayerConfig = new JSONObject();
+        return mPlayerConfig;
+    }
+
+    /** 倍速读取带默认值：配置缺 sp 时回落 1.0，不抛也不 NPE。 */
+    private float readSpeed() {
+        return (float) playerConfig().optDouble("sp", 1.0);
+    }
+
+    /** 整型配置读取带默认值，键缺失返回 fallback。 */
+    private int readInt(String key, int fallback) {
+        return playerConfig().optInt(key, fallback);
     }
 
     void updatePlayerCfgView() {
         try {
-            int playerType = mPlayerConfig.getInt("pl");
+            int playerType = readInt("pl", 1);
             mPlayerBtn.setText(PlayerHelper.getPlayerName(playerType));
-            mPlayerScaleBtn.setText(PlayerHelper.getScaleName(mPlayerConfig.getInt("sc")));
+            mPlayerScaleBtn.setText(PlayerHelper.getScaleName(readInt("sc", 0)));
             mPlayerIJKBtn.setText(mPlayerConfig.getString("ijk"));
             mPlayerIJKBtn.setVisibility(playerType == 1 ? VISIBLE : GONE);
-            mPlayerScaleBtn.setText(PlayerHelper.getScaleName(mPlayerConfig.getInt("sc")));
-            mPlayerSpeedBtn.setText("x" + mPlayerConfig.getDouble("sp"));
-            mPlayerTimeStartBtn.setText(PlayerUtils.stringForTime(mPlayerConfig.getInt("st") * 1000));
-            mPlayerTimeSkipBtn.setText(PlayerUtils.stringForTime(mPlayerConfig.getInt("et") * 1000));
+            mPlayerScaleBtn.setText(PlayerHelper.getScaleName(readInt("sc", 0)));
+            mPlayerSpeedBtn.setText("x" + readSpeed());
+            mPlayerTimeStartBtn.setText(PlayerUtils.stringForTime(readInt("st", 0) * 1000));
+            mPlayerTimeSkipBtn.setText(PlayerUtils.stringForTime(readInt("et", 0) * 1000));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -803,11 +818,7 @@ public class VodController extends BaseController {
         if (listener != null) listener.progress(duration, position);
         if (skipEnd && position != 0 && duration != 0) {
             int et = 0;
-            try {
-                et = mPlayerConfig.getInt("et");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            et = readInt("et", 0);
             if (et > 0 && position + (et * 1000) >= duration) {
                 skipEnd = false;
                 listener.playNext(true);
@@ -980,15 +991,11 @@ public class VodController extends BaseController {
     public void onLongPress(MotionEvent e) {
         if (videoPlayState != VideoView.STATE_PAUSED) {
             fromLongPress = true;
-            try {
-                speed_old = (float) mPlayerConfig.getDouble("sp");
-                float speed = Hawk.get(HawkConfig.VIDEO_SPEED, 2.0f);
-                mControlWrapper.setSpeed(speed);
-                mLlSpeed.setVisibility(VISIBLE);
-                mTvSpeedTip.setText(speed + "x");
-            } catch (JSONException f) {
-                f.printStackTrace();
-            }
+            speed_old = readSpeed();
+            float speed = Hawk.get(HawkConfig.VIDEO_SPEED, 2.0f);
+            mControlWrapper.setSpeed(speed);
+            mLlSpeed.setVisibility(VISIBLE);
+            mTvSpeedTip.setText(speed + "x");
         }
     }
 
@@ -1055,7 +1062,7 @@ public class VodController extends BaseController {
     public void increaseTime(String type) {
         try {
             int step = Hawk.get(HawkConfig.PLAY_TIME_STEP, 1);
-            int time = mPlayerConfig.getInt(type);
+            int time = readInt(type, 0);
             time += step;
             if (time > 30 * 10)
                 time = 0;
@@ -1070,7 +1077,7 @@ public class VodController extends BaseController {
     public void decreaseTime(String type) {
         try {
             int step = Hawk.get(HawkConfig.PLAY_TIME_STEP, 1);
-            int time = mPlayerConfig.getInt(type);
+            int time = readInt(type, 0);
             time -= step;
             if (time < 0)
                 time = (30 * 10);

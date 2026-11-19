@@ -1,287 +1,1246 @@
 package com.github.catvod.net;
 
-import android.webkit.CookieManager;
-import com.github.catvod.utils.Crypto;
-import com.github.catvod.utils.Prefers;
-import com.google.gson.*;
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicLong;
-import okhttp3.*;
+import androidx.annotation.Keep;
+import androidx.annotation.NonNull;
 
-/** Per-source network lifetime shared by Java and scripting bridges. Times are milliseconds. */
+import com.github.catvod.Runtime;
+import com.github.catvod.crawler.SpiderDebug;
+import com.github.catvod.utils.Json;
+import com.github.catvod.utils.Task;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InterruptedIOException;
+import java.io.UncheckedIOException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
+import javax.net.ssl.SSLException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Cookie;
+import okhttp3.Headers;
+import okhttp3.HttpUrl;
+import okhttp3.Interceptor;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+import okio.ByteString;
+
+@Keep
 public final class Net implements AutoCloseable {
-    private static final Gson JSON = new GsonBuilder().setStrictness(Strictness.STRICT).create();
-    public interface Loader { String load() throws Exception; }
-    public interface SocketCallback { void event(Socket socket, SocketEvent event) throws Exception; }
-    public static final class SocketEvent {
-        public final String type;
-        public final Object content;
-        SocketEvent(String type, Object content) { this.type = type; this.content = content; }
-        public String toJson() {
-            JsonObject value = new JsonObject(); value.addProperty("type", type);
-            if (content instanceof byte[] bytes) value.addProperty("binary", okio.ByteString.of(bytes).base64());
-            else value.addProperty("content", String.valueOf(content));
-            return value.toString();
+
+    private static final int TEXT_TIMEOUT = 15000;
+
+    @Keep
+    public interface Cookies {
+
+        String getCookie(String url);
+
+        boolean setCookie(String url, String cookie);
+    }
+
+    @Keep
+    public interface Mapper<T, R> {
+        R apply(T item, int index) throws Exception;
+    }
+
+    static final ScheduledExecutorService DEADLINES = deadlines();
+
+    private final Cookies cookies;
+    private final OkHttpClient client;
+    private final Net parent;
+    private final NetTrace trace;
+    private final Object lock = new Object();
+    private final Set<Call> calls = new HashSet<>();
+    private final Set<StreamResult> streams = new HashSet<>();
+    private final Set<NetExchange> sockets = new HashSet<>();
+    private final Set<NetSocket> connections = new HashSet<>();
+    private final Set<Net> children = new HashSet<>();
+    private final Set<NetMap<?, ?>> maps = new HashSet<>();
+    private final NetCache cache;
+    private boolean closed;
+
+    private static ScheduledExecutorService deadlines() {
+        ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1, runnable -> {
+            Thread thread = new Thread(runnable, "Spider network deadline");
+            thread.setDaemon(true);
+            return thread;
+        });
+        executor.setRemoveOnCancelPolicy(true);
+        return executor;
+    }
+
+    public Net() {
+        this(null);
+    }
+
+    public Net(Cookies cookies) {
+        this(OkHttp.client(), cookies);
+    }
+
+    public Net(Cookies cookies, String siteKey) {
+        this(OkHttp.client(), cookies, null, new NetStore(siteKey), NetTrace.find(siteKey));
+    }
+
+    Net(OkHttpClient client, Cookies cookies) {
+        this(client, cookies, null);
+    }
+
+    Net(OkHttpClient client, Cookies cookies, NetTrace trace) {
+        this(client, cookies, null, null, trace);
+    }
+
+    private Net(OkHttpClient client, Cookies cookies, Net parent, NetStore store, NetTrace trace) {
+        this.client = client;
+        this.cookies = cookies;
+        this.parent = parent;
+        this.trace = trace;
+        this.cache = store == null ? new NetCache() : new NetCache(store);
+    }
+
+    public Net session() {
+        synchronized (lock) {
+            checkOpen();
+            Net child = new Net(client, new SessionCookies(), this, null, trace);
+            children.add(child);
+            return child;
         }
     }
-    private record Entry(String text, long expires) {}
-    private final String scope;
-    private final boolean isolated;
-    private final Map<String, List<Cookie>> cookies = new ConcurrentHashMap<>();
-    private final Set<Call> calls = ConcurrentHashMap.newKeySet();
-    private final Set<Socket> sockets = ConcurrentHashMap.newKeySet();
-    private final Set<Net> sessions = ConcurrentHashMap.newKeySet();
-    private final Map<String, Entry> cache = new ConcurrentHashMap<>();
-    private final Map<String, Future<String>> loading = new ConcurrentHashMap<>();
-    private final AtomicLong epoch = new AtomicLong();
-    private final Map<String, Long> generations = new ConcurrentHashMap<>();
-    private final ExecutorService workers = Executors.newFixedThreadPool(4);
-    private final ExecutorService loaders = Executors.newFixedThreadPool(4);
-    private volatile boolean closed;
 
-    public Net(String scope) { this(scope, false); }
-    private Net(String scope, boolean isolated) { this.scope = scope; this.isolated = isolated; }
-    public Net session() { check(); Net child = new Net(scope + ":session:" + UUID.randomUUID(), true); sessions.add(child); return child; }
-    private void check() { if (closed) throw new IllegalStateException("来源网络已关闭"); }
-    private static JsonObject options(String text) {
-        if (text == null || text.isEmpty()) return new JsonObject();
-        return JsonParser.parseString(text).getAsJsonObject();
+    public String getCookie(String url) {
+        checkOpen();
+        HttpUrl target = url == null ? null : HttpUrl.parse(url);
+        if (cookies == null || target == null) return "";
+        String value = cookies.getCookie(target.toString());
+        return value == null ? "" : value;
     }
-    private OkHttpClient client(JsonObject opts) {
-        check();
-        long timeout = Math.max(1, opts.has("timeout") ? opts.get("timeout").getAsLong() : 30000);
-        OkHttpClient.Builder builder = OkHttp.client().newBuilder().connectTimeout(timeout, TimeUnit.MILLISECONDS)
-                .readTimeout(timeout, TimeUnit.MILLISECONDS).callTimeout(timeout, TimeUnit.MILLISECONDS);
-        if (opts.has("redirect")) builder.followRedirects(opts.get("redirect").getAsBoolean()).followSslRedirects(opts.get("redirect").getAsBoolean());
-        if (isolated || (opts.has("cookie") && opts.get("cookie").getAsBoolean())) builder.cookieJar(new CookieJar() {
-            public List<Cookie> loadForRequest(HttpUrl url) {
-                if (!isolated) {
-                    String text = getCookie(url.toString()); List<Cookie> values = new ArrayList<>();
-                    for (String part : text.split(";")) { Cookie cookie = Cookie.parse(url, part.trim()); if (cookie != null) values.add(cookie); }
-                    return values;
+
+    public boolean setCookie(String url, String value) {
+        checkOpen();
+        HttpUrl target = url == null ? null : HttpUrl.parse(url);
+        if (cookies == null || target == null || value == null || Cookie.parse(target, value) == null) return false;
+        return cookies.setCookie(target.toString(), value);
+    }
+
+    private void checkOpen() {
+        synchronized (lock) {
+            if (closed) throw new IllegalStateException("Network owner closed");
+        }
+    }
+
+    public void sleep(long milliseconds) throws InterruptedIOException {
+        if (milliseconds < 0) throw new IllegalArgumentException("Sleep duration must not be negative");
+        long started = System.nanoTime();
+        synchronized (lock) {
+            while (true) {
+                if (closed) throw new InterruptedIOException("Network owner closed");
+                if (Thread.currentThread().isInterrupted()) throw new InterruptedIOException("Thread interrupted");
+                long remaining = milliseconds - TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started);
+                if (remaining <= 0) return;
+                try {
+                    lock.wait(remaining);
+                } catch (InterruptedException e) {
+                    throw interrupted(e);
                 }
-                List<Cookie> values = new ArrayList<>();
-                for (List<Cookie> list : cookies.values()) for (Cookie cookie : list)
-                    if (cookie.expiresAt() > System.currentTimeMillis() && cookie.matches(url)) values.add(cookie);
-                return values;
             }
-            public void saveFromResponse(HttpUrl url, List<Cookie> incoming) {
-                if (!isolated) { for (Cookie cookie : incoming) setCookie(url.toString(), cookie.toString()); return; }
-                for (Cookie cookie : incoming) cookies.put(cookie.domain() + "|" + cookie.path() + "|" + cookie.name(), List.of(cookie));
+        }
+    }
+
+    public String cached(String key, String options, Callable<String> loader) throws Exception {
+        if (loader == null) throw new IllegalArgumentException("Cache loader is required");
+        CompletableFuture<String> result = cachedAsync(key, options, () -> load(loader));
+        try {
+            return result.get();
+        } catch (InterruptedException e) {
+            throw interrupted(e);
+        } catch (ExecutionException error) {
+            if (error.getCause() instanceof Exception cause) throw cause;
+            if (error.getCause() instanceof Error cause) throw cause;
+            throw new IllegalStateException(error.getCause());
+        }
+    }
+
+    private static InterruptedIOException interrupted(InterruptedException cause) {
+        Thread.currentThread().interrupt();
+        InterruptedIOException error = new InterruptedIOException("Thread interrupted");
+        error.initCause(cause);
+        return error;
+    }
+
+    private CompletableFuture<String> load(Callable<String> loader) {
+        CompletableFuture<String> loading = new CompletableFuture<>();
+        FutureTask<Void> task = new FutureTask<>(() -> {
+            try {
+                loading.complete(loader.call());
+            } catch (Throwable error) {
+                if (error instanceof InterruptedException) Thread.currentThread().interrupt();
+                loading.completeExceptionally(error);
+            }
+            return null;
+        });
+        loading.whenComplete((value, error) -> {
+            if (loading.isCancelled()) task.cancel(true);
+        });
+        client.dispatcher().executorService().execute(task);
+        return loading;
+    }
+
+    public CompletableFuture<String> cachedAsync(String key, String options, Supplier<CompletableFuture<String>> loader) {
+        synchronized (lock) {
+            if (closed) return Task.failedFuture(new InterruptedIOException("Network owner closed"));
+        }
+        return cache.cached(key, CacheOptions.from(options), loader);
+    }
+
+    public String peek(String key) {
+        checkOpen();
+        return cache.peek(key);
+    }
+
+    public void refresh(String key, String options, Callable<String> loader) {
+        if (loader == null) throw new IllegalArgumentException("Cache loader is required");
+        CacheOptions config = CacheOptions.from(options);
+        synchronized (lock) {
+            if (closed) {
+                SpiderDebug.log(new InterruptedIOException("Network owner closed"));
+                return;
+            }
+        }
+        cache.cached(key, new CacheOptions(config.ttl, false, config.persist), () -> load(loader)).whenComplete((value, error) -> {
+            if (error != null) SpiderDebug.log(error);
+        });
+    }
+
+    public void clearCache(String key) {
+        cache.clear(key);
+    }
+
+    public boolean invalidateCache(String key, String expected) {
+        return cache.invalidate(key, expected);
+    }
+
+    public void clearCache() {
+        cache.clear(null);
+    }
+
+    public String json(String url, String options) {
+        String text = jsonText(url, options);
+        Json.strict(text);
+        return text;
+    }
+
+    public String jsonText(String url, String options) {
+        NetOptions request = NetOptions.from(options);
+        if (request.getBuffer() != 0) throw new IllegalArgumentException("JSON requests require text content");
+        Result result = request(url, request);
+        if (result.error != null) throw new IllegalStateException(result.error);
+        int code = (Integer) result.code;
+        if (code < 200 || code >= 300) throw new IllegalStateException("HTTP " + code);
+        return result.text(request);
+    }
+
+    public String req(String url, String json) {
+        return json(url, json, false);
+    }
+
+    public String get(String url) {
+        return get(url, null);
+    }
+
+    public String get(String url, Map<String, String> headers) {
+        return text(url, NetOptions.text("GET", null, headers, TEXT_TIMEOUT));
+    }
+
+    public String get(String url, int timeout) {
+        return text(url, NetOptions.text("GET", null, null, timeout));
+    }
+
+    public String post(String url, String json) {
+        return post(url, json, null);
+    }
+
+    public String post(String url, String json, Map<String, String> headers) {
+        return text(url, NetOptions.text("POST", json, headers, TEXT_TIMEOUT));
+    }
+
+    private String text(String url, NetOptions options) {
+        Result result = request(url, options);
+        if (result.error != null) throw new IllegalStateException(result.error);
+        return result.text(options);
+    }
+
+    public String ws(String url, String json) {
+        return json(url, json, true);
+    }
+
+    private String json(String url, String json, boolean webSocket) {
+        NetOptions options = new NetOptions();
+        try {
+            options = NetOptions.from(json);
+            return (webSocket ? socket(url, options) : request(url, options)).json(options);
+        } catch (Exception e) {
+            return Result.failure(e).json(options);
+        }
+    }
+
+    public Object[] reqParts(String url, String json) {
+        return parts(url, json, false);
+    }
+
+    public Object[] wsParts(String url, String json) {
+        return parts(url, json, true);
+    }
+
+    private Object[] parts(String url, String json, boolean webSocket) {
+        NetOptions options = new NetOptions();
+        try {
+            options = NetOptions.from(json);
+            return (webSocket ? socket(url, options) : request(url, options)).parts(options);
+        } catch (Exception e) {
+            return Result.failure(e).parts(options);
+        }
+    }
+
+    private Result socket(String url, NetOptions options) {
+        CountDownLatch latch = new CountDownLatch(1);
+        AtomicReference<Result> result = new AtomicReference<>();
+        NetExchange exchange = openSocket(url, options, value -> {
+            result.set(value);
+            latch.countDown();
+        });
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            if (exchange != null) exchange.cancel();
+            Thread.currentThread().interrupt();
+            return Result.failure(e);
+        }
+        return result.get();
+    }
+
+    public Result request(String url, NetOptions options) {
+        CompletableFuture<Result> future = requestAsync(url, options);
+        try {
+            return future.get();
+        } catch (InterruptedException e) {
+            future.cancel(true);
+            return Result.failure(interrupted(e));
+        } catch (ExecutionException e) {
+            return Result.failure(e.getCause());
+        }
+    }
+
+    public <T, R> List<R> map(List<T> items, Mapper<T, R> mapper) throws Exception {
+        return map(items, mapper, 4);
+    }
+
+    public <T, R> List<R> map(List<T> items, Mapper<T, R> mapper, int limit) throws Exception {
+        if (items == null || mapper == null || limit < 1) throw new IllegalArgumentException("Invalid map options");
+        if (items.isEmpty()) {
+            checkOpen();
+            return new ArrayList<>();
+        }
+        NetMap<T, R> mapping = createMap(items, mapper, limit);
+        try {
+            return mapping.start().get();
+        } catch (InterruptedException error) {
+            mapping.cancel();
+            throw interrupted(error);
+        } catch (ExecutionException error) {
+            if (error.getCause() instanceof Exception cause) throw cause;
+            if (error.getCause() instanceof Error cause) throw cause;
+            throw new IllegalStateException(error.getCause());
+        }
+    }
+
+    private <T, R> NetMap<T, R> createMap(List<T> items, Mapper<T, R> mapper, int limit) {
+        synchronized (lock) {
+            checkOpen();
+            NetMap<T, R> mapping = new NetMap<>(items, mapper, limit, this::removeMap);
+            maps.add(mapping);
+            return mapping;
+        }
+    }
+
+    private void removeMap(NetMap<?, ?> mapping) {
+        synchronized (lock) {
+            maps.remove(mapping);
+        }
+    }
+
+    public Result[] batch(String requests) throws IOException {
+        return batch(requests, 4);
+    }
+
+    public Result[] batch(String requests, int limit) throws IOException {
+        return batch(Json.strict(requests).getAsJsonArray(), limit);
+    }
+
+    private Result[] batch(JsonArray requests, int limit) throws IOException {
+        validateBatch(requests, limit);
+        if (requests.isEmpty()) {
+            checkOpen();
+            return new Result[0];
+        }
+        NetMap<JsonElement, Result> mapping = createMap(requests.asList(), (value, index) -> batchRequest(value.getAsJsonObject()), limit);
+        try {
+            return mapping.start().get().toArray(Result[]::new);
+        } catch (InterruptedException e) {
+            throw interrupted(e);
+        } catch (ExecutionException e) {
+            throw new IOException(e.getCause());
+        } finally {
+            mapping.cancel();
+        }
+    }
+
+    private Result batchRequest(JsonObject item) {
+        String url = item.get("url").getAsString();
+        return request(url, NetOptions.from(item.get("options") == null ? null : item.get("options").toString()));
+    }
+
+    private void validateBatch(JsonArray requests, int limit) {
+        if (limit < 1) throw new IllegalArgumentException("Batch limit must be positive");
+        for (JsonElement value : requests) validateBatchRequest(value);
+    }
+
+    private void validateBatchRequest(JsonElement value) {
+        if (!value.isJsonObject()) throw new IllegalArgumentException("Invalid batch request");
+        JsonObject item = value.getAsJsonObject();
+        JsonElement url = item.get("url"), options = item.get("options");
+        if (url == null || !url.isJsonPrimitive() || !url.getAsJsonPrimitive().isString() || options != null && !options.isJsonNull() && !options.isJsonObject()) throw new IllegalArgumentException("Invalid batch request");
+    }
+
+    public Object[][] batchParts(String requests, int limit) throws IOException {
+        JsonArray items = Json.strict(requests).getAsJsonArray();
+        Result[] results = batch(items, limit);
+        Object[][] parts = new Object[results.length][];
+        for (int i = 0; i < parts.length; i++) {
+            JsonElement options = items.get(i).getAsJsonObject().get("options");
+            parts[i] = results[i].parts(NetOptions.from(options == null ? null : options.toString()));
+        }
+        return parts;
+    }
+
+    public void download(String url, String json, File file) throws IOException {
+        CompletableFuture<String> future = downloadAsync(url, json, file);
+        try {
+            future.get();
+        } catch (InterruptedException e) {
+            future.cancel(true);
+            throw interrupted(e);
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof IOException error) throw error;
+            throw new IOException(e.getCause());
+        }
+    }
+
+    public CompletableFuture<String> downloadAsync(String url, String json, File file) {
+        File target = file.isAbsolute() ? file : new File(Runtime.context().getCacheDir(), file.getPath());
+        NetOptions options;
+        Download download;
+        Call call;
+        try {
+            options = NetOptions.from(json);
+            download = createDownload(url, target, options);
+        } catch (Exception e) {
+            return Task.failedFuture(e);
+        }
+        try {
+            call = newDownloadCall(download, options);
+        } catch (Exception e) {
+            closeDownload(download, e);
+            return Task.failedFuture(e);
+        }
+        CompletableFuture<String> future = new CompletableFuture<>();
+        future.whenComplete((result, error) -> {
+            if (future.isCancelled()) cancelDownload(call, download);
+        });
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                failDownload(call, e, download, future);
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) {
+                finishDownload(call, response, download, target, future);
             }
         });
+        return future;
+    }
+
+    private Download createDownload(String url, File target, NetOptions options) {
+        Download download = new Download(NetRequest.build(url, options, false), target)
+                .maxBytes(options.getMaxBytes())
+                .threads(options.getThreads())
+                .resume(!usesCookies(options))
+                .strictStatus(false)
+                .allowEmpty(true);
+        if (options.getSize() > 0) download.size(options.getSize());
+        return download;
+    }
+
+    private Call newDownloadCall(Download download, NetOptions options) throws IOException {
+        return newCall(download.request(request -> {
+            try {
+                return newCall(request, options);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }), options);
+    }
+
+    private void failDownload(Call call, IOException e, Download download, CompletableFuture<String> future) {
+        closeDownload(download, e);
+        remove(call);
+        future.completeExceptionally(e);
+    }
+
+    private void closeDownload(Download download, Throwable failure) {
+        try {
+            download.close();
+        } catch (IOException cleanup) {
+            failure.addSuppressed(cleanup);
+        }
+    }
+
+    private void finishDownload(Call call, Response response, Download download, File target, CompletableFuture<String> future) {
+        try (download) {
+            download.write(call, response, null);
+        } catch (Exception e) {
+            future.completeExceptionally(response.isSuccessful() ? e : new IOException("HTTP " + response.code(), e));
+            return;
+        } finally {
+            download.releaseCalls(this::remove);
+            remove(call);
+        }
+        future.complete(target.getAbsolutePath());
+    }
+
+    private void cancelDownload(Call call, Download download) {
+        Throwable failure = null;
+        try {
+            call.cancel();
+        } catch (RuntimeException | Error closing) {
+            failure = closing;
+        }
+        try {
+            download.cancel();
+        } catch (RuntimeException | Error closing) {
+            if (failure == null) failure = closing;
+            else if (failure != closing) failure.addSuppressed(closing);
+        }
+        if (failure instanceof RuntimeException closing) throw closing;
+        if (failure instanceof Error closing) throw closing;
+    }
+
+    public void enqueue(String url, NetOptions options, Consumer<Result> complete) {
+        requestAsync(url, options).whenComplete((result, error) -> complete.accept(error == null ? result : Result.failure(error)));
+    }
+
+    public CompletableFuture<Result> requestAsync(String url, NetOptions options) {
+        CompletableFuture<Result> future = new CompletableFuture<>();
+        Call call;
+        try {
+            call = newCall(url, options);
+        } catch (Exception e) {
+            return CompletableFuture.completedFuture(Result.failure(e));
+        }
+        bindDeadline(call, options, future, () -> future.complete(Result.failure(new SocketTimeoutException())));
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                remove(call);
+                future.complete(Result.failure(call, e));
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) {
+                finishRequest(call, response, future);
+            }
+        });
+        return future;
+    }
+
+    private void finishRequest(Call call, Response response, CompletableFuture<Result> future) {
+        Result result;
+        try (response) {
+            result = Result.read(response);
+        } catch (Exception e) {
+            result = Result.failure(call, e);
+        } finally {
+            remove(call);
+        }
+        future.complete(result);
+    }
+
+    public CompletableFuture<StreamResult> requestStreamAsync(String url, NetOptions options) {
+        Call call;
+        try {
+            call = newCall(url, options);
+        } catch (Exception error) {
+            return Task.failedFuture(error);
+        }
+        CompletableFuture<StreamResult> future = new CompletableFuture<>();
+        bindDeadline(call, options, future, () -> future.completeExceptionally(new SocketTimeoutException()));
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException error) {
+                remove(call);
+                future.completeExceptionally(error);
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) {
+                acceptStream(call, response, future);
+            }
+        });
+        return future;
+    }
+
+    private void bindDeadline(Call call, NetOptions options, CompletableFuture<?> future, BooleanSupplier expire) {
+        int timeout = options.getCallTimeout();
+        ScheduledFuture<?> timer = timeout == 0 ? null : scheduleDeadline(call, timeout, expire);
+        future.whenComplete((result, error) -> {
+            if (timer != null) timer.cancel(false);
+            if (future.isCancelled()) call.cancel();
+        });
+    }
+
+    private ScheduledFuture<?> scheduleDeadline(Call call, int timeout, BooleanSupplier expire) {
+        long end = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeout);
+        call.timeout().deadlineNanoTime(end);
+        return DEADLINES.schedule(() -> client.dispatcher().executorService().execute(() -> {
+            if (expire.getAsBoolean()) call.cancel();
+        }), end - System.nanoTime(), TimeUnit.NANOSECONDS);
+    }
+
+    private void acceptStream(Call call, Response response, CompletableFuture<StreamResult> future) {
+        StreamResult result = new StreamResult(call, response);
+        boolean accepted;
+        synchronized (lock) {
+            accepted = !closed && !call.isCanceled();
+            if (accepted) streams.add(result);
+        }
+        if (!accepted) {
+            InterruptedIOException error = new InterruptedIOException("Network request canceled");
+            try {
+                result.close();
+            } catch (RuntimeException | Error closing) {
+                error.addSuppressed(closing);
+            }
+            future.completeExceptionally(error);
+        } else if (!future.complete(result)) {
+            result.close();
+        }
+    }
+
+    public void webSocket(String url, NetOptions options, Consumer<Result> complete) {
+        openSocket(url, options, complete);
+    }
+
+    public CompletableFuture<Result> socketAsync(String url, NetOptions options) {
+        CompletableFuture<Result> future = new CompletableFuture<>();
+        NetExchange exchange = openSocket(url, options, future::complete);
+        future.whenComplete((result, error) -> {
+            if (future.isCancelled() && exchange != null) exchange.cancel();
+        });
+        return future;
+    }
+
+    private Call newCall(String url, NetOptions options) throws IOException {
+        return newCall(NetRequest.build(url, options, false), options);
+    }
+
+    private Call newCall(Request request, NetOptions options) throws IOException {
+        OkHttpClient http = builder(options).addNetworkInterceptor(chain -> interceptCookies(chain, request, options)).build();
+        Call call = http.newCall(request.newBuilder().tag(NetOptions.class, options).build());
+        synchronized (lock) {
+            if (closed) throw new InterruptedIOException("Network owner closed");
+            calls.add(call);
+        }
+        return call;
+    }
+
+    private Response interceptCookies(Interceptor.Chain chain, Request request, NetOptions options) throws IOException {
+        Request next = withCookies(chain.request(), request.url(), request.header("Cookie"), options);
+        Response response = chain.proceed(next);
+        try {
+            saveCookies(response, options);
+            return response;
+        } catch (IOException | RuntimeException e) {
+            response.close();
+            throw e;
+        }
+    }
+
+    private OkHttpClient.Builder builder(NetOptions options) {
+        OkHttpClient.Builder builder = client.newBuilder()
+                .connectTimeout(options.getTimeout(), TimeUnit.MILLISECONDS)
+                .readTimeout(options.getTimeout(), TimeUnit.MILLISECONDS)
+                .writeTimeout(options.getTimeout(), TimeUnit.MILLISECONDS)
+                .callTimeout(options.getCallTimeout(), TimeUnit.MILLISECONDS)
+                .followRedirects(options.isRedirect())
+                .followSslRedirects(options.isRedirect());
+        if (trace != null) builder.eventListenerFactory(trace::listener);
+        return builder;
+    }
+
+    private Request withCookies(Request request, HttpUrl origin, String explicit, NetOptions options) throws IOException {
+        if (explicit == null && !usesCookies(options)) return request;
+        Request.Builder builder = request.newBuilder().removeHeader("Cookie");
+        String value = null;
+        if (explicit != null && sameOrigin(origin, request.url())) {
+            value = explicit;
+        } else if (usesCookies(options)) {
+            try {
+                value = getCookie(request.url().toString());
+            } catch (RuntimeException e) {
+                throw cookieFailure(e);
+            }
+        }
+        if (value != null && !value.isEmpty()) builder.header("Cookie", value);
         return builder.build();
     }
-    private Request request(String url, JsonObject opts) {
-        HttpUrl parsed = HttpUrl.parse(url);
-        if (parsed == null) throw new IllegalArgumentException("HTTP 地址无效");
-        HttpUrl.Builder address = parsed.newBuilder();
-        if (opts.has("params")) for (var entry : opts.getAsJsonObject("params").entrySet())
-            address.addQueryParameter(entry.getKey(), entry.getValue().getAsString());
-        Request.Builder request = new Request.Builder().url(address.build());
-        for (String key : List.of("headers", "header")) if (opts.has(key) && opts.get(key).isJsonObject())
-            for (var entry : opts.getAsJsonObject(key).entrySet()) request.header(entry.getKey(), entry.getValue().getAsString());
-        String method = opts.has("method") ? opts.get("method").getAsString().toUpperCase(Locale.ROOT) : "GET";
-        RequestBody body = null;
-        if (!method.equals("GET") && !method.equals("HEAD")) {
-            String content = "";
-            if (opts.has("body")) content = opts.get("body").isJsonPrimitive() ? opts.get("body").getAsString() : opts.get("body").toString();
-            String type = request.build().header("Content-Type");
-            body = RequestBody.create(MediaType.parse(type == null ? "application/json; charset=utf-8" : type), content);
-        }
-        return request.method(method, body).build();
-    }
-    Response execute(String url, JsonObject opts) throws IOException {
-        Call call = client(opts).newCall(request(url, opts)); calls.add(call);
-        if (closed) { calls.remove(call); call.cancel(); throw new IOException("来源网络已关闭"); }
+
+    void saveCookies(Response response, NetOptions options) throws IOException {
+        if (!usesCookies(options)) return;
+        HttpUrl url = response.request().url();
         try {
-            Response response = call.execute(); ResponseBody body = response.body();
-            if (body == null) { calls.remove(call); return response; }
-            okio.BufferedSource source = okio.Okio.buffer(new okio.ForwardingSource(body.source()) {
-                @Override public void close() throws IOException { try { super.close(); } finally { calls.remove(call); } }
+            for (String value : response.headers("Set-Cookie")) setCookie(url.toString(), value);
+        } catch (RuntimeException e) {
+            throw cookieFailure(e);
+        }
+    }
+
+    private IOException cookieFailure(RuntimeException cause) {
+        synchronized (lock) {
+            IOException error = closed ? new InterruptedIOException("Network owner closed") : new IOException("Cookie provider failed");
+            error.initCause(cause);
+            return error;
+        }
+    }
+
+    private boolean usesCookies(NetOptions options) {
+        return parent != null || options.isCookie();
+    }
+
+    private boolean sameOrigin(HttpUrl first, HttpUrl second) {
+        return first.scheme().equals(second.scheme()) && first.host().equals(second.host()) && first.port() == second.port();
+    }
+
+    private NetExchange openSocket(String url, NetOptions options, Consumer<Result> complete) {
+        NetExchange exchange = null;
+        try {
+            if (options.getTimeout() <= 0) throw new IllegalArgumentException("WebSocket requires a deadline");
+            Request request = socketRequest(url, options);
+            OkHttpClient socket = socketClient(options);
+            exchange = new NetExchange(this, options, complete);
+            registerExchange(exchange);
+            exchange.start(socket, request);
+            return exchange;
+        } catch (Exception e) {
+            if (exchange != null) exchange.finish(Result.failure(e));
+            else complete.accept(Result.failure(e));
+            return null;
+        }
+    }
+
+    Request socketRequest(String url, NetOptions options) throws IOException {
+        Request request = NetRequest.build(url, options, true);
+        return withCookies(request, request.url(), request.header("Cookie"), options);
+    }
+
+    private void registerExchange(NetExchange exchange) throws InterruptedIOException {
+        synchronized (lock) {
+            if (closed) throw new InterruptedIOException("Network owner closed");
+            sockets.add(exchange);
+        }
+    }
+
+    public NetSocket connect(String url, String json, NetSocket.Listener listener) throws IOException {
+        NetOptions options = NetOptions.from(json);
+        if (listener == null) throw new IllegalArgumentException("WebSocket requires a listener");
+        if (options.getTimeout() <= 0) throw new IllegalArgumentException("WebSocket requires a connect deadline");
+        Request request = socketRequest(url, options);
+        OkHttpClient client = socketClient(options).newBuilder().pingInterval(options.getPing(), TimeUnit.MILLISECONDS).build();
+        NetSocket socket = new NetSocket(this, url, options, listener);
+        synchronized (lock) {
+            checkOpen();
+            connections.add(socket);
+        }
+        try {
+            socket.start(client, request);
+            return socket;
+        } catch (RuntimeException e) {
+            socket.cancel();
+            throw e;
+        }
+    }
+
+    void remove(NetExchange exchange) {
+        synchronized (lock) {
+            sockets.remove(exchange);
+        }
+    }
+
+    void remove(NetSocket socket) {
+        synchronized (lock) {
+            connections.remove(socket);
+        }
+    }
+
+    private OkHttpClient socketClient(NetOptions options) {
+        OkHttpClient strict = Strict.CLIENT;
+        return builder(options)
+                .followRedirects(false)
+                .followSslRedirects(false)
+                .retryOnConnectionFailure(false)
+                .sslSocketFactory(strict.sslSocketFactory(), strict.x509TrustManager())
+                .hostnameVerifier(strict.hostnameVerifier())
+                .webSocketCloseTimeout(Math.min(options.getTimeout(), 1000), TimeUnit.MILLISECONDS)
+                .build();
+    }
+
+    private void remove(Call call) {
+        synchronized (lock) {
+            calls.remove(call);
+        }
+    }
+
+    @Override
+    public void close() {
+        List<Call> pending;
+        List<StreamResult> streaming;
+        List<NetExchange> active;
+        List<NetSocket> connected;
+        List<Net> sessions;
+        List<NetMap<?, ?>> mappings;
+        synchronized (lock) {
+            if (closed) return;
+            closed = true;
+            lock.notifyAll();
+            pending = new ArrayList<>(calls);
+            streaming = new ArrayList<>(streams);
+            active = new ArrayList<>(sockets);
+            connected = new ArrayList<>(connections);
+            sessions = new ArrayList<>(children);
+            mappings = new ArrayList<>(maps);
+            maps.clear();
+            children.clear();
+        }
+        cache.close();
+        for (NetMap<?, ?> mapping : mappings) mapping.cancel();
+        if (cookies instanceof SessionCookies local) local.close();
+        Throwable failure = null;
+        failure = cancelCalls(pending, failure);
+        failure = closeStreams(streaming, failure);
+        failure = cancelExchanges(active, failure);
+        failure = cancelSockets(connected, failure);
+        failure = closeSessions(sessions, failure);
+        if (parent != null) {
+            synchronized (parent.lock) {
+                parent.children.remove(this);
+            }
+        }
+        if (failure instanceof RuntimeException error) throw error;
+        if (failure instanceof Error error) throw error;
+    }
+
+    private Throwable cancelCalls(List<Call> pending, Throwable failure) {
+        for (Call call : pending) {
+            try {
+                call.cancel();
+            } catch (RuntimeException | Error error) {
+                if (failure == null) failure = error;
+                else if (failure != error) failure.addSuppressed(error);
+            }
+        }
+        return failure;
+    }
+
+    private Throwable closeStreams(List<StreamResult> streaming, Throwable failure) {
+        for (StreamResult stream : streaming) {
+            try {
+                stream.close();
+            } catch (RuntimeException | Error error) {
+                if (failure == null) failure = error;
+                else if (failure != error) failure.addSuppressed(error);
+            }
+        }
+        return failure;
+    }
+
+    private Throwable cancelExchanges(List<NetExchange> active, Throwable failure) {
+        for (NetExchange exchange : active) {
+            try {
+                exchange.cancel();
+            } catch (RuntimeException | Error error) {
+                if (failure == null) failure = error;
+                else if (failure != error) failure.addSuppressed(error);
+            }
+        }
+        return failure;
+    }
+
+    private Throwable cancelSockets(List<NetSocket> connected, Throwable failure) {
+        for (NetSocket socket : connected) {
+            try {
+                socket.cancel();
+            } catch (RuntimeException | Error error) {
+                if (failure == null) failure = error;
+                else if (failure != error) failure.addSuppressed(error);
+            }
+        }
+        return failure;
+    }
+
+    private Throwable closeSessions(List<Net> sessions, Throwable failure) {
+        for (Net session : sessions) {
+            try {
+                session.close();
+            } catch (RuntimeException | Error error) {
+                if (failure == null) failure = error;
+                else if (failure != error) failure.addSuppressed(error);
+            }
+        }
+        return failure;
+    }
+
+    @Keep
+    public final class StreamResult extends InputStream {
+        public final int code;
+        public final Map<String, Object> headers;
+        public final String contentType;
+        private final Call call;
+        private final Response response;
+        private final InputStream input;
+        private final AtomicBoolean finished = new AtomicBoolean();
+        private final AtomicBoolean reading = new AtomicBoolean();
+        private final AtomicBoolean bodyClosed = new AtomicBoolean();
+
+        private StreamResult(Call call, Response response) {
+            this.call = call;
+            this.response = response;
+            this.input = response.body().byteStream();
+            this.code = response.code();
+            this.headers = Result.headers(response.headers());
+            this.contentType = response.header("Content-Type", "application/octet-stream");
+        }
+
+        @Override
+        public int read() throws IOException {
+            beginRead();
+            try {
+                return finishRead(input.read());
+            } catch (IOException | RuntimeException | Error error) {
+                failRead(error);
+                throw error;
+            }
+        }
+
+        @Override
+        public int read(byte[] bytes, int offset, int length) throws IOException {
+            int capacity = bytes.length;
+            if (offset < 0 || length < 0 || length > capacity - offset) throw new IndexOutOfBoundsException();
+            if (finished.get()) throw new IOException("Response stream closed");
+            if (length == 0) return 0;
+            beginRead();
+            try {
+                return finishRead(input.read(bytes, offset, length));
+            } catch (IOException | RuntimeException | Error error) {
+                failRead(error);
+                throw error;
+            }
+        }
+
+        @Override
+        public void close() {
+            finish(true);
+        }
+
+        public CompletableFuture<Integer> readAsync(ByteBuffer bytes) {
+            if (bytes == null || bytes.isReadOnly() || !bytes.hasRemaining() || bytes.remaining() > 1024 * 1024) throw new IllegalArgumentException("Read requires a writable range of 1..1048576 bytes");
+            if (!reading.compareAndSet(false, true)) return Task.failedFuture(new IllegalStateException("Stream read already pending"));
+            if (finished.get()) {
+                endRead();
+                return Task.failedFuture(new IOException("Response stream closed"));
+            }
+            CompletableFuture<Integer> result = new CompletableFuture<>();
+            result.whenComplete((value, error) -> {
+                if (result.isCancelled()) close();
             });
-            return response.newBuilder().body(new ResponseBody() {
-                public MediaType contentType() { return body.contentType(); }
-                public long contentLength() { return body.contentLength(); }
-                public okio.BufferedSource source() { return source; }
-            }).build();
-        } catch (IOException | RuntimeException error) { calls.remove(call); throw error; }
-    }
-    /** Network errors are data; HTTP error bodies remain available. */
-    public String req(String url) { return req(url, "{}"); }
-    public String req(String url, String text) {
-        JsonObject result = new JsonObject();
-        try (Response response = execute(url, options(text))) {
-            result.addProperty("code", response.code()); result.addProperty("url", response.request().url().toString());
-            JsonObject headers = new JsonObject();
-            for (String name : response.headers().names()) headers.addProperty(name, response.header(name));
-            result.add("headers", headers); result.addProperty("content", response.body() == null ? "" : response.body().string());
-            result.addProperty("error", "");
-        } catch (Exception error) {
-            result.addProperty("code", 0); result.addProperty("content", ""); result.add("headers", new JsonObject());
-            result.addProperty("error", error.toString());
-        }
-        return result.toString();
-    }
-    public String http(String url, String opts) { return req(url, opts); }
-    public String http(String url) { return req(url); }
-    public String json(String url) throws IOException { return json(url, "{}"); }
-    public String json(String url, String opts) throws IOException {
-        JsonObject response = JsonParser.parseString(req(url, opts)).getAsJsonObject();
-        int code = response.get("code").getAsInt();
-        if (code < 200 || code >= 300) throw new IOException("请求失败：HTTP " + code + " " + response.get("error").getAsString());
-        try {
-            String content = response.get("content").getAsString();
-            if (content.trim().isEmpty()) throw new IllegalArgumentException("JSON 正文为空");
-            JsonElement value = JSON.fromJson(content, JsonElement.class); return value == null ? "null" : value.toString();
-        }
-        catch (RuntimeException error) { throw new IOException("响应不是有效 JSON", error); }
-    }
-    public String get(String url, String opts) throws IOException {
-        try (Response response = execute(url, options(opts))) { return response.body() == null ? "" : response.body().string(); }
-    }
-    public String get(String url) throws IOException { return get(url, "{}"); }
-    public String post(String url, String opts) throws IOException {
-        JsonObject data = options(opts); data.addProperty("method", "POST"); return get(url, data.toString());
-    }
-    public String post(String url) throws IOException { return post(url, "{}"); }
-    public String getCookie(String url) {
-        if (isolated) {
-            HttpUrl address = HttpUrl.parse(url); if (address == null) return "";
-            List<String> values = new ArrayList<>();
-            for (List<Cookie> list : cookies.values()) for (Cookie cookie : list)
-                if (cookie.expiresAt() > System.currentTimeMillis() && cookie.matches(address)) values.add(cookie.name() + "=" + cookie.value());
-            return String.join("; ", values);
-        }
-        String value = CookieManager.getInstance().getCookie(url); return value == null ? "" : value;
-    }
-    public void setCookie(String url, String value) {
-        check();
-        if (isolated) { HttpUrl address = HttpUrl.parse(url); Cookie cookie = address == null ? null : Cookie.parse(address, value);
-            if (cookie != null) cookies.put(cookie.domain() + "|" + cookie.path() + "|" + cookie.name(), List.of(cookie));
-        } else CookieManager.getInstance().setCookie(url, value);
-    }
-    public String batch(String text) throws Exception {
-        check(); JsonArray requests = JsonParser.parseString(text).getAsJsonArray();
-        List<Future<String>> pending = new ArrayList<>();
-        for (JsonElement item : requests) pending.add(workers.submit(() -> {
-            if (item.isJsonPrimitive()) return req(item.getAsString());
-            JsonObject request = item.getAsJsonObject();
-            return req(request.get("url").getAsString(), request.has("options") ? request.get("options").toString() : request.toString());
-        }));
-        JsonArray result = new JsonArray();
-        try { for (Future<String> task : pending) result.add(JsonParser.parseString(task.get())); }
-        finally { for (Future<String> task : pending) task.cancel(true); }
-        return result.toString();
-    }
-    private String persistentKey(String key) { return "source_net_" + Crypto.md5(scope) + "_" + Crypto.md5(key); }
-    private Entry entry(String key) {
-        Entry value = cache.get(key); if (value != null || isolated) return value;
-        try { JsonObject data = options(Prefers.getString(persistentKey(key), "{}"));
-            if (data.has("value")) { value = new Entry(data.get("value").getAsString(), data.get("expires").getAsLong()); cache.put(key, value); }
-        } catch (RuntimeException ignored) {}
-        return value;
-    }
-    public String peek(String key) { Entry value = entry(key); return value == null ? null : value.text; }
-    public String cached(String key, String text, Loader loader) throws Exception {
-        check(); JsonObject opts = options(text); Entry value = entry(key);
-        if (value != null && value.expires > System.currentTimeMillis()) return value.text;
-        if (value != null && opts.has("stale") && opts.get("stale").getAsBoolean()) { refresh(key, text, loader); return value.text; }
-        return load(key, opts, loader);
-    }
-    private synchronized Future<String> task(String key, JsonObject opts, Loader loader) {
-        check(); Future<String> existing = loading.get(key); if (existing != null && !existing.isDone()) return existing;
-        long generation = generations.getOrDefault(key, 0L), all = epoch.get();
-        Future<String> future = loaders.submit(() -> {
-            String value = loader.load(); if (value == null) return null;
-            // Clear/close invalidates already running loaders too.
-            synchronized (Net.this) {
-                if (closed || epoch.get() != all || generation != generations.getOrDefault(key, 0L)) return value;
-                long ttl = Math.max(0, opts.has("ttl") ? opts.get("ttl").getAsLong() : 60000);
-                Entry ready = new Entry(value, System.currentTimeMillis() + ttl); cache.put(key, ready);
-                if (!isolated && opts.has("persist") && opts.get("persist").getAsBoolean()) {
-                    JsonObject data = new JsonObject(); data.addProperty("value", value); data.addProperty("expires", ready.expires);
-                    Prefers.put(persistentKey(key), data.toString());
-                }
+            try {
+                client.dispatcher().executorService().execute(() -> readInto(bytes, result));
+            } catch (RuntimeException error) {
+                failRead(error);
+                result.completeExceptionally(error);
             }
-            return value;
-        });
-        loading.put(key, future); return future;
-    }
-    private String load(String key, JsonObject opts, Loader loader) throws Exception {
-        try { return task(key, opts, loader).get(); }
-        catch (ExecutionException error) { if (error.getCause() instanceof Exception cause) throw cause; throw error; }
-    }
-    public void refresh(String key, String opts, Loader loader) {
-        check(); Entry value = entry(key);
-        if (value == null || value.expires <= System.currentTimeMillis()) task(key, options(opts), loader);
-    }
-    public synchronized void clearCache(String key) {
-        generations.merge(key, 1L, Long::sum); cache.remove(key);
-        Future<String> future = loading.remove(key); if (future != null) future.cancel(true);
-        if (!isolated) Prefers.remove(persistentKey(key));
-    }
-    public synchronized void clearCache() {
-        epoch.incrementAndGet(); for (Future<?> future : loading.values()) future.cancel(true); loading.clear(); cache.clear();
-        String prefix = "source_net_" + Crypto.md5(scope) + "_";
-        if (!isolated) for (String key : Prefers.getPrefers().getAll().keySet()) if (key.startsWith(prefix)) Prefers.remove(key);
-    }
-    public String download(String url, String file, String opts) throws IOException {
-        check(); return SourceDownload.get(this, url, file, options(opts));
-    }
-    public void sleep(long milliseconds) throws InterruptedException {
-        long until = android.os.SystemClock.elapsedRealtime() + Math.max(0, milliseconds);
-        while (android.os.SystemClock.elapsedRealtime() < until) { check(); Thread.sleep(Math.max(1, Math.min(100, until - android.os.SystemClock.elapsedRealtime()))); }
-    }
-    public final class Socket implements AutoCloseable {
-        private volatile WebSocket connection;
-        private volatile boolean stopped;
-        public boolean send(String text) { return !stopped && connection != null && connection.send(text); }
-        public boolean send(byte[] bytes) { return !stopped && connection != null && connection.send(okio.ByteString.of(bytes)); }
-        public void close() { stopped = true; sockets.remove(this); if (connection != null) connection.cancel(); }
-    }
-    public Socket connect(String url, String text, SocketCallback callback) {
-        JsonObject opts = options(text); Socket socket = new Socket(); sockets.add(socket);
-        // OkHttp removes the stream read timeout after a successful WebSocket upgrade.
-        OkHttpClient.Builder builder = client(opts).newBuilder().callTimeout(0, TimeUnit.MILLISECONDS);
-        if (opts.has("ping")) builder.pingInterval(Math.max(0, opts.get("ping").getAsLong()), TimeUnit.MILLISECONDS);
-        socket.connection = builder.build().newWebSocket(request(url.replaceFirst("^ws:", "http:").replaceFirst("^wss:", "https:"), opts), new WebSocketListener() {
-            private void emit(String event, Object content) {
-                try { callback.event(socket, new SocketEvent(event, content)); } catch (Exception ignored) { socket.close(); }
-            }
-            @Override public void onOpen(WebSocket ws, Response response) { socket.connection = ws; if (closed || socket.stopped) { ws.cancel(); emit("close", ""); } else emit("open", ""); }
-            @Override public void onMessage(WebSocket ws, String text) { emit("message", text); }
-            @Override public void onMessage(WebSocket ws, okio.ByteString bytes) {
-                emit("message", bytes.toByteArray());
-            }
-            @Override public void onFailure(WebSocket ws, Throwable error, Response response) { sockets.remove(socket); if (response != null) response.close(); emit("error", error.toString()); }
-            @Override public void onClosing(WebSocket ws, int code, String reason) { ws.close(code, reason); }
-            @Override public void onClosed(WebSocket ws, int code, String reason) { sockets.remove(socket); emit("close", reason); }
-        });
-        if (closed || socket.stopped) socket.connection.cancel();
-        return socket;
-    }
-    public String ws(String url, String opts) throws Exception {
-        CountDownLatch done = new CountDownLatch(1); String[] result = new String[1];
-        Socket socket = connect(url, opts, (connection, event) -> {
-            String type = event.type;
-            if (type.equals("open") && options(opts).has("body")) connection.send(options(opts).get("body").getAsString());
-            if (type.equals("message") || type.equals("error") || type.equals("close")) { synchronized (result) { if (result[0] == null) result[0] = event.toJson(); } done.countDown(); }
-        });
-        try {
-            if (!done.await(Math.max(1, options(opts).has("timeout") ? options(opts).get("timeout").getAsLong() : 30000), TimeUnit.MILLISECONDS)) throw new IOException("WebSocket 超时");
-            if (!"message".equals(options(result[0]).get("type").getAsString())) throw new IOException("WebSocket 未收到消息：" + result[0]);
-            return result[0];
+            return result;
         }
-        finally { socket.close(); }
+
+        private void readInto(ByteBuffer bytes, CompletableFuture<Integer> result) {
+            try {
+                if (finished.get()) throw new IOException("Response stream closed");
+                int size = response.body().source().read(bytes);
+                if (finished.get()) throw new IOException("Response stream closed");
+                result.complete(finishRead(size));
+            } catch (Throwable error) {
+                failRead(error);
+                result.completeExceptionally(error);
+            }
+        }
+
+        private void beginRead() throws IOException {
+            if (!reading.compareAndSet(false, true)) throw new IOException("Stream read already pending");
+            if (finished.get()) {
+                endRead();
+                throw new IOException("Response stream closed");
+            }
+        }
+
+        private void endRead() {
+            reading.set(false);
+            closeBody();
+        }
+
+        private int finishRead(int size) {
+            if (size == -1) finish(false);
+            endRead();
+            return size;
+        }
+
+        private void failRead(Throwable error) {
+            try {
+                close();
+            } catch (Throwable closing) {
+                if (closing != error) error.addSuppressed(closing);
+            } finally {
+                endFailedRead(error);
+            }
+        }
+
+        private void endFailedRead(Throwable error) {
+            try {
+                endRead();
+            } catch (Throwable closing) {
+                if (closing != error) error.addSuppressed(closing);
+            }
+        }
+
+        private void closeBody() {
+            if (finished.get() && !reading.get() && bodyClosed.compareAndSet(false, true)) response.close();
+        }
+
+        private void finish(boolean cancel) {
+            if (!finished.compareAndSet(false, true)) return;
+            Throwable failure = null;
+            try {
+                if (cancel) call.cancel();
+            } catch (RuntimeException | Error error) {
+                failure = error;
+            }
+            synchronized (lock) {
+                streams.remove(this);
+                calls.remove(call);
+            }
+            try {
+                closeBody();
+            } catch (RuntimeException | Error error) {
+                if (failure == null) failure = error;
+                else if (failure != error) failure.addSuppressed(error);
+            }
+            if (failure instanceof RuntimeException error) throw error;
+            if (failure instanceof Error error) throw error;
+        }
     }
-    @Override public synchronized void close() {
-        if (closed) return; closed = true; epoch.incrementAndGet();
-        for (Call call : calls) call.cancel(); calls.clear();
-        for (Socket socket : sockets) socket.close(); sockets.clear();
-        for (Net child : sessions) child.close(); sessions.clear();
-        for (Future<?> future : loading.values()) future.cancel(true); loading.clear(); cache.clear(); cookies.clear(); workers.shutdownNow(); loaders.shutdownNow();
+
+    public static final class Result {
+        private static final Gson GSON = new Gson();
+
+        public final Object code;
+        public final Map<String, Object> headers;
+        public final byte[] body;
+        public final String error;
+        private final boolean http;
+
+        private Result(Object code, Map<String, Object> headers, byte[] body, String error, boolean http) {
+            this.code = code;
+            this.headers = headers;
+            this.body = body;
+            this.error = error;
+            this.http = http;
+        }
+
+        public static Result failure(Throwable error) {
+            String message = "Network request failed";
+            if (error instanceof SSLException) message = "TLS verification failed";
+            else if (isTimeout(error)) message = "Timed out";
+            else if (error instanceof InterruptedIOException || error instanceof InterruptedException || error instanceof CancellationException) message = "Canceled";
+            else if (error instanceof UnknownHostException) message = "Host resolution failed";
+            else if (error instanceof IllegalArgumentException) message = "Invalid request options";
+            return failure(error.getClass().getSimpleName() + ": " + message);
+        }
+
+        private static Result failure(Call call, Throwable error) {
+            return failure(call != null && call.isCanceled() && !isTimeout(error) ? new InterruptedIOException() : error);
+        }
+
+        private static boolean isTimeout(Throwable error) {
+            return error instanceof SocketTimeoutException || error instanceof InterruptedIOException && "timeout".equals(error.getMessage());
+        }
+
+        static Result failure(String error) {
+            return new Result("", new LinkedHashMap<>(), new byte[0], error, false);
+        }
+
+        private static Result read(Response response) throws IOException {
+            return success(response.code(), response.headers(), response.body().bytes(), true);
+        }
+
+        static Result success(int code, Headers headers, byte[] body, boolean http) {
+            return new Result(code, headers(headers), body, null, http);
+        }
+
+        private static Map<String, Object> headers(Headers headers) {
+            Map<String, Object> values = new LinkedHashMap<>();
+            for (Map.Entry<String, List<String>> entry : headers.toMultimap().entrySet()) values.put(entry.getKey(), entry.getValue().size() == 1 ? entry.getValue().get(0) : entry.getValue());
+            return values;
+        }
+
+        static Result handshakeFailure(Response response) {
+            return new Result(response.code(), headers(response.headers()), new byte[0],
+                    "WebSocket handshake failed (HTTP " + response.code() + ")", false);
+        }
+
+        public String json(NetOptions options) {
+            Map<String, Object> result = metadata();
+            result.put("content", content(options));
+            return GSON.toJson(result);
+        }
+
+        public Object[] parts(NetOptions options) {
+            return new Object[]{GSON.toJson(metadata()), content(options)};
+        }
+
+        private Map<String, Object> metadata() {
+            Map<String, Object> result = new LinkedHashMap<>();
+            result.put("code", code);
+            result.put("headers", headers);
+            if (error != null) result.put("error", error);
+            return result;
+        }
+
+        private Object content(NetOptions options) {
+            if (error != null) return "";
+            return switch (options.getBuffer()) {
+                case 0 -> text(options);
+                case 1, 3 -> body;
+                case 2 -> ByteString.of(body).base64();
+                default -> "";
+            };
+        }
+
+        public String text() {
+            return text(new NetOptions());
+        }
+
+        private String text(NetOptions options) {
+            if (!http) return new String(body, Charset.forName(options.getCharset()));
+            try (ResponseBody response = ResponseBody.create(body, contentType())) {
+                return response.string();
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+
+        private MediaType contentType() {
+            for (Map.Entry<String, Object> entry : headers.entrySet()) {
+                if (!entry.getKey().equalsIgnoreCase("Content-Type")) continue;
+                Object value = entry.getValue();
+                if (value instanceof List<?> values) value = values.get(values.size() - 1);
+                return MediaType.parse(String.valueOf(value));
+            }
+            return null;
+        }
+    }
+
+    private static final class SessionCookies implements Cookies {
+        private final List<Cookie> values = new ArrayList<>();
+        private boolean closed;
+
+        @Override
+        public synchronized String getCookie(String url) {
+            checkOpen();
+            HttpUrl target = HttpUrl.get(url);
+            values.removeIf(cookie -> cookie.expiresAt() <= System.currentTimeMillis());
+            return values.stream().filter(cookie -> cookie.matches(target))
+                    .sorted(Comparator.comparingInt((Cookie cookie) -> cookie.path().length()).reversed())
+                    .map(cookie -> cookie.name() + "=" + cookie.value()).collect(Collectors.joining("; "));
+        }
+
+        @Override
+        public synchronized boolean setCookie(String url, String value) {
+            checkOpen();
+            Cookie cookie = Cookie.parse(HttpUrl.get(url), value);
+            if (cookie == null) return false;
+            for (int i = 0; i < values.size(); i++) {
+                Cookie previous = values.get(i);
+                if (!previous.name().equals(cookie.name()) || !previous.domain().equals(cookie.domain()) || !previous.path().equals(cookie.path())) continue;
+                if (cookie.expiresAt() <= System.currentTimeMillis()) values.remove(i);
+                else values.set(i, cookie);
+                return true;
+            }
+            if (cookie.expiresAt() > System.currentTimeMillis()) values.add(cookie);
+            return true;
+        }
+
+        private synchronized void close() {
+            closed = true;
+            values.clear();
+        }
+
+        private void checkOpen() {
+            if (closed) throw new IllegalStateException("Network owner closed");
+        }
+    }
+
+    private static class Strict {
+        private static final OkHttpClient CLIENT = new OkHttpClient();
     }
 }

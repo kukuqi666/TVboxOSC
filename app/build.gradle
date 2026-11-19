@@ -37,9 +37,14 @@ android {
         minSdkVersion 24
         targetSdkVersion 34
         buildConfigField 'String', 'RUNTIME_CATALOG_URL', groovy.json.JsonOutput.toJson(providers.gradleProperty('runtimeCatalogUrl').getOrElse('https://github.com/kukuqi666/TVboxOSC/releases/latest/download/catalog.json'))
-        versionCode 310
-        versionName '3.1.0'
-        multiDexEnabled true
+        versionCode 311
+        versionName '3.1.1'
+        // -PupdateFixture=true 时产出 versionCode 312 / versionName 3.1.2 的升级验证包，
+        // 供 UpdateResumeRegressionTest 校验"版本更高且签名一致"的升级链路。
+        if (providers.gradleProperty("updateFixture").getOrElse("false").toBoolean()) {
+            versionCode 312
+            versionName '3.1.2'
+        }
         testInstrumentationRunner 'com.kukuqi.tvbox.osc.RegressionTestRunner'
         //设置room的Schema的位置
         javaCompileOptions {
@@ -54,6 +59,7 @@ android {
         }
 
     }
+
 
     // 执行配置
     applicationVariants.all { variant ->
@@ -154,87 +160,65 @@ tasks.configureEach { task ->
 }
 
 dependencies {
+    // 宿主与本地组件
     implementation project(':tvbox-engine')
     implementation project(':source-runtime')
-    implementation libs.media
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs_nio:2.1.5'
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.work:work-testing:2.9.1'
-    api fileTree(dir: "libs", include: ['*.jar', '*.aar'], exclude: ['thunder.jar', 'dec-0.1.2.jar'])
+    implementation project(':player')
+    implementation project(':TabLayout')
+    implementation project(':ViewPager1Delegate')
+    implementation project(':crash')
 
-    implementation 'com.google.android.material:material:1.12.0'
-
+    // Android 与界面
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'androidx.core:core-ktx:1.13.1'
-    implementation 'androidx.work:work-runtime:2.9.1'
+    implementation libs.core.ktx
+    implementation libs.work.runtime
+    implementation libs.appcompat
+    implementation libs.constraintlayout
+    implementation libs.lifecycle.livedata
+    implementation libs.lifecycle.viewmodel
+    implementation libs.lifecycle.runtime.ktx
+    implementation libs.media
+    implementation libs.material
+    implementation libs.recyclerview
+    implementation libs.swiperefreshlayout
+    implementation libs.viewpager2
+    implementation libs.base.adapter
+    implementation libs.loadsir
+    implementation libs.tv.recyclerview
+    implementation libs.xxpermissions
+    implementation libs.file.chooser
+    implementation libs.immersionbar
+    implementation libs.titlebar
+    implementation libs.xpopup
+    implementation libs.utilcodex
+    implementation libs.shadowlayout
+    implementation libs.expandable.textview
+    implementation libs.lottie
+    implementation libs.flowlayout
+    implementation libs.androidautosize
 
-    implementation 'org.nanohttpd:nanohttpd:2.3.1'
-    implementation 'com.google.zxing:core:3.4.1'
-    implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-    implementation 'androidx.recyclerview:recyclerview:1.2.1'
-    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
-    implementation 'androidx.viewpager2:viewpager2:1.0.0'
+    // 网络、数据与图片；与引擎共用版本目录
+    implementation libs.nanohttpd
+    implementation libs.zxing.core
+    implementation libs.okhttp
+    implementation libs.room.runtime
+    annotationProcessor libs.room.compiler
+    implementation libs.gson
+    implementation libs.eventbus
+    implementation libs.hawk
+    implementation libs.okgo
+    implementation libs.jsoup
+    implementation libs.commons.io
+    implementation libs.juniversalchardet
     implementation files('libs/commons-lang3-3.12.0.jar')
-    implementation 'org.conscrypt:conscrypt-android:2.5.2'
-
-    implementation 'com.squareup.okhttp3:okhttp:3.12.11'
-    annotationProcessor 'androidx.room:room-compiler:2.6.1'
-    implementation 'androidx.room:room-runtime:2.6.1'
-    implementation 'androidx.multidex:multidex:2.0.1'
-    implementation 'com.squareup.okio:okio:2.8.0'
-    implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.45-androidx'
-    implementation 'com.kingja.loadsir:loadsir:1.3.8'
-    implementation 'com.google.code.gson:gson:2.8.7'
-    implementation 'com.squareup.picasso:picasso:2.71828'
-    implementation 'com.github.JessYanCoding:AndroidAutoSize:v1.2.1'
-    implementation('com.thoughtworks.xstream:xstream:1.4.15') {
+    implementation(libs.xstream) {
         exclude group: 'xmlpull', module: 'xmlpull'
     }
-    implementation 'org.greenrobot:eventbus:3.2.0'
-    implementation 'com.orhanobut:hawk:2.0.1'
+    implementation libs.picasso
+    implementation libs.glide
+    annotationProcessor libs.glide.compiler
 
-    implementation project(":player")
-    implementation 'net.sourceforge.streamsupport:android-retrofuture:1.7.4'
-
-    implementation 'com.lzy.net:okgo:3.0.4'
-    // implementation 'com.tencent.bugly:crashreport_upgrade:latest.release'
-    implementation 'com.owen:tv-recyclerview:3.0.0'
-
-    implementation 'com.github.getActivity:XXPermissions:13.6'
-    implementation 'org.jsoup:jsoup:1.14.1'
-    implementation 'com.github.hedzr:android-file-chooser:v1.2.0-final'
-    implementation 'commons-io:commons-io:2.11.0'
-    implementation 'com.googlecode.juniversalchardet:juniversalchardet:1.0.3'
-
-    //沉浸式状态栏
-    implementation 'com.geyifeng.immersionbar:immersionbar:3.2.2'
-    //标题栏
-    implementation 'com.github.getActivity:TitleBar:10.5'
-    //弹窗
-    implementation 'com.github.li-xiaojun:XPopup:2.10.0'
-    //工具类
-    implementation 'com.blankj:utilcodex:1.31.0'
-    //阴影/shape/选择器/圆角/...
-    implementation 'com.github.lihangleo2:ShadowLayout:3.3.3'
-    //glide图片加载
-    implementation 'com.github.bumptech.glide:glide:4.12.0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
-
-    //tab标题栏
-    implementation project(":TabLayout")
-    implementation project(':ViewPager1Delegate')
-    //TabLayout的非kt项目需要依赖这个包实现点击事件等
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    //展开收缩tv
-    implementation 'com.github.MZCretin:ExpandableTextView:v1.6.1-x'
-    //lottie动画
-    implementation 'com.airbnb.android:lottie:5.2.0'
-    //流式布局
-    implementation 'com.hyman:flowlayout-lib:1.1.2'
-    //崩溃
-    implementation project(":crash")
-    // Lifecycles only (without ViewModel or LiveData)
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.2.0"
+    coreLibraryDesugaring libs.desugar
+    testImplementation libs.junit
+    androidTestImplementation libs.work.testing
 }

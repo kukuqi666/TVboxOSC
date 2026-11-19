@@ -1,0 +1,76 @@
+---
+description: /action?do=sync 的 type、mode、device、configs 与 targets 参数，以及合并行为。
+---
+
+import { Flow, FlowNode, Arrow } from '@theme/components/Flow';
+
+# /action?do=sync：装置同步
+
+以表单 POST 传送 JSON 字串。`mode` 的方向以收到请求的 App 为准；HTTP OK 不代表资料已合并完成。
+
+| 参数 | 用途 |
+| --- | --- |
+| `type` | `history`＝观看记录；`keep`＝收藏。 |
+| `mode` | `0`＝传送并接收（预设）；`1`＝只接收；`2`＝只传送。 |
+| `device` | `mode` 0 / 2 传送时使用的目标 Device 物件字串；没有 `device` 就不主动传送。 |
+| `force` | 字串 `true` 才启用先删后合并；未填或其他值不先删除。 |
+| `config` | `history` 使用的 Config 物件字串；接收时需要有效 `url`，可能先载入该配置。 |
+| `targets` | `History[]` 或 `Keep[]` 的 JSON 字串；型别依 `type` 决定。 |
+| `configs` | `keep` 使用的 `Config[]` 物件阵列字串，不是 URL 字串阵列；以来源 `id` 对应 `Keep.cid`。 |
+
+:::danger force=true 会删除既有资料
+`history` 删除对应配置的观看记录；`keep` 删除全部收藏。一般同步请省略 `force` 或填 `false`。
+:::
+
+## 收藏同步的资料关系
+
+`两个表单栏位的解码内容`
+
+```json
+{
+  "configs": [
+    { "id": 7, "type": 0, "url": "https://example.com/vod.json", "name": "示意配置" }
+  ],
+  "targets": [
+    {
+      "key": "demo@@@demo-1@@@7",
+      "cid": 7,
+      "type": 0,
+      "siteName": "Demo",
+      "vodName": "范例项目",
+      "vodPic": "https://example.com/poster.jpg",
+      "createTime": 1788825600000
+    }
+  ]
+}
+```
+
+将 `configs` 与 `targets` 分别转为 JSON 表单字串。每笔 `Keep.cid` 须对应所属的 `Config.id`，合并时会转为本机配置 ID。
+
+```sh
+curl "http://127.0.0.1:9978/action?do=sync&type=keep&mode=1&force=false" --data-urlencode 'configs=[{"id":7,"type":0,"url":"https://example.com/vod.json","name":"示意配置"}]' --data-urlencode 'targets=[{"key":"demo@@@demo-1@@@7","cid":7,"type":0,"siteName":"Demo","vodName":"范例项目","vodPic":"https://example.com/poster.jpg","createTime":1788825600000}]'
+```
+
+## 观看记录
+
+观看记录使用 `type=history`、单一 `config` 与 History 阵列；合并会比较同名项目的 `createTime`，不是盲目覆写全部记录。同步可能载入另一份配置，请先备份个人资料。
+
+```sh
+curl "http://127.0.0.1:9978/action?do=sync&type=history&mode=0" --data-urlencode 'config={"id":7,"type":0,"url":"https://example.com/vod.json","name":"示意配置"}' --data-urlencode 'targets=[{"key":"demo@@@demo-1@@@7","vodName":"范例项目","vodFlag":"Demo","vodRemarks":"第 1 集","episodeUrl":"demo://episode/1","position":120000,"createTime":1788825600000}]'
+```
+
+## 合并规则
+
+<Flow>
+  <FlowNode title="本机记录">App 现有的同名项目</FlowNode>
+  <FlowNode title="收到的 targets">请求内的 History／Keep</FlowNode>
+  <Arrow label="比对 createTime" />
+  <FlowNode title="采用较新" tone="accent">以时间较新的一方为准</FlowNode>
+  <Arrow label="另一方较旧" />
+  <FlowNode title="保留本机" tone="muted">不覆盖现有资料</FlowNode>
+</Flow>
+
+## 相关
+
+- 既有记录来源：[/device](/local/device) 的 `uuid`
+- 投放：[动作指令 · 投放](/local/action)

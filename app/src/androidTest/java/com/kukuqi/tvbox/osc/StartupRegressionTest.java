@@ -31,7 +31,8 @@ public class StartupRegressionTest extends InstrumentationTestCase {
             try (FileOutputStream output = new FileOutputStream(new File(getInstrumentation().getTargetContext().getExternalFilesDir(null), "tvboxosc-startup.png"))) {
                 screenshot.compress(Bitmap.CompressFormat.PNG, 100, output);
             } finally { screenshot.recycle(); }
-            main = (MainActivity) getInstrumentation().waitForMonitorWithTimeout(monitor, 5000);
+            // 冷启动实测 25-28s（含动画与首次初始化），5s 必然超时，改为与真实耗时匹配。
+            main = (MainActivity) getInstrumentation().waitForMonitorWithTimeout(monitor, 60000);
             assertNotNull("启动动画后应进入首页", main);
         } finally {
             getInstrumentation().removeMonitor(monitor);

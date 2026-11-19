@@ -6,10 +6,15 @@ import com.kukuqi.tvbox.engine.server.impl.Process;
 import com.kukuqi.tvbox.engine.server.process.Action;
 import com.kukuqi.tvbox.engine.server.process.Cache;
 import com.kukuqi.tvbox.engine.server.process.Image;
+import com.kukuqi.tvbox.engine.server.process.DownloadTask;
 import com.kukuqi.tvbox.engine.server.process.Local;
+import com.kukuqi.tvbox.engine.server.process.Upload;
+import com.kukuqi.tvbox.engine.server.process.Log;
 import com.kukuqi.tvbox.engine.server.process.Media;
 import com.kukuqi.tvbox.engine.server.process.Parse;
 import com.kukuqi.tvbox.engine.server.process.Proxy;
+import com.kukuqi.tvbox.engine.server.process.Remote;
+import com.kukuqi.tvbox.engine.server.process.SpiderBench;
 import com.github.catvod.utils.Asset;
 
 import java.io.InputStream;
@@ -26,9 +31,21 @@ public class Nano extends NanoHTTPD {
 
     private List<Process> process;
 
+    /** 分块上传要收数 MiB 的资料，NanoHTTPD 预设的 5 秒读超时不够用。 */
+    private static final int READ_TIMEOUT_MILLIS = 60_000;
+
     public Nano(int port) {
         super(port);
         addProcess();
+    }
+
+    @Override
+    protected ClientHandler createClientHandler(java.net.Socket acceptSocket, java.io.InputStream inputStream) {
+        try {
+            acceptSocket.setSoTimeout(READ_TIMEOUT_MILLIS);
+        } catch (java.net.SocketException ignored) {
+        }
+        return super.createClientHandler(acceptSocket, inputStream);
     }
 
     private void addProcess() {
@@ -37,9 +54,14 @@ public class Nano extends NanoHTTPD {
         process.add(new Cache());
         process.add(new Image());
         process.add(new Local());
+        process.add(new Upload());
+        process.add(new DownloadTask());
         process.add(new Media());
         process.add(new Parse());
         process.add(new Proxy());
+        process.add(new SpiderBench());
+        process.add(new Remote());
+        process.add(new Log());
     }
 
     public static Response ok() {
@@ -74,7 +96,8 @@ public class Nano extends NanoHTTPD {
             String ct = session.getHeaders().get("content-type");
             if (ct != null) session.getHeaders().put("content-type", ct.replace("multipart/form-data", "multipart/form-data; charset=utf-8"));
             session.parseBody(files);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            android.util.Log.w("Nano", "parseBody failed for " + session.getUri() + ": " + e);
         }
     }
 

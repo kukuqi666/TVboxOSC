@@ -1,0 +1,38 @@
+plugins {
+    id 'com.android.library'
+}
+
+android {
+    namespace 'com.kukuqi.tvbox.osc.player'
+    compileSdkVersion 34
+    // Playback native libraries are supplied by the TVboxOSC engine modules.
+    sourceSets.main.jniLibs.srcDirs = []
+
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+
+        releaseSimon.initWith(release)
+        releaseSimon {
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation libs.annotation
+    implementation libs.okhttp
+    api libs.dkplayer
+}

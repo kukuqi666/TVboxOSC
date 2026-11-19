@@ -94,6 +94,7 @@ class VodFallbackPolicy {
     }
 
     private boolean isPass(Site item) {
+        if (item.isHide()) return false;
         if (state.isAutoFallback() && !item.isChangeable()) return false;
         return item.isSearchable();
     }

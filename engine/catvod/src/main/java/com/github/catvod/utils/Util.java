@@ -4,7 +4,7 @@ import android.content.Context;
 import android.net.wifi.WifiManager;
 import android.util.Base64;
 
-import com.github.catvod.Init;
+import com.github.catvod.Runtime;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -83,7 +83,7 @@ public class Util {
     }
 
     private static String getWifiAddress() {
-        WifiManager manager = (WifiManager) Init.context().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        WifiManager manager = (WifiManager) Runtime.context().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         int ip = manager.getConnectionInfo().getIpAddress();
         return ip == 0 ? "" : String.format(Locale.getDefault(), "%d.%d.%d.%d", ip & 0xFF, (ip >> 8) & 0xFF, (ip >> 16) & 0xFF, (ip >> 24) & 0xFF);
     }
@@ -94,26 +94,9 @@ public class Util {
             if (!keyword.isEmpty() && !nif.getName().startsWith(keyword)) continue;
             for (Enumeration<InetAddress> addresses = nif.getInetAddresses(); addresses.hasMoreElements(); ) {
                 InetAddress addr = addresses.nextElement();
-                if (!addr.isLoopbackAddress() && addr instanceof Inet4Address) {
-                    return addr.getHostAddress();
-                }
+                if (!addr.isLoopbackAddress() && addr instanceof Inet4Address) return addr.getHostAddress();
             }
         }
         return "";
     }
-
-    public static String getDeviceId() { return LegacyUtil.getDeviceId(); }
-    public static String getDeviceName() { return LegacyUtil.getDeviceName(); }
-    public static String basic(android.net.Uri uri) { return LegacyUtil.basic(uri); }
-    public static String md5(String value) { return LegacyUtil.md5(value); }
-    public static String md5(java.io.File value) { return LegacyUtil.md5(value); }
-    public static boolean equals(String value, String hash) { return LegacyUtil.equals(value, hash); }
-    public static String fixHeader(String key) { return LegacyUtil.fixHeader(key); }
-    public static String fixUrl(String url) { return LegacyUtil.fixUrl(url); }
-    public static String size(long size) { return LegacyUtil.size(size); }
-    public static String scheme(String url) { return LegacyUtil.scheme(url); }
-    public static String scheme(android.net.Uri uri) { return LegacyUtil.scheme(uri); }
-    public static String host(String url) { return LegacyUtil.host(url); }
-    public static String host(android.net.Uri uri) { return LegacyUtil.host(uri); }
-    public static String path(android.net.Uri uri) { return LegacyUtil.path(uri); }
 }

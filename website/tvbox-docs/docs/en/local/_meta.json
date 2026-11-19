@@ -1,0 +1,13 @@
+[
+  { "type": "file", "name": "connection", "label": "Connection" },
+  { "type": "file", "name": "action", "label": "Actions" },
+  { "type": "file", "name": "sync", "label": "Device Sync" },
+  { "type": "file", "name": "remote", "label": "Web Player and Remote" },
+  { "type": "file", "name": "logs", "label": "Logs" },
+  { "type": "file", "name": "media", "label": "Playback State" },
+  { "type": "file", "name": "device", "label": "Device Info" },
+  { "type": "file", "name": "files", "label": "File Management" },
+  { "type": "file", "name": "transfers", "label": "Resumable Transfers" },
+  { "type": "file", "name": "cache", "label": "Key-Value Cache" },
+  { "type": "file", "name": "internal", "label": "Proxy and Internal" }
+]

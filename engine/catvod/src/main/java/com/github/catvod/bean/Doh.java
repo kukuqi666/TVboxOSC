@@ -29,8 +29,8 @@ public class Doh {
 
     public static List<Doh> get(Context context) {
         List<Doh> items = new ArrayList<>();
-        String[] urls = context.getResources().getStringArray(R.array.core_catvod_doh_url);
-        String[] names = context.getResources().getStringArray(R.array.core_catvod_doh_name);
+        String[] urls = context.getResources().getStringArray(R.array.doh_url);
+        String[] names = context.getResources().getStringArray(R.array.doh_name);
         for (int i = 0; i < names.length; i++) items.add(new Doh().name(names[i]).url(urls[i]));
         return items;
     }

@@ -9,6 +9,8 @@ import shutil
 import subprocess
 import sys
 import tarfile
+import time
+import urllib.error
 import urllib.request
 import zipfile
 
@@ -18,8 +20,29 @@ INPUTS = {
     'node-LICENSE': ('https://raw.githubusercontent.com/FongMi/nodejs-mobile/e2e7cf82b9179d19304e19ccb6c3857155e07368/LICENSE', '5888dbb9a1d2b18f2c3e6c5f6af1b39de658372b402a0577b002777f14c62ace'),
     'node.zip': ('https://github.com/FongMi/nodejs-mobile/releases/download/v24.20.0-android.2/nodejs-mobile-android-24.20.0-android.2.zip', '630a4eea9ca984dc5457c5ef7aa0929b3846f77884d6badacda30be275825ef2'),
     'jre.zip': ('https://github.com/FongMi/bdj-runtime/releases/download/zero-jdk8u482-r1/j2re-zero-arm64-v8a.zip', 'f147cc55cba3d2062697638655fa241e113bc691607e83983b2d00a6dcea8826'),
+    # 上游 JRE Release 被移除时，从本仓已发布且固定 SHA-256 的模块恢复相同字节。
+    'bdj-recovery.apk': ('https://github.com/kukuqi666/TVboxOSC/releases/download/v3.1.0/runtime-bdj-1.0.1-arm64-v8a.apk', '74d6084a6a806ad127081c724bbcff3db5171afa34b65715b053285dcfc56992'),
     'libbluray.tar.xz': ('https://download.videolan.org/pub/videolan/libbluray/1.4.1/libbluray-1.4.1.tar.xz', '76b5dc40097f28dca4ebb009c98ed51321b2927453f75cc72cf74acd09b9f449'),
 }
+
+def download(url, part):
+    """有界重试网络故障；永久缺失由调用方明确处理。"""
+    for attempt in range(3):
+        try:
+            request = urllib.request.Request(url, headers={'User-Agent': 'TVboxOSC-runtime-build'})
+            with urllib.request.urlopen(request, timeout=90) as source, part.open('wb') as output:
+                shutil.copyfileobj(source, output)
+            return
+        except urllib.error.HTTPError as error:
+            part.unlink(missing_ok=True)
+            if error.code not in {408, 429, 500, 502, 503, 504} or attempt == 2:
+                raise
+        except (OSError, urllib.error.URLError):
+            part.unlink(missing_ok=True)
+            if attempt == 2:
+                raise
+        time.sleep(2 ** attempt)
+
 
 def fetch(name):
     CACHE.mkdir(parents=True, exist_ok=True)
@@ -27,10 +50,21 @@ def fetch(name):
     url, expected = INPUTS[name]
     if not target.exists():
         part = target.with_suffix('.part')
-        urllib.request.urlretrieve(url, part)
-        if hashlib.sha256(part.read_bytes()).hexdigest() != expected:
-            part.unlink(); raise ValueError(f'Checksum mismatch: {name}')
-        part.replace(target)
+        try:
+            try:
+                download(url, part)
+            except urllib.error.HTTPError as error:
+                if name != 'jre.zip' or error.code not in {404, 410}:
+                    raise
+                print('上游 JRE 不再提供下载，从已发布模块恢复并校验固定内容。', flush=True)
+                recovery = fetch('bdj-recovery.apk')
+                with zipfile.ZipFile(recovery) as module:
+                    part.write_bytes(module.read('assets/bdj/jre.zip'))
+            if hashlib.sha256(part.read_bytes()).hexdigest() != expected:
+                raise ValueError(f'Checksum mismatch: {name}')
+            part.replace(target)
+        finally:
+            part.unlink(missing_ok=True)
     if hashlib.sha256(target.read_bytes()).hexdigest() != expected:
         raise ValueError(f'Corrupt cached input: {target}')
     return target

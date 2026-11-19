@@ -1,0 +1,57 @@
+[
+  {
+    "type": "file",
+    "name": "connection",
+    "label": "连线与回应"
+  },
+  {
+    "type": "file",
+    "name": "action",
+    "label": "动作指令"
+  },
+  {
+    "type": "file",
+    "name": "sync",
+    "label": "装置同步"
+  },
+  {
+    "type": "file",
+    "name": "remote",
+    "label": "网页播放与遥控器"
+  },
+  {
+    "type": "file",
+    "name": "logs",
+    "label": "日志下载与分享"
+  },
+  {
+    "type": "file",
+    "name": "media",
+    "label": "播放状态"
+  },
+  {
+    "type": "file",
+    "name": "device",
+    "label": "装置资讯"
+  },
+  {
+    "type": "file",
+    "name": "files",
+    "label": "档案管理"
+  },
+  {
+    "type": "file",
+    "name": "transfers",
+    "label": "续传与装置下载"
+  },
+  {
+    "type": "file",
+    "name": "cache",
+    "label": "键值快取"
+  },
+  {
+    "type": "file",
+    "name": "internal",
+    "label": "代理与内部端点"
+  }
+]

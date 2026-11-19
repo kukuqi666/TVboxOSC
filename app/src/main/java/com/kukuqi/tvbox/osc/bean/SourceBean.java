@@ -16,6 +16,8 @@ public class SourceBean {
     private ArrayList<String> categories = null; // 分类&排序
     private int playerType; // 0 system 1 ikj 2 exo 10 mxplayer -1 以参数设置页面的为准
     private String clickSelector; // 需要点击播放的嗅探站点selector   ddrk.me;#id
+    private int hide; // 1 = 隐藏，仅供推送/代理/深链使用，不进选择器
+    private int indexs; // 1 = 固定到首页一级列表
     private java.util.Map<String, String> headers = new java.util.LinkedHashMap<>();
     public void setHeaders(java.util.Map<String, String> value) { headers = value; }
     public java.util.Map<String, String> getHeaders() { return headers; }
@@ -119,4 +121,12 @@ public class SourceBean {
     public String getClickSelector() { return clickSelector; }
 
     public void setClickSelector(String clickSelector) { this.clickSelector = clickSelector; }
+
+    public boolean isHide() { return hide == 1; }
+
+    public void setHide(int hide) { this.hide = hide; }
+
+    public boolean isIndex() { return indexs == 1; }
+
+    public void setIndexs(int indexs) { this.indexs = indexs; }
 }

@@ -139,7 +139,8 @@ public class SourceNavigationRegressionTest extends InstrumentationTestCase {
     }
     private void waitUntil(java.util.function.BooleanSupplier check) throws Exception {
         boolean[] done = {false};
-        for (int i = 0; i < 50; i++) { onMain(() -> done[0] = check.getAsBoolean()); if (done[0]) return; Thread.sleep(100); }
+        // 模拟器旋转/布局重建实测需要 5s 以上，原 50x100ms 上限不足以等到配置生效。
+        for (int i = 0; i < 300; i++) { onMain(() -> done[0] = check.getAsBoolean()); if (done[0]) return; Thread.sleep(100); }
         fail("Rotated settings did not update");
     }
 }

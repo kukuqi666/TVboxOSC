@@ -15,7 +15,7 @@ proguardMapping.txt
 # Java class files
 *.class
 
-docs/
+/docs/
 
 # Generated files
 bin/
@@ -103,3 +103,8 @@ lint/tmp/
 /app/release/
 /.idea/
 *.jks
+
+# 文档站生成物
+website/tvbox-docs/docs/public/legacy/index.html
+website/tvbox-docs/docs/public/configs/
+website/tvbox-docs/docs/public/images/

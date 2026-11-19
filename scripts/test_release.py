@@ -106,4 +106,79 @@ class ReleaseTest(unittest.TestCase):
         self.assertIn('mode=none', output.read_text())
 
 
-if __name__ == '__main__': unittest.main()
+
+
+class WebsiteAuditTest(unittest.TestCase):
+    """防止整理后的重复、断链和过期索引重新进入发布。"""
+
+    def setUp(self):
+        import audit_configs
+        self.audit = audit_configs
+        self.temp = tempfile.TemporaryDirectory()
+        self.repo = Path(self.temp.name)
+        self.root = self.repo / 'website/tvbox-config'
+        self.root.mkdir(parents=True)
+        self.patchers = [
+            patch.object(audit_configs, 'REPO', self.repo),
+            patch.object(audit_configs, 'ROOT', self.root),
+            patch.object(audit_configs, 'CATALOG', self.root / 'catalog.json'),
+        ]
+        for item in self.patchers:
+            item.start()
+
+    def tearDown(self):
+        for item in reversed(self.patchers):
+            item.stop()
+        self.temp.cleanup()
+
+    def test_graph_tracks_consumers_and_rejects_stale_catalog(self):
+        from contextlib import redirect_stdout
+        import io
+        (self.root / 'rule.json').write_text('{"name":"规则"}')
+        (self.root / 'tvbox.json').write_text(
+            '{"ext":"' + self.audit.CONFIG_RAW + 'rule.json"}')
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(0, self.audit.audit(write=True))
+            self.assertEqual(0, self.audit.audit())
+            data = json.loads((self.root / 'catalog.json').read_text())
+            records = {item['path']: item for item in data['files']}
+            self.assertEqual(['rule.json'], records['tvbox.json']['references'])
+            self.assertEqual(['tvbox.json'], records['rule.json']['used_by'])
+            (self.root / 'rule.json').write_text('{"name":"已修改"}')
+            self.assertEqual(1, self.audit.audit())
+
+    def test_duplicate_assets_are_rejected(self):
+        from contextlib import redirect_stdout
+        import io
+        (self.root / 'one.js').write_text('const value = 1;')
+        (self.root / 'two.js').write_text('const value = 1;')
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(1, self.audit.audit(write=True))
+        self.assertFalse((self.root / 'catalog.json').exists())
+
+    def test_repository_missing_and_bad_md5_are_rejected(self):
+        from contextlib import redirect_stdout
+        import io
+        config = self.root / 'tvbox.json'
+        config.write_text('{"ext":"' + self.audit.CONFIG_RAW + 'missing.json"}')
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(1, self.audit.audit(write=True, accept_missing=True))
+            (self.root / 'script.js').write_text('const value = 1;')
+            config.write_text('{"ext":"' + self.audit.CONFIG_RAW + 'script.js;md5;' + '0' * 32 + '"}')
+            self.assertEqual(1, self.audit.audit(write=True, accept_missing=True))
+
+    def test_only_explicitly_recorded_upstream_missing_is_accepted(self):
+        from contextlib import redirect_stdout
+        import io
+        config = self.root / 'tvbox.json'
+        config.write_text('{"ext":"./missing.js"}')
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(1, self.audit.audit(write=True))
+            self.assertEqual(0, self.audit.audit(write=True, accept_missing=True))
+            self.assertEqual(0, self.audit.audit())
+            config.write_text('{"ext":"./another-missing.js"}')
+            self.assertEqual(1, self.audit.audit(write=True))
+
+
+if __name__ == '__main__':
+    unittest.main()

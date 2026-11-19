@@ -1,0 +1,32 @@
+[
+  {
+    "text": "Getting Started",
+    "link": "/guide/start/introduction",
+    "activeMatch": "/guide/"
+  },
+  {
+    "text": "Spider",
+    "link": "/spider/load",
+    "activeMatch": "/spider/"
+  },
+  {
+    "text": "Configuration",
+    "link": "/config/examples",
+    "activeMatch": "/config/"
+  },
+  {
+    "text": "Local API",
+    "link": "/local/connection",
+    "activeMatch": "/local/"
+  },
+  {
+    "text": "App Features",
+    "link": "/features/features",
+    "activeMatch": "/features/"
+  },
+  {
+    "text": "Playback Commands",
+    "link": "/commands/start",
+    "activeMatch": "/commands/"
+  }
+]

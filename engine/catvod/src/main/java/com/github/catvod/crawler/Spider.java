@@ -1,41 +1,104 @@
 package com.github.catvod.crawler;
 
+import android.app.Activity;
 import android.content.Context;
+import android.net.Uri;
 
+import com.github.catvod.Proxy;
+import com.github.catvod.Runtime;
+import com.github.catvod.net.Net;
 import com.github.catvod.net.OkHttp;
+import com.github.catvod.utils.Dialog;
+import com.github.catvod.utils.Js;
+import com.github.catvod.utils.Local;
 
+import org.json.JSONObject;
+
+import java.io.ByteArrayInputStream;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import okhttp3.Dns;
-import okhttp3.OkHttpClient;
 
-public abstract class Spider {
-
-    /** Legacy TVboxOSC plugins retain their public proxy and cancellation entry points. */
-    public Object[] proxyLocal(Map<String, String> params) throws Exception { return proxy(params); }
-    public void cancelByTag() { OkHttp.cancel(siteKey); }
+public abstract class Spider implements AutoCloseable {
 
     public String siteKey;
-    public com.github.catvod.net.Net net;
-    public com.github.catvod.Local local;
+    public Net net;
+    public Local local;
+    public Js js = new Js();
+    private Dialog dialog = new Dialog();
+
+    /** TVboxOSC engine compatibility: (re)bind per-source runtime state. */
     public final void prepare(String key) {
         siteKey = key;
         if (net != null) net.close();
-        net = new com.github.catvod.net.Net(key);
-        local = new com.github.catvod.Local(key);
+        if (js != null) js.close();
+        if (dialog != null) dialog.close();
+        net = new Net(null, key);
+        local = new Local(key);
+        js = new Js();
+        dialog = new Dialog();
     }
-    public final void releaseNetwork() { if (net != null) net.close(); }
-    public android.app.Activity getActivity() { return com.github.catvod.Runtime.activity(); }
 
+    public final void releaseNetwork() {
+        if (net != null) net.close();
+        if (js != null) js.close();
+        if (dialog != null) dialog.close();
+    }
+
+    public JSONObject dialog(JSONObject options) throws Exception {
+        return dialog(options, null);
+    }
+
+    public JSONObject dialog(JSONObject options, Dialog.Callback callback) throws Exception {
+        return dialog.show(options, callback);
+    }
+
+    public final void closeDialog() {
+        dialog.close();
+    }
 
     public static Dns safeDns() {
         return OkHttp.dns();
     }
 
-    public static OkHttpClient client() {
-        return OkHttp.client();
+    public Activity getActivity() {
+        return Runtime.activity();
+    }
+
+    public String proxyUrl() {
+        return proxyUrl(Collections.emptyMap());
+    }
+
+    public String danmakuUrl(String id) {
+        return danmakuUrl(siteKey, id);
+    }
+
+    public static String danmakuUrl(String siteKey, String id) {
+        if (siteKey == null || siteKey.isEmpty() || id == null || id.isEmpty()) throw new IllegalArgumentException("Danmaku requires a site key and ID");
+        return new Uri.Builder().scheme("spider").authority(siteKey).appendPath(id).build().toString();
+    }
+
+    public String proxyUrl(Map<String, String> params) {
+        return proxyUrl(params, true);
+    }
+
+    public String proxyUrl(Map<String, String> params, boolean local) {
+        if (params == null) params = Collections.emptyMap();
+        Uri.Builder url = Uri.parse(Proxy.getUrl(local)).buildUpon();
+        url.appendQueryParameter("do", "jar");
+        url.appendQueryParameter("siteKey", siteKey);
+        for (Map.Entry<?, ?> entry : params.entrySet()) appendProxyParam(url, entry.getKey(), entry.getValue());
+        return url.build().toString();
+    }
+
+    private void appendProxyParam(Uri.Builder url, Object key, Object value) {
+        if (!(key instanceof String name) || !(value instanceof String text)) throw new IllegalArgumentException("Proxy parameters require string keys and values");
+        if (name.equals("do") || name.equals("siteKey")) throw new IllegalArgumentException("Reserved proxy parameter");
+        url.appendQueryParameter(name, text);
     }
 
     public void init(Context context) throws Exception {
@@ -46,31 +109,31 @@ public abstract class Spider {
     }
 
     public String homeContent(boolean filter) throws Exception {
-        return "";
+        return "{\"class\":[]}";
     }
 
     public String homeVideoContent() throws Exception {
-        return "";
+        return "{\"list\":[]}";
     }
 
     public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) throws Exception {
-        return "";
+        return "{\"list\":[]}";
     }
 
     public String detailContent(List<String> ids) throws Exception {
-        return "";
+        return "{\"list\":[]}";
     }
 
     public String searchContent(String key, boolean quick) throws Exception {
-        return "";
+        return searchContent(key, quick, "1");
     }
 
     public String searchContent(String key, boolean quick, String pg) throws Exception {
-        return "";
+        return "{\"list\":[]}";
     }
 
     public String playerContent(String flag, String id, List<String> vipFlags) throws Exception {
-        return "";
+        return "{}";
     }
 
     public String liveContent(String url) throws Exception {
@@ -86,13 +149,45 @@ public abstract class Spider {
     }
 
     public Object[] proxy(Map<String, String> params) throws Exception {
-        return null;
+        return new Object[]{404, "text/plain", new ByteArrayInputStream(new byte[0])};
     }
 
     public String action(String action) throws Exception {
-        return null;
+        return "{}";
+    }
+
+    public AutoCloseable danmaku(String id, Consumer<JSONObject> emit) throws Exception {
+        throw new UnsupportedOperationException("Spider does not support live danmaku");
     }
 
     public void destroy() {
+    }
+
+    @Override
+    public void close() {
+        closeDialog();
+        Throwable failure = closeJavaScript();
+        failure = closeNetwork(failure);
+        if (failure instanceof RuntimeException error) throw error;
+        if (failure instanceof Error error) throw error;
+    }
+
+    private Throwable closeJavaScript() {
+        try {
+            js.close();
+            return null;
+        } catch (RuntimeException | Error error) {
+            return error;
+        }
+    }
+
+    private Throwable closeNetwork(Throwable failure) {
+        try {
+            if (net != null) net.close();
+        } catch (RuntimeException | Error error) {
+            if (failure == null) failure = error;
+            else if (failure != error) failure.addSuppressed(error);
+        }
+        return failure;
     }
 }

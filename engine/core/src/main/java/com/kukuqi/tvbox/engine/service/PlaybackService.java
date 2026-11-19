@@ -54,6 +54,8 @@ public class PlaybackService extends MediaLibraryService implements MediaLibrary
     public static final String LOCAL_BIND_ACTION = BuildConfig.APPLICATION_ID.concat(".LOCAL_BIND");
 
     private static final SessionCommand COMMAND_REPEAT = new SessionCommand(ActionEvent.REPEAT, Bundle.EMPTY);
+    private static final SessionCommand COMMAND_PLAYBACK = new SessionCommand(ActionEvent.PLAYBACK, Bundle.EMPTY);
+    private static final String ARG_COMMAND = "command";
     private static final String ACTION_MEDIA_BROWSER_SERVICE = "android.media.browse.MediaBrowserService";
 
     private static volatile boolean running;
@@ -273,7 +275,7 @@ public class PlaybackService extends MediaLibraryService implements MediaLibrary
     @Override
     public MediaSession.ConnectionResult onConnect(@NonNull MediaSession session, @NonNull MediaSession.ControllerInfo controller) {
         clients.connect(controller, getPackageName());
-        SessionCommands commands = MediaSession.ConnectionResult.DEFAULT_SESSION_AND_LIBRARY_COMMANDS.buildUpon().add(COMMAND_REPEAT).build();
+        SessionCommands commands = MediaSession.ConnectionResult.DEFAULT_SESSION_AND_LIBRARY_COMMANDS.buildUpon().add(COMMAND_REPEAT).add(COMMAND_PLAYBACK).build();
         return new MediaLibrarySession.ConnectionResult.AcceptedResultBuilder(session).setAvailableSessionCommands(commands).build();
     }
 
@@ -288,7 +290,21 @@ public class PlaybackService extends MediaLibraryService implements MediaLibrary
             dispatchRepeat();
             return Futures.immediateFuture(new SessionResult(SessionResult.RESULT_SUCCESS));
         }
+        if (COMMAND_PLAYBACK.customAction.equals(customCommand.customAction)) {
+            String line = args.getString(ARG_COMMAND, "");
+            String error = com.kukuqi.tvbox.engine.player.command.PlaybackCommandRunner.run(player, line);
+            // SessionResult 只有 (resultCode) 与 (resultCode, extras) 两种构造，失败原因走 extras
+            int code = error.isEmpty() ? SessionResult.RESULT_SUCCESS : SessionResult.RESULT_ERROR_NOT_SUPPORTED;
+            Bundle extras = new Bundle();
+            extras.putString(ARG_COMMAND, error);
+            return Futures.immediateFuture(new SessionResult(code, extras));
+        }
         return MediaLibrarySession.Callback.super.onCustomCommand(session, controller, customCommand, args);
+    }
+
+    /** Runs a playback command line; returns the rejection reason or an empty string. */
+    public String runPlaybackCommand(String line) {
+        return com.kukuqi.tvbox.engine.player.command.PlaybackCommandRunner.run(player, line);
     }
 
     public boolean hasMediaClient() {

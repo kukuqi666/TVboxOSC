@@ -57,6 +57,7 @@ import java.util.concurrent.TimeoutException;
  * @description:
  */
 public class SourceViewModel extends ViewModel {
+    private static final String FIRST_PAGE = "1";
     public MutableLiveData<AbsSortXml> sortResult;
     public MutableLiveData<AbsXml> listResult;
     public MutableLiveData<AbsXml> searchResult;
@@ -82,6 +83,7 @@ public class SourceViewModel extends ViewModel {
 
     // homeContent
     public void getSort(String sourceKey) {
+        com.kukuqi.tvbox.engine.server.Diagnostics.log("来源", "加载首页，站点=" + sourceKey);
         spThreadPool.execute(() -> {
             try {
                 com.kukuqi.tvbox.engine.bean.Result result = com.kukuqi.tvbox.osc.core.SourceAccess.call(sourceKey,
@@ -93,7 +95,7 @@ public class SourceViewModel extends ViewModel {
                     if (videos != null && videos.movie != null) categories.videoList = videos.movie.videoList;
                 }
                 sortResult.postValue(categories);
-            } catch(Throwable e) { android.util.Log.e("TVboxCore", "home", e); sortResult.postValue(null); }
+            } catch(Throwable e) { android.util.Log.e("TVboxCore", "home", e); com.kukuqi.tvbox.engine.server.Diagnostics.error("来源/home", e); sortResult.postValue(null); }
         });
     }
     // categoryContent
@@ -102,6 +104,7 @@ public class SourceViewModel extends ViewModel {
     public void getList(MovieSort.SortData sortData, int page) {
         long request = categoryEpoch.incrementAndGet();
         String key = TextUtils.isEmpty(sortData.sourceKey) ? ApiConfig.get().getHomeSourceBean().getKey() : sortData.sourceKey;
+        com.kukuqi.tvbox.engine.server.Diagnostics.log("来源", "加载分类，站点=" + key + "，页码=" + page);
         String category = sortData.id;
         java.util.HashMap<String, String> filters = new java.util.HashMap<>(sortData.filterSelect);
         spThreadPool.execute(() -> {
@@ -110,7 +113,7 @@ public class SourceViewModel extends ViewModel {
                         () -> com.kukuqi.tvbox.engine.api.SiteApi.categoryContent(key, category, String.valueOf(page), true, filters)).toString(), key);
                 main.post(() -> { if (request == categoryEpoch.get()) listResult.setValue(result); });
             }
-            catch(Throwable e) { android.util.Log.e("TVboxCore", "category", e); main.post(() -> { if (request == categoryEpoch.get()) listResult.setValue(null); }); }
+            catch(Throwable e) { android.util.Log.e("TVboxCore", "category", e); com.kukuqi.tvbox.engine.server.Diagnostics.error("来源/category", e); main.post(() -> { if (request == categoryEpoch.get()) listResult.setValue(null); }); }
         });
     }
 
@@ -134,6 +137,7 @@ public class SourceViewModel extends ViewModel {
     }
     // detailContent
     public void getDetail(String sourceKey, String id) {
+        com.kukuqi.tvbox.engine.server.Diagnostics.log("来源", "加载详情，站点=" + sourceKey);
         int request = detailEpoch.incrementAndGet();
         if (com.kukuqi.tvbox.osc.ui.dialog.VideoLinkDialog.SOURCE.equals(sourceKey)) {
             Movie.Video video = new Movie.Video();
@@ -169,14 +173,20 @@ public class SourceViewModel extends ViewModel {
                 AbsXml result = json(null,document.toString(),sourceKey);
                 main.post(() -> { if (request == detailEpoch.get()) detailResult.setValue(result); });
             }
-            catch(Throwable e) { android.util.Log.e("TVboxCore", "detail", e); main.post(() -> { if (request == detailEpoch.get()) detailResult.setValue(null); }); }
+            catch(Throwable e) { android.util.Log.e("TVboxCore", "detail", e); com.kukuqi.tvbox.engine.server.Diagnostics.error("来源/detail", e); main.post(() -> { if (request == detailEpoch.get()) detailResult.setValue(null); }); }
         });
     }
     public void startSearch(List<String> keys, String keyword, boolean quick) {
+        startSearch(keys, keyword, quick, FIRST_PAGE);
+    }
+
+    /** Paged search: sources that paginate stop at page one unless the caller keeps going. */
+    public void startSearch(List<String> keys, String keyword, boolean quick, String page) {
         MutableLiveData<AbsXml> output = quick ? quickSearchResult : searchResult;
+        String target = page == null || page.trim().isEmpty() ? FIRST_PAGE : page.trim();
         searches.start(keys, key -> com.kukuqi.tvbox.osc.core.SourceAccess.call(key,
                 () -> json(null, com.kukuqi.tvbox.engine.api.SiteApi.searchContent(
-                        com.kukuqi.tvbox.osc.core.CoreBridge.site(key), keyword, quick, "1").toString(), key)),
+                        com.kukuqi.tvbox.osc.core.CoreBridge.site(key), keyword, quick, target).toString(), key)),
                 (key, value) -> output.setValue(value));
     }
     public void cancelSearch() { searches.cancel(); }
@@ -187,6 +197,7 @@ public class SourceViewModel extends ViewModel {
     public void cancelPlay() { playEpoch.incrementAndGet(); }
     public void getPlay(String sourceKey, String playFlag, String progressKey, String url, String subtitleKey,
                         com.kukuqi.tvbox.engine.bean.Result cached) {
+        com.kukuqi.tvbox.engine.server.Diagnostics.log("来源", "请求播放，站点=" + sourceKey + "，线路=" + playFlag);
         int current = playEpoch.incrementAndGet();
         spThreadPool.execute(() -> {
             if (current != playEpoch.get()) return;
@@ -201,7 +212,7 @@ public class SourceViewModel extends ViewModel {
                 result.put("proKey",progressKey); result.put("subtKey",subtitleKey);
                 if (!result.has("flag")) result.put("flag",playFlag);
                 main.post(() -> { if (current == playEpoch.get()) playResult.setValue(result); });
-            } catch(Throwable e) { android.util.Log.e("TVboxCore","player",e); main.post(() -> { if (current == playEpoch.get()) playResult.setValue(null); }); }
+            } catch(Throwable e) { android.util.Log.e("TVboxCore","player",e); com.kukuqi.tvbox.engine.server.Diagnostics.error("来源/player", e); main.post(() -> { if (current == playEpoch.get()) playResult.setValue(null); }); }
         });
     }
 

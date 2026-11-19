@@ -39,3 +39,46 @@ subprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+/**
+ * Builds the Spider SDK jar that third-party source authors compile against.
+ *
+ *   ./gradlew apiJar   ->   build/outputs/api/catvod-api.jar
+ *
+ * Only the documented SDK surface is packaged. Application internals (UI, loaders, players) stay
+ * out so a source jar cannot depend on classes the App may change. API classes are compileOnly in
+ * the runtime, so unresolved references are filtered out rather than failing the archive.
+ */
+ext.apiJarPackages = ['com/github/catvod/net', 'com/github/catvod/utils', 'com/github/catvod/bean', 'com/github/catvod/crawler']
+
+ext.apiJarRootClasses = ['Runtime', 'Proxy', 'Init', 'Local']
+
+tasks.register('apiJar', Jar) {
+    group = 'build'
+    description = '打包爬虫 SDK（catvod-api.jar），供第三方源作者 compileOnly 依赖'
+    dependsOn ':source-runtime:compileDebugJavaWithJavac'
+
+    archiveBaseName = 'catvod-api'
+    archiveVersion = ''
+    destinationDirectory = layout.buildDirectory.dir('outputs/api')
+
+    // 直接从字节码目录取文件，includes 则对内部类也一致生效
+    def classesDir = project(':source-runtime').layout.buildDirectory
+            .dir('intermediates/javac/debug/compileDebugJavaWithJavac/classes')
+
+    from(classesDir) {
+        rootProject.ext.apiJarPackages.each { pkg -> include pkg + '/**' }
+        rootProject.ext.apiJarRootClasses.each { name ->
+            include 'com/github/catvod/' + name + '.class'
+            include 'com/github/catvod/' + name + '$*.class'
+        }
+    }
+
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+
+    doLast {
+        def output = archiveFile.get().asFile
+        logger.lifecycle("catvod-api.jar -> ${output} (${output.length()} bytes)")
+    }
+}

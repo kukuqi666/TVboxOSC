@@ -7,6 +7,11 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      repair_runtimes:
+        description: '重新发布当前版本的独立模块和目录，保留正式主包'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -58,7 +63,7 @@ jobs:
           if log.exists():
               text = log.read_text(errors='replace')
               start = text.find('FAILURE: Build failed')
-              excerpt = text[start:start+6000] if start >= 0 else text[-6000:]
+              excerpt = text[max(0, start-4000):start+2000] if start >= 0 else text[-6000:]
               excerpt = excerpt.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
               print('::error title=Gradle build failure::' + excerpt)
           PY
@@ -82,6 +87,65 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+  build-website:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: website/tvbox-docs/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+          cache-dependency-path: website/tvbox-docs/pnpm-lock.yaml
+      - name: 安装文档站依赖
+        working-directory: website/tvbox-docs
+        run: pnpm install --frozen-lockfile
+      - name: 校验配置引用并构建文档站
+        working-directory: website/tvbox-docs
+        env:
+          SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+        run: pnpm run build
+      - name: 保存文档站构建结果
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: website/tvbox-docs/doc_build
+
+  deploy-website:
+    needs: build-website
+    if: github.repository == 'kukuqi666/TVboxOSC' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 检查 Pages 配置
+        id: pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh api "repos/${{ github.repository }}/pages" >/dev/null 2>&1; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::文档站构建产物已保存；仓库尚未启用 GitHub Pages。"
+          fi
+      - uses: actions/configure-pages@v5
+        if: steps.pages.outputs.enabled == 'true'
+      - name: 发布文档站
+        if: steps.pages.outputs.enabled == 'true'
+        id: deployment
+        uses: actions/deploy-pages@v4
+
   plan-release:
     if: github.repository == 'kukuqi666/TVboxOSC' && github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
     runs-on: ubuntu-24.04
@@ -103,8 +167,8 @@ jobs:
         run: python scripts/release.py plan
 
   publish-release:
-    needs: [build-apk, plan-release]
-    if: needs.plan-release.outputs.mode == 'publish'
+    needs: [build-apk, build-website, plan-release]
+    if: needs.plan-release.outputs.mode == 'publish' || (github.event_name == 'workflow_dispatch' && inputs.repair_runtimes)
     runs-on: ubuntu-24.04
     timeout-minutes: 35
     permissions:
@@ -144,6 +208,10 @@ jobs:
           chmod 600 TVBoxOSC.jks
       - name: Build signed Release APK
         env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.plan-release.outputs.tag }}
+          VERSION: ${{ needs.plan-release.outputs.version }}
+          REPAIR_RUNTIMES: ${{ github.event_name == 'workflow_dispatch' && inputs.repair_runtimes && needs.plan-release.outputs.mode != 'publish' }}
           TVBOX_BUILD_PYTHON: python3.10
           TVBOX_KEY_ALIAS: ${{ secrets.TVBOX_KEY_ALIAS }}
           TVBOX_KEY_PASSWORD: ${{ secrets.TVBOX_KEY_PASSWORD }}
@@ -153,7 +221,13 @@ jobs:
           mkdir -p build
           set -o pipefail
           # End the R8 JVM before packaging the large optional runtime assets.
-          ./gradlew :app:assembleRelease -Dorg.gradle.jvmargs=-Xmx4096m --max-workers=2 --stacktrace --no-daemon 2>&1 | tee build/gradle-release.log
+          if [ "$REPAIR_RUNTIMES" = true ]; then
+            mkdir -p app/build/outputs/apk/release
+            gh release download "$TAG" --pattern "TVboxOSC-v${VERSION}.apk" --pattern update.json --dir build/published --clobber
+            cp "build/published/TVboxOSC-v${VERSION}.apk" app/build/outputs/apk/release/
+          else
+            ./gradlew :app:assembleRelease -Dorg.gradle.jvmargs=-Xmx4096m --max-workers=2 --stacktrace --no-daemon 2>&1 | tee build/gradle-release.log
+          fi
           ./gradlew :runtime-python:assembleRelease :runtime-quickjs:assembleRelease :runtime-thunder:assembleRelease :runtime-nodejs:assembleRelease :runtime-bdj:assembleRelease -Dorg.gradle.jvmargs=-Xmx3072m --max-workers=2 --stacktrace --no-daemon 2>&1 | tee -a build/gradle-release.log
       - name: Report release build failure
         if: failure()
@@ -164,7 +238,7 @@ jobs:
           if log.exists():
               text = log.read_text(errors='replace')
               start = text.find('FAILURE: Build failed')
-              excerpt = text[start:start+6000] if start >= 0 else text[-6000:]
+              excerpt = text[max(0, start-4000):start+2000] if start >= 0 else text[-6000:]
               excerpt = excerpt.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
               print('::error title=Release build failure::' + excerpt)
           PY
@@ -187,6 +261,17 @@ jobs:
             --output build/release/update.json \
             --aapt "$ANDROID_HOME/build-tools/37.0.0/aapt" \
             --apksigner "$ANDROID_HOME/build-tools/37.0.0/apksigner"
+      - name: 校验模块修复使用的正式主包
+        if: github.event_name == 'workflow_dispatch' && inputs.repair_runtimes && needs.plan-release.outputs.mode != 'publish'
+        run: |
+          python - <<'PY_CHECK'
+          import json
+          from pathlib import Path
+          measured = json.loads(Path('build/release/update.json').read_text())
+          published = json.loads(Path('build/published/update.json').read_text())
+          if measured != published:
+              raise SystemExit('正式主包与已发布清单不一致，拒绝更新模块目录')
+          PY_CHECK
       - name: Verify modules and generate download catalog
         env:
           TAG: ${{ needs.plan-release.outputs.tag }}
@@ -203,7 +288,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ needs.plan-release.outputs.tag }}
           VERSION: ${{ needs.plan-release.outputs.version }}
+          REPAIR_RUNTIMES: ${{ github.event_name == 'workflow_dispatch' && inputs.repair_runtimes && needs.plan-release.outputs.mode != 'publish' }}
         run: |
+          if [ "$REPAIR_RUNTIMES" = true ]; then
+            gh release upload "$TAG" build/runtime-dist/*.apk build/runtime-dist/catalog.json --clobber
+            exit 0
+          fi
           if ! gh release view "$TAG" >/dev/null 2>&1; then
             gh release create "$TAG" --target "$GITHUB_SHA" --title "TVboxOSC ${VERSION}" --draft --notes-file app/build/generated/releaseNotes/release-notes.txt
           fi

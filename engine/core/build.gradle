@@ -41,8 +41,6 @@ dependencies {
     implementation libs.recyclerview
     implementation libs.room.runtime
     implementation libs.splashscreen
-    implementation libs.swiperefreshlayout
-    implementation libs.viewpager2
     implementation libs.android.gif.drawable
     implementation libs.bundles.glide
     // DLNACastManager is part of the public engine API and its superclass and
@@ -50,9 +48,7 @@ dependencies {
     api libs.bundles.jupnp
     implementation project(':crash')
     implementation libs.eventbus
-    implementation libs.flexbox
     implementation libs.rtmp.client
-    implementation libs.lottie
     implementation libs.material
     implementation libs.materialdesigncolors
     implementation libs.nanohttpd

@@ -9,29 +9,25 @@ annotation = "1.10.0"
 appcompat = "1.8.0"
 biometric = "1.1.0"
 desugar = "2.1.5"
-leanback = "1.2.0"
 lifecycleService = "2.11.0"
 media = "1.8.0"
 palette = "1.0.0"
 preference = "1.2.1"
 recyclerview = "1.4.0"
 room = "2.8.4"
-splashscreen = "1.2.0"
 startup = "1.2.0"
+splashscreen = "1.2.0"
 swiperefreshlayout = "1.2.0"
 viewpager2 = "1.1.0"
 
 androidGifDrawable = "1.2.32"
 androidautosize = "1.2.1"
 brotli = "0.1.2"
-commonsCompress = "1.28.0"
-customactivityoncrash = "2.4.0"
-flexbox = "3.0.0"
 glide = "5.0.9"
 greenrobot = "3.3.1"
 gson = "2.14.0"
+jsoup = "1.24.1"
 guava = "33.7.1-android"
-jna = "5.19.1"
 jupnp = "3.0.5"
 juniversalchardet = "1.0.3"
 junit = "4.13.2"
@@ -43,7 +39,6 @@ nanohttpd = "2.3.1"
 newpipeextractor = "v0.26.5"
 okhttp = "5.5.0"
 permissionx = "1.8.1"
-quickjs = "3.2.3"
 rtmpClient = "v3.2.0.m2"
 sardine = "0.9"
 simpleXml = "2.7.1"
@@ -52,12 +47,66 @@ textdrawable = "1.0.3"
 zxingAndroidEmbedded = "4.3.0"
 zxingCore = "3.5.4"
 
+coreKtx = "1.13.1"
+work = "2.9.1"
+constraintlayout = "2.0.4"
+lifecycle = "2.11.0"
+baseAdapter = "2.9.45-androidx"
+loadsir = "1.3.8"
+tvRecyclerview = "3.0.0"
+xxpermissions = "13.6"
+fileChooser = "v1.2.0-final"
+immersionbar = "3.2.2"
+titlebar = "10.5"
+xpopup = "2.10.0"
+utilcodex = "1.31.0"
+shadowlayout = "3.3.3"
+expandableTextview = "v1.6.1-x"
+flowlayout = "1.1.2"
+hawk = "2.0.1"
+okgo = "3.0.4"
+commonsIo = "2.11.0"
+xstream = "1.4.15"
+picasso = "2.71828"
+dkplayer = "3.3.5"
+
+viewpager = "1.0.0"
+
 [libraries]
+splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "splashscreen" }
+materialdesigncolors = { module = "com.github.bassaer:materialdesigncolors", version.ref = "materialdesigncolors" }
+core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
+work-runtime = { module = "androidx.work:work-runtime", version.ref = "work" }
+work-testing = { module = "androidx.work:work-testing", version.ref = "work" }
+constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
+lifecycle-livedata = { module = "androidx.lifecycle:lifecycle-livedata", version.ref = "lifecycle" }
+lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel", version.ref = "lifecycle" }
+lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
+viewpager = { module = "androidx.viewpager:viewpager", version.ref = "viewpager" }
+base-adapter = { module = "com.github.CymChad:BaseRecyclerViewAdapterHelper", version.ref = "baseAdapter" }
+loadsir = { module = "com.kingja.loadsir:loadsir", version.ref = "loadsir" }
+tv-recyclerview = { module = "com.owen:tv-recyclerview", version.ref = "tvRecyclerview" }
+xxpermissions = { module = "com.github.getActivity:XXPermissions", version.ref = "xxpermissions" }
+file-chooser = { module = "com.github.hedzr:android-file-chooser", version.ref = "fileChooser" }
+immersionbar = { module = "com.geyifeng.immersionbar:immersionbar", version.ref = "immersionbar" }
+titlebar = { module = "com.github.getActivity:TitleBar", version.ref = "titlebar" }
+xpopup = { module = "com.github.li-xiaojun:XPopup", version.ref = "xpopup" }
+utilcodex = { module = "com.blankj:utilcodex", version.ref = "utilcodex" }
+shadowlayout = { module = "com.github.lihangleo2:ShadowLayout", version.ref = "shadowlayout" }
+expandable-textview = { module = "com.github.MZCretin:ExpandableTextView", version.ref = "expandableTextview" }
+flowlayout = { module = "com.hyman:flowlayout-lib", version.ref = "flowlayout" }
+hawk = { module = "com.orhanobut:hawk", version.ref = "hawk" }
+okgo = { module = "com.lzy.net:okgo", version.ref = "okgo" }
+commons-io = { module = "commons-io:commons-io", version.ref = "commonsIo" }
+xstream = { module = "com.thoughtworks.xstream:xstream", version.ref = "xstream" }
+picasso = { module = "com.squareup.picasso:picasso", version.ref = "picasso" }
+dkplayer = { module = "xyz.doikki.android.dkplayer:dkplayer-ui", version.ref = "dkplayer" }
+
+
 annotation = { group = "androidx.annotation", name = "annotation", version.ref = "annotation" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 biometric = { group = "androidx.biometric", name = "biometric", version.ref = "biometric" }
 desugar = { group = "com.android.tools", name = "desugar_jdk_libs_nio", version.ref = "desugar" }
-leanback = { group = "androidx.leanback", name = "leanback", version.ref = "leanback" }
 lifecycle-service = { group = "androidx.lifecycle", name = "lifecycle-service", version.ref = "lifecycleService" }
 media = { group = "androidx.media", name = "media", version.ref = "media" }
 palette = { group = "androidx.palette", name = "palette", version.ref = "palette" }
@@ -65,7 +114,6 @@ preference = { group = "androidx.preference", name = "preference", version.ref =
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashscreen" }
 startup = { group = "androidx.startup", name = "startup-runtime", version.ref = "startup" }
 swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
 viewpager2 = { group = "androidx.viewpager2", name = "viewpager2", version.ref = "viewpager2" }
@@ -73,26 +121,22 @@ viewpager2 = { group = "androidx.viewpager2", name = "viewpager2", version.ref =
 android-gif-drawable = { group = "pl.droidsonroids.gif", name = "android-gif-drawable", version.ref = "androidGifDrawable" }
 androidautosize = { group = "com.github.JessYanCoding", name = "AndroidAutoSize", version.ref = "androidautosize" }
 brotli = { group = "org.brotli", name = "dec", version.ref = "brotli" }
-commons-compress = { group = "org.apache.commons", name = "commons-compress", version.ref = "commonsCompress" }
-customactivityoncrash = { group = "cat.ereza", name = "customactivityoncrash", version.ref = "customactivityoncrash" }
 eventbus = { group = "org.greenrobot", name = "eventbus", version.ref = "greenrobot" }
 eventbus-annotation-processor = { group = "org.greenrobot", name = "eventbus-annotation-processor", version.ref = "greenrobot" }
-flexbox = { group = "com.google.android.flexbox", name = "flexbox", version.ref = "flexbox" }
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 glide-annotations = { group = "com.github.bumptech.glide", name = "annotations", version.ref = "glide" }
 glide-avif-integration = { group = "com.github.bumptech.glide", name = "avif-integration", version.ref = "glide" }
 glide-compiler = { group = "com.github.bumptech.glide", name = "compiler", version.ref = "glide" }
 glide-okhttp3-integration = { group = "com.github.bumptech.glide", name = "okhttp3-integration", version.ref = "glide" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
+jsoup = { group = "org.jsoup", name = "jsoup", version.ref = "jsoup" }
 guava = { group = "com.google.guava", name = "guava", version.ref = "guava" }
-jna = { group = "net.java.dev.jna", name = "jna", version.ref = "jna" }
 juniversalchardet = { group = "com.googlecode.juniversalchardet", name = "juniversalchardet", version.ref = "juniversalchardet" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 rtmp-client = { group = "com.github.mcxinyu", name = "LibRtmp-Client-for-Android", version.ref = "rtmpClient" }
 logger = { group = "com.orhanobut", name = "logger", version.ref = "logger" }
 lottie = { group = "com.airbnb.android", name = "lottie", version.ref = "lottie" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
-materialdesigncolors = { group = "com.github.bassaer", name = "materialdesigncolors", version.ref = "materialdesigncolors" }
 nanohttpd = { group = "org.nanohttpd", name = "nanohttpd", version.ref = "nanohttpd" }
 newpipeextractor = { group = "com.github.TeamNewPipe", name = "NewPipeExtractor", version.ref = "newpipeextractor" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
@@ -102,8 +146,6 @@ org-jupnp = { group = "org.jupnp", name = "org.jupnp", version.ref = "jupnp" }
 org-jupnp-android = { group = "org.jupnp", name = "org.jupnp.android", version.ref = "jupnp" }
 org-jupnp-support = { group = "org.jupnp", name = "org.jupnp.support", version.ref = "jupnp" }
 permissionx = { group = "com.guolindev.permissionx", name = "permissionx", version.ref = "permissionx" }
-quickjs-android = { group = "wang.harlon.quickjs", name = "wrapper-android", version.ref = "quickjs" }
-quickjs-java = { group = "wang.harlon.quickjs", name = "wrapper-java", version.ref = "quickjs" }
 sardine = { group = "com.github.thegrizzlylabs", name = "sardine-android", version.ref = "sardine" }
 simple-xml = { group = "org.simpleframework", name = "simple-xml", version.ref = "simpleXml" }
 smbj = { group = "com.hierynomus", name = "smbj", version.ref = "smbj" }

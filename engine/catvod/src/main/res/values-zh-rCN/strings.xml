@@ -1,13 +1,13 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
-    <string-array name="core_catvod_doh_name">
+    <string-array name="doh_name">
         <item>系统</item>
         <item>腾讯</item>
         <item>阿里</item>
         <item>360</item>
     </string-array>
 
-    <string-array name="core_catvod_doh_url">
+    <string-array name="doh_url">
         <item />
         <item>https://doh.pub/dns-query</item>
         <item>https://dns.alidns.com/dns-query</item>

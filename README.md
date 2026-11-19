@@ -1,4 +1,4 @@
-# <p align="center"><img src="https://github.com/kukuqi666/TVboxOSC/blob/main/website/tvbox/images/logo.png?raw=true" width="150px" /><br>​<p align="center">[TVboxOSC](https://github.com/kukuqi666/TVboxOSC "TVboxOSC")   <p align="center">一个开源免费无广告的TVBox🏅
+# <p align="center"><img src="https://github.com/kukuqi666/TVboxOSC/blob/main/website/tvbox-docs/docs/public/logo.svg?raw=true" width="150px" /><br><p align="center">一个开源免费无广告的TVBox🏅
 
 <div align="center">
 
@@ -24,30 +24,6 @@
 ## 📖介绍
 - 本仓库聚合了APP、解析源、直播源等项目，总之你要的一个仓库全搞定(拉到👇有福利)
 
-**3.0.0 史诗级大更新：UI 重做，修复已知 Bug，完善核心功能。**
-TVboxOSC 从 **3.0.0** 开始使用应用名 `TVboxOSC`、包名 `com.kukuqi.tvbox.osc`。
-保留原有半透明风格，完善来源、壁纸、直播和本地视频功能，历史和收藏在首页，设置集中在“我的”。
-关于页面重新设计，新增更新动画、自动检测新版本和 Wi-Fi 后台下载，完成后由用户确认安装。
-2.x 使用不同包名，首次安装 3.x 为独立应用，旧数据不会自动迁移。
-
-### 开发与自动发布
-
-Fork → 开发 → 向 main 提交 PR → Review 合并。发布新版本只需提高 `app/build.gradle` 中的 `versionCode` 和 `versionName` 后合并到 main。
-
-| 触发条件 | 自动行为 |
-| --- | --- |
-| PR / 普通 main 提交 | 构建 Debug、运行测试，Artifacts 保留 14 天 |
-| main 合并版本变更 | 验证通过后构建固定签名 Release，自动创建 Tag 和 Release |
-| 手动推送 v* Tag | 校验 Tag 与 versionName 一致后发布，仍兼容旧方式 |
-| Release 发布完成 | 同步真实 APK 的 update.json、README 下载链接和更新记录到 main |
-
-已公开的版本不会重复发布。无需手动打 Tag；发布失败时可在 GitHub Actions 中重新运行对应流程。版本更新说明统一记录在本 README 的“更新记录”中。
-
-### 苹果 CMS 采集接口
-
-MacCMS V10 JSON 配置模板见 [examples/maccms-v10.json](examples/maccms-v10.json)，将 `cms.example` 替换为自己的域名，再通过现有订阅入口导入配置文件。JSON 采集使用 `type: 1`，XML 采集使用 `type: 0` 并填写服务器实际提供的 XML 接口地址。订阅入口需要含 `sites` 的配置文件。
-
-支持分类分页、搜索、详情、多线路和分集播放；直链直接交给播放器，网页地址可嗅探或配置外部解析器。地区、年份等筛选由服务端能力决定。客户端不负责 CMS 后台采集入库与定时同步。
 
 ## 推荐视频源仓库
 
@@ -62,13 +38,16 @@ https://github.com/UndCover/PyramidStore/
 
 ## 📲软件合集（软件安装）
 ### TVBox for Android
-- TVboxOSC：[下载 v3.1.0](https://gh-proxy.com/https://github.com/kukuqi666/TVboxOSC/releases/download/v3.1.0/TVboxOSC-v3.1.0.apk) · [所有版本](https://github.com/kukuqi666/TVboxOSC/releases)
+- TVboxOSC：[下载 v3.1.1](https://gh-proxy.com/https://github.com/kukuqi666/TVboxOSC/releases/download/v3.1.1/TVboxOSC-v3.1.1.apk) · [所有版本](https://github.com/kukuqi666/TVboxOSC/releases)
 
 
 ## 🎁福利18+
-- R18: [R18](https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox/R18.json)
+- R18: [R18](https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/R18.json)
 
 ## 𝟭. 更新记录
+
+>* **2026/11/19 TVboxOSC v3.1.1：** 完善 Spider 网络、下载、缓存和 QuickJS 宿主加载，增加可脱敏、查看和导出的崩溃报告；归整公共组件及依赖；合并配置发布目录、集中 JAR 并生成文件依赖索引；文档站改由 tvbox-docs 构建。
+
 
 >* **2026/10/18 TVboxOSC v3.1.0：** 统一加密订阅、多仓与相对地址导入，补齐 JS 对象/异步返回与 JS/Python 分页助手、分类筛选默认值及未知总页数翻页，修复脚本初始化失败重试及 Python 同名脚本串源（Python、QuickJS 模块升级至 1.0.2）；Exo 接通主副双字幕与 ASS 位图特效渲染，复用已有原生字幕库；下一集预加载扩展 JSON 解析及自动 JSON 线路回退；修复 DRM 媒体源配置传递，改善 DLNA 媒体格式声明；交互式蓝光菜单仍待原生播放器支持。后续维护版本按 3.1.1、3.1.2 递增。
 
@@ -138,21 +117,6 @@ https://github.com/UndCover/PyramidStore/
 >* **2026/07/22 TVBox Mobile v2.1.2：** 更新 Android 构建与发布流程；Release APK 文件名改为 `TVBox-Mobile-v2.1.2.apk`；内置订阅始终保留，导入订阅可删除，当前使用中的订阅不可删除。
 >
 >* **2026/07/22 TVBox Mobile v2.1.1：** 建立 GitHub Actions 自动构建和 Release 发布流程，支持自动生成 Android APK 并上传到 GitHub Releases。
->
->* **2025/03/10 更新接口：** 更新一波tvbox和影视仓接口
->
->* **2025/02/14 更新影视软件：** 【小飞电视】，数百频道，非常高清，8K超清, 换台超快，无卡顿,复刻肥羊,三网通用
->
->* **2025/02/06 更新影视软件：** OK影视pro电视版，也是比较经典的一款了
->
->* **2025/02/02 更新10+接口：** 更新十多款好用的接口，看直播追剧不愁，部分还是很好用的
->
->* **2025/01/27 更新多条接口：** 测试多条好用影视接口，基本所有接口都内置了可以看电视的直播源，直接使用即可，过年和亲人一起看电影/电视剧/小品
->
->* **2025/01/26 更新软件：** 又好久没更了，今天更新一款完全不卡的影视软件，好用的很，最后提前祝大家新年快乐呐！
->
->* **2025/01/12 更新软件：** 【频道多多】测试的时候很流畅呐 各类频道不卡顿
-
 
 <img src="https://cdn.jsdelivr.net/gh/eryajf/tu@main/img/image_20240420_214408.gif" width="100%"  height="2">
 
@@ -203,7 +167,7 @@ https://github.com/UndCover/PyramidStore/
 >* **地址**：[**𝐆𝐢𝐭𝐇𝐮𝐛 文件加速**](https://gh.xxooo.cf/)
 >
 
-![image](/website//tvbox/images/bb.png)
+![GitHub 文件加速示例](website/images/bb.png)
 
 
 ## 5. 缩短链接网址
@@ -236,7 +200,7 @@ https://github.com/UndCover/PyramidStore/
 >* **地址**：[**CatVod 图片资源**](https://pictures.catvod.eu.org/)
 >
 
-![image](/website/tvbox/images/aa.png)
+![随机壁纸示例](website/images/aa.png)
 
 
 

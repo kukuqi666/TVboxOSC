@@ -11,6 +11,8 @@ public final class ActionEvent {
     public static final String PAUSE = BuildConfig.APPLICATION_ID.concat(".pause");
     public static final String AUDIO = BuildConfig.APPLICATION_ID.concat(".audio");
     public static final String REPEAT = BuildConfig.APPLICATION_ID.concat(".repeat");
+    /** Custom command carrying one playback command line, see {@code commands/start}. */
+    public static final String PLAYBACK = BuildConfig.APPLICATION_ID.concat(".playback");
     public static final String REPLAY = BuildConfig.APPLICATION_ID.concat(".replay");
 
 }

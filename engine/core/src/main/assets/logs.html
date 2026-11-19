@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+
+<head>
+    <title>日志</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0,viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+    <link rel="stylesheet" href="css/ui.css">
+    <style>
+        .log-grid { display: flex; flex-direction: column; gap: 14px; }
+        .log-info {
+            font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px;
+            white-space: pre-wrap; word-break: break-all; line-height: 1.6;
+            background: var(--md-surface-variant); color: var(--md-on-surface-variant);
+            border-radius: 12px; padding: 12px;
+        }
+        .log-body {
+            width: 100%; min-height: 320px; box-sizing: border-box;
+            font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px;
+            white-space: pre-wrap; word-break: break-all;
+            background: var(--md-surface-variant); color: var(--md-on-surface-variant);
+            border: none; border-radius: 12px; padding: 12px;
+        }
+        .log-row { display: flex; gap: 10px; }
+        .log-row .md-btn { flex: 1; }
+        .log-status { font-size: 12px; color: var(--md-on-surface-variant); }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="app-body">
+            <div class="panel-content log-grid">
+                <div id="info" class="log-info">正在读取资讯…</div>
+                <div class="log-row">
+                    <button class="md-btn md-btn-filled" id="toggle" onclick="toggle()">停止撷取</button>
+                    <button class="md-btn md-btn-tonal" onclick="reload()">重新读取资讯</button>
+                </div>
+                <div class="log-row">
+                    <button class="md-btn md-btn-tonal" onclick="download()">下载日志</button>
+                    <button class="md-btn md-btn-tonal" onclick="share()">分享日志</button>
+                </div>
+                <div class="log-row">
+                    <div class="md-field">
+                        <input id="filter" class="md-input" type="text" placeholder="搜寻日志内容…" oninput="render()" />
+                    </div>
+                </div>
+                <textarea id="body" class="log-body" readonly placeholder="日志会显示在这里"></textarea>
+                <div id="status" class="log-status"></div>
+                <div class="log-info">崩溃报告保存在设备本地，重启后仍可读取，最多保留十份。</div>
+                <select id="crashes" class="md-input" aria-label="选择崩溃报告" onchange="loadCrash()"></select>
+                <div class="log-row">
+                    <button class="md-btn md-btn-tonal" onclick="loadCrashes()">刷新崩溃报告</button>
+                    <button class="md-btn md-btn-tonal" id="downloadCrash" onclick="downloadCrash()" disabled>下载崩溃报告</button>
+                </div>
+                <textarea id="crashBody" class="log-body" readonly placeholder="暂无崩溃报告"></textarea>
+                <div id="crashStatus" class="log-status"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let captured = [];
+        let running = true;
+        let timer = null;
+
+        function text(id, value) {
+            document.getElementById(id).textContent = value;
+        }
+
+        async function getJson(path) {
+            const response = await fetch(path);
+            if (!response.ok) throw new Error(await response.text() || ('HTTP ' + response.status));
+            return response.json();
+        }
+
+        async function getText(path) {
+            const response = await fetch(path);
+            if (!response.ok) throw new Error(await response.text() || ('HTTP ' + response.status));
+            return response.text();
+        }
+
+        async function reload() {
+            try {
+                const info = await getJson('log/info');
+                const lines = [];
+                lines.push('版本 ' + info.version + ' (' + info.versionCode + ') ' + info.variant + '/' + info.buildType);
+                lines.push('装置 ' + info.device + ' · Android ' + info.android + ' (SDK ' + info.sdk + ')');
+                lines.push('ABI ' + (info.abis || []).join(', '));
+                lines.push('播放 ' + (info.playback && info.playback.active ? (info.playback.title + ' ' + info.playback.state) : '未播放'));
+                if (info.playback && info.playback.url) lines.push('网址 ' + info.playback.url);
+                lines.push('收集 ' + info.collection);
+                if (info.lastPlaybackError) lines.push('最近错误 ' + info.lastPlaybackError);
+                text('info', lines.join('\n'));
+            } catch (e) {
+                text('info', '读取资讯失败：' + e.message + '\n可按「重新读取资讯」重试，日志仍会保留。');
+            }
+        }
+
+        async function pull() {
+            if (!running) return;
+            try {
+                const body = await getText('log');
+                captured = body ? body.split('\n') : [];
+                render();
+                text('status', '已撷取 ' + captured.length + ' 行 · ' + new Date().toLocaleTimeString());
+            } catch (e) {
+                text('status', '撷取失败：' + e.message);
+            }
+        }
+
+        function render() {
+            const filter = document.getElementById('filter').value.trim();
+            const lines = filter ? captured.filter((line) => line.indexOf(filter) >= 0) : captured;
+            document.getElementById('body').value = lines.join('\n');
+        }
+
+        function toggle() {
+            running = !running;
+            document.getElementById('toggle').textContent = running ? '停止撷取' : '开始撷取';
+            if (running) pull();
+        }
+
+        function exportText() {
+            return document.getElementById('info').textContent + '\n\n运行日志:\n' + captured.join('\n');
+        }
+
+        function download() {
+            const blob = new Blob([exportText()], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'tvbox-log-' + new Date().toISOString().replace(/[:.]/g, '-') + '.txt';
+            link.click();
+            setTimeout(() => URL.revokeObjectURL(link.href), 4000);
+        }
+
+        async function share() {
+            const text = exportText();
+            if (navigator.share) {
+                try {
+                    await navigator.share({ title: 'TVBox 日志', text });
+                    return;
+                } catch (e) {
+                    // 使用者取消分享时退回下载
+                }
+            }
+            download();
+        }
+
+        let crashReport = '';
+        let crashId = '';
+        let crashRequest = 0;
+
+        async function loadCrashes() {
+            try {
+                const reports = await getJson('log/crash');
+                const select = document.getElementById('crashes');
+                const selected = select.value;
+                select.replaceChildren();
+                for (const report of reports) {
+                    const option = document.createElement('option');
+                    option.value = report.id;
+                    option.textContent = new Date(report.time).toLocaleString() + ' · ' + Math.ceil(report.bytes / 1024) + ' KB';
+                    select.appendChild(option);
+                }
+                if (reports.some(report => report.id === selected)) select.value = selected;
+                text('crashStatus', reports.length ? '共 ' + reports.length + ' 份本地报告' : '暂无崩溃报告');
+                await loadCrash();
+            } catch (error) {
+                text('crashStatus', '读取报告列表失败：' + error.message);
+            }
+        }
+
+        async function loadCrash() {
+            const request = ++crashRequest;
+            const id = document.getElementById('crashes').value;
+            crashId = '';
+            crashReport = '';
+            document.getElementById('crashBody').value = '';
+            document.getElementById('downloadCrash').disabled = true;
+            if (!id) return;
+            try {
+                const report = await getText('log/crash?id=' + encodeURIComponent(id));
+                if (request !== crashRequest) return;
+                crashId = id;
+                crashReport = report;
+                document.getElementById('crashBody').value = report;
+                document.getElementById('downloadCrash').disabled = false;
+            } catch (error) {
+                if (request === crashRequest) text('crashStatus', '读取报告失败：' + error.message);
+            }
+        }
+
+        function downloadCrash() {
+            if (!crashId || !crashReport) return;
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(new Blob([crashReport], { type: 'text/plain;charset=utf-8' }));
+            link.download = crashId;
+            link.click();
+            setTimeout(() => URL.revokeObjectURL(link.href), 4000);
+        }
+
+        loadCrashes();
+        reload();
+        pull();
+        timer = setInterval(() => {
+            pull();
+            reload();
+        }, 5000);
+        window.addEventListener('pagehide', () => clearInterval(timer));
+    </script>
+</body>
+
+</html>

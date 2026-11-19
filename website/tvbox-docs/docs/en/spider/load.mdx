@@ -1,0 +1,62 @@
+﻿---
+description: Load a Java JAR, Python or QuickJS spider from Site configuration.
+---
+
+import { Flow, FlowNode, Arrow } from '@theme/components/Flow';
+
+
+# Loading a Spider
+
+Before writing a spider, make sure the App can find it. The `api` field in Site configuration decides how it runs.
+
+## Minimal Site configuration
+
+```json
+{
+  "key": "demo",
+  "name": "Demo",
+  "type": 3,
+  "api": "./demo.js",
+  "ext": {}
+}
+```
+
+`type` is always `3`; `key` must be unique and `name` is the display name.
+
+<Flow>
+  <FlowNode title="Site.api" tone="accent">The api field in configuration</FlowNode>
+  <Arrow label="csp_" />
+  <FlowNode title="Java JAR">Extends Spider inside the JAR</FlowNode>
+  <Arrow label=".js" />
+  <FlowNode title="QuickJS">ES module default export</FlowNode>
+  <Arrow label=".py" />
+  <FlowNode title="Python">Extends base.spider.Spider</FlowNode>
+</Flow>
+
+## Java JAR
+
+Configuration value: `api: "csp_Demo"`
+
+Put the class at `com.github.catvod.spider.Demo` and extend the abstract `Spider`; the root configuration must provide `spider` or the site's `jar`. Compile against `catvod-api.jar` as a `compileOnly` dependency; the TV root task `:apiJar` generates it at `build/outputs/api/catvod-api.jar`.
+
+## Python
+
+Configuration value: `api: "./demo.py"`
+
+Relative paths resolve from the configuration file location; export a `Spider` class extending `base.spider.Spider`.
+
+## QuickJS
+
+Configuration value: `api: "./demo.js"`
+
+JavaScript runs on QuickJS; relative paths resolve from the configuration file location. Use an ES module that default-exports an object or a function returning one.
+
+:::tip
+Relative paths also work for `ext` and `jar`. See the [configuration reference 路 Site](/config/site) for every field.
+:::
+
+## Next
+
+- Install [runtime modules](/spider/modules) before the first run.
+- Confirm responses with [testing a spider](/spider/testing).
+- Jump straight to the [three-language demo](/spider/demo).

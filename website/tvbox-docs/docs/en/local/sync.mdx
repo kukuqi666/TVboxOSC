@@ -1,0 +1,77 @@
+﻿---
+description: type, mode, device, configs and targets for /action?do=sync, plus merge behavior.
+---
+
+import { Flow, FlowNode, Arrow } from '@theme/components/Flow';
+
+
+# /action?do=sync: Device Sync
+
+Send JSON strings as form POST. `mode` directions are relative to the App receiving the request; an HTTP OK does not mean data has been merged.
+
+| Parameter | Purpose |
+| --- | --- |
+| `type` | `history` for viewing history; `keep` for favorites. |
+| `mode` | `0` send and receive (default); `1` receive only; `2` send only. |
+| `device` | Target Device object string used when sending in mode 0 / 2; without `device` nothing is sent. |
+| `force` | Only the string `true` enables delete-then-merge; unset or any other value keeps existing data. |
+| `config` | Config object string for `history`; receiving needs a valid `url` and may load that configuration first. |
+| `targets` | JSON string of `History[]` or `Keep[]`, decided by `type`. |
+| `configs` | `Config[]` object array string for `keep` 鈥?not an array of URLs; ties to `Keep.cid` by source `id`. |
+
+:::danger force=true deletes existing data
+`history` deletes the viewing history of the matching configuration; `keep` deletes all favorites. For normal syncs, omit `force` or set it to `false`.
+:::
+
+## How favorites relate
+
+`Decoded content of the two form fields`
+
+```json
+{
+  "configs": [
+    { "id": 7, "type": 0, "url": "https://example.com/vod.json", "name": "Sample configuration" }
+  ],
+  "targets": [
+    {
+      "key": "demo@@@demo-1@@@7",
+      "cid": 7,
+      "type": 0,
+      "siteName": "Demo",
+      "vodName": "Sample item",
+      "vodPic": "https://example.com/poster.jpg",
+      "createTime": 1788825600000
+    }
+  ]
+}
+```
+
+Convert `configs` and `targets` to JSON form strings separately. Each `Keep.cid` must point at its own `Config.id`; it is mapped to the local configuration ID when merging.
+
+```sh
+curl "http://127.0.0.1:9978/action?do=sync&type=keep&mode=1&force=false" --data-urlencode 'configs=[{"id":7,"type":0,"url":"https://example.com/vod.json","name":"Sample configuration"}]' --data-urlencode 'targets=[{"key":"demo@@@demo-1@@@7","cid":7,"type":0,"siteName":"Demo","vodName":"Sample item","vodPic":"https://example.com/poster.jpg","createTime":1788825600000}]'
+```
+
+## Viewing history
+
+Viewing history uses `type=history`, a single `config`, and a History array; merging compares `createTime` on entries with the same name instead of overwriting everything. A sync may load another configuration, so back up personal data first.
+
+```sh
+curl "http://127.0.0.1:9978/action?do=sync&type=history&mode=0" --data-urlencode 'config={"id":7,"type":0,"url":"https://example.com/vod.json","name":"Sample configuration"}' --data-urlencode 'targets=[{"key":"demo@@@demo-1@@@7","vodName":"Sample item","vodFlag":"Demo","vodRemarks":"Episode 1","episodeUrl":"demo://episode/1","position":120000,"createTime":1788825600000}]'
+```
+
+## Merge rules
+
+<Flow>
+  <FlowNode title="Local records">Existing entries in the App</FlowNode>
+  <FlowNode title="Incoming targets">History锛廗eep in the request</FlowNode>
+  <Arrow label="Compare createTime" />
+  <FlowNode title="Take the newer" tone="accent">The more recent side wins</FlowNode>
+  <Arrow label="The other is older" />
+  <FlowNode title="Keep local" tone="muted">Existing data is preserved</FlowNode>
+</Flow>
+
+## Related
+
+- Record source: `uuid` from [/device](/local/device)
+- Casting: [actions 路 cast](/local/action)

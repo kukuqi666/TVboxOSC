@@ -1,0 +1,328 @@
+.home-landing {
+  --landing-text: hsla(0, 0%, 100%, 0.6);
+  position: relative;
+  min-height: 100vh;
+  color: #fff;
+  background: #212121;
+  font-family: 'Microsoft YaHei', Roboto, Tahoma, Consolas, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  overflow: hidden;
+}
+
+.home-landing *,
+.home-landing *::before,
+.home-landing *::after { box-sizing: border-box; }
+
+.home-landing .landing-background {
+  position: absolute;
+  inset: 0 0 auto;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  pointer-events: none;
+  transition: top 0.3s ease-out;
+}
+
+.home-landing .landing-background.is-fixed {
+  position: fixed;
+  top: -60%;
+}
+
+.home-landing .landing-startrack {
+  width: 100%;
+  height: 140%;
+  background: #151515;
+}
+
+.home-landing .landing-cover {
+  position: absolute;
+  bottom: -42%;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(0deg, #202020 30%, rgba(32, 32, 32, 0));
+}
+
+.home-landing .landing-section {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  padding: 80px 0;
+  animation: landing-fadedown 1s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.home-landing .landing-container {
+  position: relative;
+  width: 1000px;
+  max-width: calc(100% - 48px);
+  min-height: 1px;
+  margin: 0 auto;
+  padding: 20px 0;
+}
+
+.home-landing .landing-intro {
+  position: relative;
+  height: 100vh;
+  min-height: 0;
+  padding: 0;
+}
+
+.home-landing .landing-hello {
+  position: absolute;
+  bottom: 20%;
+  left: 0;
+  width: 100%;
+  padding: 0;
+  text-align: center;
+  animation: landing-fadedown 3.5s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.home-landing .landing-hello h1 {
+  font-size: 42px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0.5em;
+}
+
+.home-landing .landing-hello h2 {
+  padding-top: 0.6em;
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+}
+
+.home-landing .landing-circle {
+  float: left;
+  margin-right: 10px;
+  letter-spacing: 0;
+}
+
+.home-landing .landing-circle i {
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.home-landing .landing-circle i:nth-child(1) { background: #ff493f; }
+.home-landing .landing-circle i:nth-child(2) { background: #f7c900; }
+.home-landing .landing-circle i:nth-child(3) { background: #00ff37; }
+
+.home-landing .landing-title {
+  padding-bottom: 30px;
+  font-size: 26px;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  color: var(--landing-text);
+}
+
+.home-landing .landing-title span { color: #fff; }
+
+.home-landing .landing-title::after {
+  content: '';
+  display: block;
+  width: 10%;
+  height: 5px;
+  margin-top: 30px;
+  background: var(--landing-text);
+}
+
+.home-landing .landing-grid { display: flex; flex-wrap: wrap; }
+
+.home-landing .landing-config-item {
+  position: relative;
+  width: 30.93%;
+  height: 80px;
+  margin: 10px 1.2%;
+  padding: 5px 0;
+  overflow: hidden;
+  color: #fff;
+  text-align: center;
+  line-height: 80px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0.9;
+  transition: all 0.2s;
+}
+
+.home-landing .landing-config-item:hover { opacity: 1; transform: translateY(-10px); }
+
+.home-landing .landing-config-bg {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 1.8%;
+  transition: all 0.15s;
+}
+
+.home-landing .landing-config-item:hover .landing-config-bg {
+  height: 100%;
+  border-radius: 5px;
+  box-shadow: 0 3px 20px rgba(0, 0, 0, 0.28);
+}
+
+.home-landing .landing-config-inner {
+  position: relative;
+  z-index: 5;
+  display: inline-block;
+  width: 100px;
+}
+
+.home-landing .landing-link-item {
+  display: flex;
+  width: 22%;
+  min-height: 90px;
+  margin: 5px 0;
+  padding: 15px 1.5%;
+  color: #fff;
+  text-decoration: none;
+  opacity: 0.85;
+  transition: all 0.2s;
+}
+
+.home-landing .landing-link-item:hover {
+  opacity: 1;
+  border-radius: 5px;
+  background: hsla(0, 0%, 100%, 0.25);
+  transform: translateY(-5px);
+  box-shadow: 0 3px 20px rgba(0, 0, 0, 0.28);
+}
+
+.home-landing .landing-avatar {
+  flex: 0 0 60px;
+  width: 60px;
+  height: 60px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: #353535;
+}
+
+.home-landing .landing-avatar img {
+  display: block;
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.home-landing .landing-link-inner {
+  display: flex;
+  min-width: 0;
+  padding: 6px 0 6px 15px;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.home-landing .landing-link-inner strong { font-size: 17px; font-weight: 400; }
+
+.home-landing .landing-link-inner small {
+  font-size: 13px;
+  color: var(--landing-text);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.home-landing .landing-nav {
+  position: fixed;
+  bottom: 0;
+  left: 20px;
+  z-index: 20;
+  display: flex;
+  gap: 10px;
+  transform: rotate(-90deg);
+  transform-origin: 0 0;
+}
+
+.home-landing .landing-nav a {
+  color: #fff;
+  font-family: Roboto, Tahoma, Consolas, 'Microsoft YaHei', sans-serif;
+  font-size: 13px;
+  text-decoration: none;
+  opacity: 0.4;
+  transition: all 0.3s;
+}
+
+.home-landing .landing-nav a:hover { opacity: 1; text-decoration: underline; }
+
+.home-landing .landing-footer { padding-bottom: 100px; text-align: center; }
+.home-landing .landing-footer h4 { font-size: 14px; font-weight: 400; }
+.home-landing .landing-footer a { color: inherit; text-decoration: none; }
+.home-landing .landing-footer a:hover { text-decoration: underline; }
+.home-landing .landing-footer mark { color: #212121; background: #fff; padding: 0 4px; }
+
+.home-landing .landing-toast {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 50;
+  max-width: min(420px, calc(100vw - 48px));
+  padding: 12px 18px;
+  border-radius: 8px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.86);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px);
+  transition: all 0.25s;
+}
+
+.home-landing .landing-toast.is-visible { opacity: 1; transform: translateY(0); }
+
+@keyframes landing-fadedown {
+  from { opacity: 0; transform: translateY(-50px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 900px) {
+  .home-landing .landing-container { max-width: calc(100% - 32px); }
+  .home-landing .landing-hello h1 { font-size: 26px; letter-spacing: 0.2em; }
+  .home-landing .landing-hello h2 { font-size: 18px; }
+  .home-landing .landing-config-item { width: 46%; margin: 10px 2%; height: 60px; line-height: 60px; font-size: 13px; }
+  .home-landing .landing-link-item { width: 48%; margin: 6px 1%; }
+  .home-landing .landing-avatar { flex-basis: 40px; width: 40px; height: 40px; }
+  .home-landing .landing-avatar img { width: 40px; height: 40px; }
+  .home-landing .landing-link-inner { padding-left: 10px; }
+  .home-landing .landing-link-inner strong { font-size: 15px; }
+  .home-landing .landing-nav {
+    left: 0;
+    width: 100%;
+    gap: 18px;
+    padding: 15px 5%;
+    overflow: auto;
+    white-space: nowrap;
+    transform: none;
+    transform-origin: 0 100%;
+    background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.8));
+  }
+  .home-landing .landing-nav a { opacity: 0.8; }
+}
+
+@media (max-width: 560px) {
+  .home-landing .landing-title { font-size: 20px; }
+  .home-landing .landing-config-item { width: 100%; margin: 8px 0; }
+  .home-landing .landing-link-item { width: 100%; }
+}
+
+@media (min-width: 1400px) {
+  .home-landing .landing-container { width: 70%; }
+  .home-landing .landing-nav a { font-size: 18px; }
+}
+
+@media (max-width: 700px) {
+  .home-landing .landing-container { width: auto; margin: 0 5%; max-width: none; }
+  .home-landing .landing-section { padding: 40px 0; }
+  .home-landing .landing-hello { bottom: 50%; width: 90%; padding: 5%; margin: 0 auto; }
+  .home-landing .landing-hello h1,
+  .home-landing .landing-hello h2 { font-size: 14px; }
+  .home-landing .landing-hello h1 { font-size: 26px; }
+  .home-landing .landing-circle { float: none; margin-right: 0; padding: 20px; }
+  .home-landing .landing-circle i { margin: 0 5px; width: 10px; height: 10px; }
+  .home-landing .landing-hello h2 { padding-top: 0; }
+}

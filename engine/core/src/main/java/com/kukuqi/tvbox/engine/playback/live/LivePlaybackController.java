@@ -88,6 +88,7 @@ public class LivePlaybackController {
     }
 
     public void playbackError(String msg) {
+        com.kukuqi.tvbox.engine.server.Diagnostics.playbackError(msg);
         host.resetPlaybackForError(msg);
         fallbackAfterError();
     }

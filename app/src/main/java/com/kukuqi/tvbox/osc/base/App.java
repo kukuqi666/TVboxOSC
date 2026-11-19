@@ -2,7 +2,6 @@ package com.kukuqi.tvbox.osc.base;
 
 import android.text.TextUtils;
 
-import androidx.multidex.MultiDexApplication;
 
 import com.github.catvod.crawler.JsLoader;
 import com.kukuqi.tvbox.osc.R;
@@ -41,13 +40,22 @@ public class App extends com.kukuqi.tvbox.engine.App {
 
     @Override
     public void onCreate() {
+        cat.ereza.customactivityoncrash.CustomActivityOnCrash.install(this);
+        initCrashConfig();
         super.onCreate();
         instance = this;
-        // Runtime service has its own lifecycle and must not start a second web server/database.
-        if (com.kukuqi.tvbox.engine.runtime.NodeProcess.isRuntime(this)) return;
+        // 运行时和崩溃页有独立进程，避免重复初始化服务器、数据库。
+        if (com.kukuqi.tvbox.engine.runtime.NodeProcess.isRuntime(this) || isErrorProcess()) return;
+        com.kukuqi.tvbox.engine.server.Diagnostics.log("启动", "开始初始化宿主参数");
+        com.kukuqi.tvbox.osc.core.CoreBridge.installScriptHost();
         initParams();
         com.orhanobut.logger.Logger.addLogAdapter(new com.orhanobut.logger.AndroidLogAdapter(
-                com.orhanobut.logger.PrettyFormatStrategy.newBuilder().methodCount(0).showThreadInfo(false).tag("TVboxCore").build()));
+                com.orhanobut.logger.PrettyFormatStrategy.newBuilder().methodCount(0).showThreadInfo(false).tag("TVboxCore").build()) {
+            @Override public void log(int priority, String tag, String message) {
+                super.log(priority, tag, message);
+                com.kukuqi.tvbox.engine.server.Diagnostics.log(tag, message);
+            }
+        });
         // OKGo
         OkGoHelper.init(); //台标获取
         OkGoHelper.updateDns();
@@ -70,7 +78,7 @@ public class App extends com.kukuqi.tvbox.engine.App {
                 .setSupportSubunits(Subunits.MM);
         PlayerHelper.init();
         FileUtils.cleanPlayerCache();
-        initCrashConfig();
+        com.kukuqi.tvbox.engine.server.Diagnostics.log("启动", "宿主初始化完成");
         Utils.initTheme();
         // 加载订阅源
         loadSubscriptions();
@@ -168,6 +176,19 @@ public class App extends com.kukuqi.tvbox.engine.App {
         return this.vodInfo;
     }
 
+    private boolean isErrorProcess() {
+        if (android.os.Build.VERSION.SDK_INT >= 28) {
+            return android.app.Application.getProcessName().endsWith(":error_activity");
+        }
+        android.app.ActivityManager manager = (android.app.ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        if (manager != null && manager.getRunningAppProcesses() != null) {
+            for (android.app.ActivityManager.RunningAppProcessInfo process : manager.getRunningAppProcesses()) {
+                if (process.pid == android.os.Process.myPid()) return process.processName.endsWith(":error_activity");
+            }
+        }
+        return false;
+    }
+
     private void initCrashConfig(){
         //配置全局异常崩溃操作
         CaocConfig.Builder.create()
@@ -176,6 +197,7 @@ public class App extends com.kukuqi.tvbox.engine.App {
                 .showErrorDetails(true) //是否显示错误详细信息
                 .showRestartButton(true) //是否显示重启按钮
                 .trackActivities(true) //是否跟踪Activity
+                .customCrashDataCollector(com.kukuqi.tvbox.engine.server.Diagnostics::crashContext)
                 .minTimeBetweenCrashesMs(2000) //崩溃的间隔时间(毫秒)
                 .errorDrawable(R.drawable.app_icon) //错误图标
                 .restartActivity(MainActivity.class) //重新启动后的activity

@@ -7,8 +7,12 @@ android {
         applicationId namespace
         minSdk 24
         targetSdk 34
-        versionCode 2
-        versionName '1.0.1'
+        // 回归素材可用 -PruntimeFixtureVersion=<n> 覆盖，保证目录声明与产物版本一致。
+        versionCode 3
+        if (providers.gradleProperty('runtimeFixtureVersion').isPresent()) {
+            versionCode providers.gradleProperty('runtimeFixtureVersion').get().toInteger()
+        }
+        versionName '1.0.2'
         ndk { abiFilters 'arm64-v8a' }
     }
     compileOptions {
@@ -22,7 +26,14 @@ android {
     }
     sourceSets.main.res.srcDir(rootProject.file("runtime/icons/${project.name.substring(8)}"))
     packaging { jniLibs { useLegacyPackaging true } }
-    buildTypes { release { minifyEnabled false } }
+    buildTypes {
+        debug {
+            if (providers.gradleProperty('coreValidation').getOrElse('false').toBoolean()) {
+                applicationIdSuffix '.corevalidation'
+            }
+        }
+        release { minifyEnabled false }
+    }
 }
 dependencies { coreLibraryDesugaring libs.desugar }
 def signingStore = rootProject.file('TVBoxOSC.jks')

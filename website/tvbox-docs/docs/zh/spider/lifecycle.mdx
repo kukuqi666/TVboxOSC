@@ -1,0 +1,59 @@
+---
+description: Java、Python、QuickJS 爬虫方法与 App 的呼叫时机、责任与主要回传。
+---
+
+import { Flow, FlowNode, Arrow } from '@theme/components/Flow';
+
+# 方法与呼叫时机
+
+本表适用 Java、Python 与 QuickJS；Node.js 使用[独立 HTTP 端点](/spider/node)。
+
+在 `destroy` 释放自建 Session、WebSocket 与背景工作。QuickJS 最多等待 5 秒（含 Promise），逾时仍会继续清理引擎。
+
+| 方法 | 何时呼叫 | 责任 | 主要回传 |
+| --- | --- | --- | --- |
+| `init` | 初始化爬虫时 | 读取 ext、建立连线或快取 | 无 |
+| `homeContent` / `home` | 进入首页 | 分类与选填 filters | Result.class |
+| `homeVideoContent` / `homeVod` | 首页分类完成 | 首页推荐卡片 | Result.list |
+| `categoryContent` / `category` | 分类、换页、变更筛选 | 该页卡片与总页数 | list + pagecount |
+| `detailContent` / `detail` | 点击卡片 | 完整资讯与播放分组 | list[0] |
+| `searchContent` / `search` | 搜寻 | 搜寻结果，可支援页码 | list + pagecount |
+| `playerContent` / `play` | 选择集数 | 最终 URL 与播放参数 | Result |
+| `danmaku` | 选用爬虫即时弹幕来源 | 弹幕或订阅状态物件 | Java AutoCloseable／Python、QuickJS 停止函式 |
+| `liveContent` / `live` | 载入直播配置 | TXT、M3U 或 Group JSON | 文字 / Group 阵列 |
+| `proxy` / `localProxy` | 本地代理收到请求 | 依执行环境提供状态、类型、内容与标头 | 阵列 / HTTP 回应 |
+| `action` | 自订操作 | 可由 Result 解析的结果 | Java JSON 字串／Python、QuickJS 物件 |
+| `destroy` | 重新载入或清除 | 释放执行绪与连线；QuickJS 清理 hook 最长 5 秒 | 无 |
+
+## 流程
+
+<Flow>
+  <FlowNode title="init" tone="accent">初始化</FlowNode>
+  <Arrow />
+  <FlowNode title="homeContent / home">分类与筛选</FlowNode>
+  <Arrow />
+  <FlowNode title="categoryContent / category">列表与总页数</FlowNode>
+  <Arrow />
+  <FlowNode title="detailContent / detail">详情与集数</FlowNode>
+  <Arrow />
+  <FlowNode title="playerContent / play">最终 URL</FlowNode>
+</Flow>
+
+`searchContent` 与 `homeVideoContent` 是进入详情的另外两条路径：搜索直接得到列表，首页推荐则由 App 自行决定是否显示。
+
+## 命名对照
+
+| Java | Python | QuickJS |
+| --- | --- | --- |
+| `homeContent` | `homeContent` | `home` |
+| `homeVideoContent` | `homeVideoContent` | `homeVod` |
+| `categoryContent` | `categoryContent` | `category` |
+| `detailContent` | `detailContent` | `detail` |
+| `searchContent` | `searchContent` | `search` |
+| `playerContent` | `playerContent` | `play` |
+| `liveContent` | `liveContent` | `live` |
+| `proxy` | `localProxy` | `proxy` |
+
+:::tip
+`destroy` 里要关闭自己建立的 Session、WebSocket 与背景执行绪。没有释放时，重新载入爬虫会累积连线。
+:::
