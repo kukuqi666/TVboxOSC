@@ -7,7 +7,7 @@ import android.os.SystemClock;
 import com.kukuqi.tvbox.engine.R;
 import com.kukuqi.tvbox.engine.bean.Episode;
 import com.kukuqi.tvbox.engine.exception.ExtractException;
-import com.kukuqi.tvbox.engine.utils.Download;
+import com.github.catvod.net.Download;
 import com.kukuqi.tvbox.engine.utils.ResUtil;
 import com.kukuqi.tvbox.engine.utils.UrlUtil;
 import com.github.catvod.utils.Crypto;
