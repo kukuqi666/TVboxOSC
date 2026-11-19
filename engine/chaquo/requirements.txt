@@ -1,5 +1,5 @@
-lxml==5.3.0
-ujson==5.11.0
+lxml==6.1.0
+ujson==5.13.0
 pyquery==2.1.0
 requests==2.34.2
 cachetools==7.2.1
@@ -20,7 +20,7 @@ chaquopy-libxslt==1.1.32
 charset-normalizer==3.5.2
 cssselect==1.5.0
 idna==3.20
-soupsieve==2.10
+soupsieve==4.0
 typing_extensions==4.16.0
 urllib3==2.8.0
 yapf==0.43.0
