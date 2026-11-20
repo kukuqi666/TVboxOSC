@@ -129,6 +129,9 @@ def inspect_configs(records):
     for rel, record in records.items():
         if record['kind'] == 'jar':
             with zipfile.ZipFile(ROOT / rel) as archive:
+                risky = [name for name in archive.namelist()
+                         if b'fs-im-kefu.7moor-fs1.com' in archive.read(name).lower()]
+                if risky: problems.append({'file': rel, 'reason': 'JAR 内含已隔离的风险下载域名', 'entries': risky})
                 dex = [name for name in archive.namelist() if re.fullmatch(r'classes[0-9]*\.dex', name)]
                 names = set().union(*(dex_classes(archive.read(name)) for name in dex)) if dex else set()
                 incompatible = sorted({value for name in dex for value in dex_strings(archive.read(name)) if 'com/fongmi/quickjs/' in value or 'com.fongmi.quickjs.' in value})

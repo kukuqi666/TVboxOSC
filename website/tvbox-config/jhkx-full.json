@@ -9,16 +9,6 @@
     "fiizvfck.top=danmu.888484.xyz"
   ],
   "sites": [
-   {
-      "key": "点我切换播放源",
-      "name": "🎬首页｜热播",
-      "type": 3,
-      "api": "csp_Douban",
-      "jar": "https://raw.githubusercontent.com/kukuqi666/TVboxOSC/main/website/tvbox-config/jar/douban.jar",
-      "searchable": 0,
-      "quickSearch": 0,
-      "filterable": 0
-    },
     {
       "key": "点我切源",
       "name": "博客【https://gaoops.com/】",
@@ -631,14 +621,14 @@
     }
   ],
   "lives": [
-   {
-  "name": "切换直播源(1)",
-  "type": 0,
-  "url": "https://gh.927223.xyz/https://raw.githubusercontent.com/Kimentanm/aptv/master/m3u/iptv.m3u",
-  "epg": "http://epg.51zmt.top:8000/e.xml.gz",
-  "logo": "https://live.fanmingming.com/tv/logo",
-  "playerType": 2
-},
+    {
+      "name": "切换直播源(1)",
+      "type": 0,
+      "url": "https://gh.927223.xyz/https://raw.githubusercontent.com/Kimentanm/aptv/master/m3u/iptv.m3u",
+      "epg": "http://epg.51zmt.top:8000/e.xml.gz",
+      "logo": "https://live.fanmingming.com/tv/logo",
+      "playerType": 2
+    },
     {
       "name": "切换直播源(2)",
       "type": 0,
