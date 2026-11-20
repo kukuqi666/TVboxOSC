@@ -491,6 +491,7 @@ public final class FeatureSettingsDialog {
                 case THUNDER -> R.drawable.runtime_icon_thunder;
                 case NODEJS -> R.drawable.runtime_icon_nodejs;
                 case BDJ -> R.drawable.runtime_icon_bdj;
+                case MPV -> R.drawable.runtime_icon_mpv;
             };
             android.graphics.drawable.Drawable drawable = activity.getDrawable(icon);
             drawable.setBounds(0, 0, panel.dp(36), panel.dp(36));
@@ -555,7 +556,7 @@ public final class FeatureSettingsDialog {
                 catch (Exception invalid) { message(activity, module.title + " 模块不可用", invalid.getMessage()); }
             });
         }
-        TextView builtIn = panel.row("内置：Exo / Media3、MPV、JAR Spider", null);
+        TextView builtIn = panel.row("内置：Exo / Media3、JAR Spider", null);
         builtIn.setTextSize(13); builtIn.setMinHeight(0); builtIn.setPadding(panel.dp(12), panel.dp(8), panel.dp(12), panel.dp(8));
         TextView moduleNote = panel.row("按需下载安装；更新已加载的模块后重启应用生效", null);
         moduleNote.setTextSize(13); moduleNote.setMinHeight(0); moduleNote.setPadding(panel.dp(12), panel.dp(8), panel.dp(12), panel.dp(8));

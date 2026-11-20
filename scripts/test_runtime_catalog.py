@@ -19,7 +19,7 @@ class RuntimeCatalogTest(unittest.TestCase):
         self.root = Path(self.temporary.name)
         self.host = self.root / 'host.apk'
         self.host.write_bytes(b'signed-host-fixture')
-        for name in ['python', 'quickjs', 'thunder', 'nodejs', 'bdj']:
+        for name in ['python', 'quickjs', 'thunder', 'nodejs', 'bdj', 'mpv']:
             apk = self.root / f'runtime/{name}/build/outputs/apk/release/runtime-{name}-release.apk'
             apk.parent.mkdir(parents=True)
             apk.write_bytes(('signed-' + name).encode())
@@ -47,7 +47,7 @@ class RuntimeCatalogTest(unittest.TestCase):
     def test_pinned_download_urls_and_measured_checksums(self):
         self.run_catalog()
         result = json.loads((self.out / 'catalog.json').read_text())
-        self.assertEqual(5, len(result['modules']))
+        self.assertEqual(6, len(result['modules']))
         for module in result['modules']:
             code, version = (3, '1.0.2') if module['id'] in ('python', 'quickjs') else (2, '1.0.1')
             self.assertEqual(code, module['versionCode'])
@@ -64,16 +64,24 @@ class RuntimeCatalogTest(unittest.TestCase):
             (self.root / f'runtime/{name}/build.gradle').write_text("apply from: rootProject.file('runtime/native.gradle')\n")
         self.run_catalog()
         result = json.loads((self.out / 'catalog.json').read_text())
-        self.assertEqual({'python', 'quickjs', 'thunder', 'nodejs', 'bdj'}, {m['id'] for m in result['modules']})
+        self.assertEqual({'python', 'quickjs', 'thunder', 'nodejs', 'bdj', 'mpv'}, {m['id'] for m in result['modules']})
 
     def test_repair_cannot_replace_old_host_with_incompatible_modules(self):
         baseline = self.root / 'published-catalog.json'
-        baseline.write_text(json.dumps({'schema': 1, 'modules': [{'id': name, 'compatibilityId': f'tvbox-{name}-v2'} for name in ['python', 'quickjs', 'thunder', 'nodejs', 'bdj']]}))
+        baseline.write_text(json.dumps({'schema': 1, 'modules': [{'id': name, 'compatibilityId': f'tvbox-{name}-v2'} for name in ['python', 'quickjs', 'thunder', 'nodejs', 'bdj', 'mpv']]}))
         catalog.verify_repair_contracts(self.root, baseline)
         data = json.loads(baseline.read_text())
         data['modules'][0]['compatibilityId'] = 'tvbox-python-v1'
         baseline.write_text(json.dumps(data))
         with self.assertRaises(ValueError): catalog.verify_repair_contracts(self.root, baseline)
+
+    def test_repair_cannot_add_mpv_to_a_previously_published_host(self):
+        baseline = self.root / 'published-catalog.json'
+        baseline.write_text(json.dumps({'schema': 1, 'modules': [
+            {'id': name, 'compatibilityId': f'tvbox-{name}-v2'}
+            for name in ['python', 'quickjs', 'thunder', 'nodejs', 'bdj']]}))
+        with self.assertRaisesRegex(ValueError, 'mpv'):
+            catalog.verify_repair_contracts(self.root, baseline)
 
     def test_explicit_native_version_overrides_shared_default(self):
         (self.root / 'runtime/native.gradle').write_text("versionCode 2\nversionName '1.0.1'\n")
@@ -83,7 +91,7 @@ class RuntimeCatalogTest(unittest.TestCase):
 
     def test_all_checkout_module_versions_can_be_resolved(self):
         checkout = Path(__file__).resolve().parents[1]
-        for name in ('python', 'quickjs', 'thunder', 'nodejs', 'bdj'):
+        for name in ('python', 'quickjs', 'thunder', 'nodejs', 'bdj', 'mpv'):
             code, version = catalog.module_version(checkout, name)
             self.assertGreater(code, 0)
             self.assertRegex(version, r'^\d+\.\d+\.\d+$')
@@ -114,6 +122,52 @@ class RuntimeCatalogTest(unittest.TestCase):
             with self.assertRaises(SystemExit):
                 self.run_catalog(invalid)
             self.assertFalse((self.out / 'catalog.json').exists())
+
+
+class MpvPayloadTest(unittest.TestCase):
+    def test_native_payload_keeps_host_dependencies_out_and_records_inputs(self):
+        import prepare_optional_runtimes as prepare
+        import zipfile
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            libs = root / 'engine/core/libs'
+            libs.mkdir(parents=True)
+            header = bytearray(64)
+            header[:6] = b'\x7fELF\x02\x01'
+            header[18:20] = (183).to_bytes(2, 'little')
+            with zipfile.ZipFile(libs / 'lib-mpvplayer-release.aar', 'w') as archive:
+                for name in ['libmpv.so', 'libplayer.so', 'libc++_shared.so']:
+                    archive.writestr('jni/arm64-v8a/' + name, bytes(header) + name.encode())
+            (libs / 'lib-decoder-ffmpeg-release.aar').write_bytes(b'fixed-ffmpeg-input')
+            (root / 'LICENSE').write_text('license fixture')
+            payload = root / 'runtime/mpv/build/payload'
+            stale = payload / 'jniLibs/arm64-v8a/libobsolete.so'
+            stale.parent.mkdir(parents=True)
+            stale.write_bytes(b'obsolete-native-payload')
+            with patch.object(prepare, 'ROOT', root): prepare.prepare_mpv()
+            self.assertEqual({'libmpv.so', 'libplayer.so'}, {p.name for p in (payload / 'jniLibs/arm64-v8a').iterdir()})
+            metadata = json.loads((payload / 'assets/mpv/provenance.json').read_text())
+            for name, digest in metadata['inputs'].items():
+                self.assertEqual(hashlib.sha256((libs / name).read_bytes()).hexdigest(), digest)
+            for name, digest in metadata['libraries'].items():
+                self.assertEqual(hashlib.sha256((payload / 'jniLibs/arm64-v8a' / name).read_bytes()).hexdigest(), digest)
+
+    def test_wrong_native_architecture_is_rejected(self):
+        import prepare_optional_runtimes as prepare
+        import zipfile
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            libs = root / 'engine/core/libs'
+            libs.mkdir(parents=True)
+            with zipfile.ZipFile(libs / 'lib-mpvplayer-release.aar', 'w') as archive:
+                archive.writestr('jni/arm64-v8a/libmpv.so', b'not-an-arm64-elf')
+            (libs / 'lib-decoder-ffmpeg-release.aar').write_bytes(b'fixed-ffmpeg-input')
+            previous = root / 'runtime/mpv/build/payload/previous'
+            previous.parent.mkdir(parents=True)
+            previous.write_bytes(b'previous-valid-payload')
+            with patch.object(prepare, 'ROOT', root), self.assertRaisesRegex(ValueError, 'ARM64 ELF'):
+                prepare.prepare_mpv()
+            self.assertEqual(b'previous-valid-payload', previous.read_bytes())
 
 
 class RuntimeInputRecoveryTest(unittest.TestCase):

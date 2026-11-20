@@ -1,3 +1,8 @@
+// MPV 模块必须与宿主的 Java/JNI、FFmpeg 和 C++ 库配套，构建时固定原始 AAR 指纹。
+ext.mpvRuntimeId = ['lib-mpvplayer-release.aar', 'lib-decoder-ffmpeg-release.aar'].collect { name ->
+    java.security.MessageDigest.getInstance('SHA-256').digest(file("engine/core/libs/${name}").bytes).encodeHex().toString()
+}.join(':')
+
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     ext.kotlin_version = '2.2.20'

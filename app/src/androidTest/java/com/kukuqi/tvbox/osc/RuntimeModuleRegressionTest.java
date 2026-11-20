@@ -352,7 +352,7 @@ public class RuntimeModuleRegressionTest extends InstrumentationTestCase {
             assertNotNull(host.getPackageManager().getApplicationIcon(module.packageName(host)));
             ClassLoader loader = RuntimeModules.loader(host, module);
             assertSame(com.github.catvod.crawler.Spider.class, loader.loadClass("com.github.catvod.crawler.Spider"));
-            assertNotSame(host.getClassLoader(), loader.loadClass(module.entry).getClassLoader());
+            if (!module.entry.isEmpty()) assertNotSame(host.getClassLoader(), loader.loadClass(module.entry).getClassLoader());
         }
         // BD-J's Files.copy is absent from the shrunk host, but present in its own APK.
         ClassLoader bdj = RuntimeModules.loader(host, RuntimeModule.BDJ);

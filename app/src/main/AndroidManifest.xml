@@ -4,6 +4,8 @@
     >
     <!-- 在 Android 11 中，应用程序需要声明它们要使用的其他应用程序的包名 -->
     <queries>
+        <package android:name="com.kukuqi.tvbox.runtime.mpv" />
+        <package android:name="com.kukuqi.tvbox.runtime.mpv.corevalidation" />
         <package android:name="com.kukuqi.tvbox.runtime.nodejs" />
         <package android:name="com.kukuqi.tvbox.runtime.nodejs.corevalidation" />
         <package android:name="com.kukuqi.tvbox.runtime.bdj" />

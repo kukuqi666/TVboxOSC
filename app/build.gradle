@@ -27,7 +27,7 @@ android {
     namespace 'com.kukuqi.tvbox.osc'
     compileSdkVersion 37
     ndkVersion '29.0.14206865'
-    ["python", "quickjs", "thunder", "nodejs", "bdj"].each { sourceSets.main.res.srcDir(rootProject.file("runtime/icons/${it}")) }
+    ["python", "quickjs", "thunder", "nodejs", "bdj", "mpv"].each { sourceSets.main.res.srcDir(rootProject.file("runtime/icons/${it}")) }
     useLibrary 'android.test.runner'
     useLibrary 'android.test.base'
 
@@ -73,7 +73,11 @@ android {
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
         // Compress native libraries in the APK; Android extracts them at install time.
-        jniLibs { useLegacyPackaging true }
+        jniLibs {
+            useLegacyPackaging true
+            // MPV 原生库按需安装；Exo 使用的 FFmpeg 与共享 C++ 库继续保留在主包。
+            excludes += ['**/libmpv.so', '**/libplayer.so']
+        }
     }
 
     signingConfigs {

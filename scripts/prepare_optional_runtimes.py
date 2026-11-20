@@ -148,7 +148,42 @@ def prepare_quickjs():
     print('已从固定源码重建 kukuqi QuickJS Java/JNI 与来源声明')
 
 
+def prepare_mpv():
+    """复用与宿主 Java/JNI 和 FFmpeg 完全配套的固定 AAR，不混用上游新版二进制。"""
+    output = ROOT / 'runtime/mpv/build/payload'
+    native = output / 'jniLibs/arm64-v8a'
+    assets = output / 'assets/mpv'
+    inputs = {}
+    libraries = {}
+    payload = {}
+    for name in ['lib-mpvplayer-release.aar', 'lib-decoder-ffmpeg-release.aar']:
+        source = ROOT / 'engine/core/libs' / name
+        inputs[name] = hashlib.sha256(source.read_bytes()).hexdigest()
+    with zipfile.ZipFile(ROOT / 'engine/core/libs/lib-mpvplayer-release.aar') as archive:
+        for name in ['libmpv.so', 'libplayer.so']:
+            content = archive.read('jni/arm64-v8a/' + name)
+            if content[:6] != b'\x7fELF\x02\x01' or int.from_bytes(content[18:20], 'little') != 183:
+                raise ValueError('MPV 原生库不是 ARM64 ELF：' + name)
+            payload[name] = content
+            libraries[name] = hashlib.sha256(content).hexdigest()
+    # 所有输入通过校验后再重建生成目录，避免失败时留下半份或过期原生库。
+    if output.exists(): shutil.rmtree(output)
+    native.mkdir(parents=True)
+    assets.mkdir(parents=True)
+    for name, content in payload.items(): (native / name).write_bytes(content)
+    # C++ 与拆分 FFmpeg 继续由主包提供；两端通过原始 AAR 指纹拒绝不匹配的组合。
+    (assets / 'provenance.json').write_text(json.dumps({
+        'upstream': 'https://github.com/FongMi/TV',
+        'inputs': inputs, 'libraries': libraries,
+        'hostLibraries': ['libc++_shared.so', 'libavutil.so', 'libswresample.so', 'libswscale.so',
+                          'libavcodec.so', 'libavformat.so', 'libavfilter.so', 'libavdevice.so'],
+    }, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    shutil.copyfile(ROOT / 'LICENSE', assets / 'TVboxOSC-LICENSE')
+    print('mpv: ' + str(output))
+
+
 def main(name):
+    if name == 'mpv': return prepare_mpv()
     if name == 'quickjs': return prepare_quickjs()
     if name not in ('nodejs', 'bdj'): raise ValueError(name)
     sdk = Path(os.environ.get('ANDROID_HOME', os.environ.get('ANDROID_SDK_ROOT', '/opt/android-sdk')))

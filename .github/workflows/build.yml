@@ -55,7 +55,7 @@ jobs:
           chmod +x gradlew
           mkdir -p build
           set -o pipefail
-          ./gradlew :app:assembleDebug :app:testDebugUnitTest :runtime-python:assembleDebug :runtime-quickjs:assembleDebug :runtime-thunder:assembleDebug :runtime-nodejs:assembleDebug :runtime-bdj:assembleDebug --stacktrace --no-daemon 2>&1 | tee build/gradle-build.log
+          ./gradlew :app:assembleDebug :app:testDebugUnitTest :runtime-python:assembleDebug :runtime-quickjs:assembleDebug :runtime-thunder:assembleDebug :runtime-nodejs:assembleDebug :runtime-bdj:assembleDebug :runtime-mpv:assembleDebug --stacktrace --no-daemon 2>&1 | tee build/gradle-build.log
       - name: Report build failure
         if: failure()
         run: |
@@ -231,7 +231,7 @@ jobs:
           else
             ./gradlew :app:assembleRelease -Dorg.gradle.jvmargs=-Xmx4096m --max-workers=2 --stacktrace --no-daemon 2>&1 | tee build/gradle-release.log
           fi
-          ./gradlew :runtime-python:assembleRelease :runtime-quickjs:assembleRelease :runtime-thunder:assembleRelease :runtime-nodejs:assembleRelease :runtime-bdj:assembleRelease -Dorg.gradle.jvmargs=-Xmx3072m --max-workers=2 --stacktrace --no-daemon 2>&1 | tee -a build/gradle-release.log
+          ./gradlew :runtime-python:assembleRelease :runtime-quickjs:assembleRelease :runtime-thunder:assembleRelease :runtime-nodejs:assembleRelease :runtime-bdj:assembleRelease :runtime-mpv:assembleRelease -Dorg.gradle.jvmargs=-Xmx3072m --max-workers=2 --stacktrace --no-daemon 2>&1 | tee -a build/gradle-release.log
       - name: Report release build failure
         if: failure()
         run: |

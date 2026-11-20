@@ -68,7 +68,7 @@ public final class CorePlayer extends AbstractPlayer implements PlayerManager.Ca
     public void setSubtitleStyle(float pixels, int color) {
         subtitleTextSize = pixels; subtitleTextColor = color;
         if (subtitleStyleChanged != null) subtitleStyleChanged.run();
-        if (engine == PlayerSetting.ENGINE_MPV && manager != null) {
+        if (isMpvActive() && manager != null) {
             com.kukuqi.tvbox.engine.setting.SubtitleSetting.putStyleMode(com.kukuqi.tvbox.engine.setting.SubtitleSetting.STYLE_CUSTOM);
             com.kukuqi.tvbox.engine.setting.SubtitleSetting.putTextColor(color);
             com.kukuqi.tvbox.engine.setting.SubtitleSetting.putScale(pixels / (22 * com.kukuqi.tvbox.engine.App.get().getResources().getDisplayMetrics().scaledDensity));
@@ -91,7 +91,7 @@ public final class CorePlayer extends AbstractPlayer implements PlayerManager.Ca
         subtitleVisible = enabled;
         // Exo follows OSC's visibility toggle: keep decoding cues so a long caption can reappear.
         // MPV paints into the video surface, so its native subtitle track must be disabled.
-        if (engine == PlayerSetting.ENGINE_MPV && manager != null && !manager.isReleased()) {
+        if (isMpvActive() && manager != null && !manager.isReleased()) {
             player().setTrackSelectionParameters(player().getTrackSelectionParameters().buildUpon().setTrackTypeDisabled(C.TRACK_TYPE_TEXT, !enabled).build());
             manager.applySubtitleStyle();
         }
@@ -99,7 +99,8 @@ public final class CorePlayer extends AbstractPlayer implements PlayerManager.Ca
     }
     public void setRenderedSubtitleEnabled(java.util.function.BooleanSupplier value) { renderSubtitleEnabled = value; refreshRenderedSubtitles(); }
     private void refreshRenderedSubtitles() { if (renderedCues != null && manager != null) renderedCues.accept(player().getCurrentCues()); }
-    public boolean useRenderedSubtitles() { return engine == PlayerSetting.ENGINE_EXO && subtitleVisible && renderSubtitleEnabled.getAsBoolean(); }
+    private boolean isMpvActive() { return manager != null && manager.getEngine() == PlayerSetting.ENGINE_MPV; }
+    public boolean useRenderedSubtitles() { return !isMpvActive() && subtitleVisible && renderSubtitleEnabled.getAsBoolean(); }
     public void setParseInPlayer(boolean value) { parseInPlayer = value; }
     public TrackInfo getTrackInfo() {
         TrackInfo info = new TrackInfo();

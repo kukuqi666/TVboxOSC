@@ -96,6 +96,8 @@ public final class RuntimeModules {
         ApplicationInfo app = info.applicationInfo;
         if (app == null || app.metaData == null || !module.contract().equals(app.metaData.getString("tvbox.runtime.contract")))
             throw new SecurityException("模块接口不兼容");
+        if (module == RuntimeModule.MPV && !com.kukuqi.tvbox.engine.BuildConfig.MPV_RUNTIME_ID.equals(app.metaData.getString("tvbox.runtime.payload")))
+            throw new SecurityException("MPV 模块与当前主包的播放器或 FFmpeg 不配套，请安装配套版本");
         if (!"arm64-v8a".equals(app.metaData.getString("tvbox.runtime.abi"))) throw new SecurityException("模块架构不匹配");
         if (app.minSdkVersion > Build.VERSION.SDK_INT || !Arrays.asList(Build.SUPPORTED_ABIS).contains("arm64-v8a"))
             throw new IllegalStateException("设备不支持此模块");

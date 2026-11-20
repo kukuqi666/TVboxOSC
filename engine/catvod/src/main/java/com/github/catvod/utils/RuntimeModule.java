@@ -52,7 +52,7 @@ public enum RuntimeModule {
     public String getPackageName() {
         return "com.kukuqi.tvbox.runtime." + id + (Runtime.context().getPackageName().endsWith(".corevalidation") ? ".corevalidation" : "");
     }
-    public String getCompatibilityId() { return this == QUICKJS ? "kukuqi-quickjs-ng-0.17-v14" : "tvbox-" + id + (this == PYTHON || this == NODEJS ? "-v2" : "-v1"); }
+    public String getCompatibilityId() { if (this == MPV) return "tvbox-mpv-split-ffmpeg-v1"; return this == QUICKJS ? "kukuqi-quickjs-ng-0.17-v14" : "tvbox-" + id + (this == PYTHON || this == NODEJS ? "-v2" : "-v1"); }
     public String getVersionName() throws IOException { return info().versionName; }
     @SuppressWarnings("deprecation")
     public long getVersionCode() throws IOException { return info().versionCode; }
@@ -112,7 +112,7 @@ public enum RuntimeModule {
         try {
             provider().loader(id);
             File directory = getDirectory();
-            String[] libraries = this == NODEJS ? new String[]{"libc++_shared.so", "libnode.so", "libtvbox_node.so"} : new String[]{library};
+            String[] libraries = this == NODEJS ? new String[]{"libc++_shared.so", "libnode.so", "libtvbox_node.so"} : this == MPV ? new String[]{"libmpv.so", "libplayer.so"} : new String[]{library};
             for (String name : libraries) loader.accept(new File(directory, name).getAbsolutePath());
             recordLoaded(prepare(), this);
         } catch (IOException error) { throw new IllegalStateException("模块原生库加载失败", error); }

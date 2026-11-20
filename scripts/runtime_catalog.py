@@ -43,7 +43,7 @@ def verify_repair_contracts(root, baseline):
     """修复旧版附件时不能改变旧主包所需的模块接口。"""
     published = json.loads(Path(baseline).read_text(encoding='utf-8'))
     contracts = {item['id']: item.get('compatibilityId') for item in published.get('modules', [])}
-    for name in ['python', 'quickjs', 'thunder', 'nodejs', 'bdj']:
+    for name in ['python', 'quickjs', 'thunder', 'nodejs', 'bdj', 'mpv']:
         if contracts.get(name) != module_contract(root, name):
             raise ValueError('模块 ' + name + ' 的接口已改变，必须随新主包发布，不能覆盖旧版附件')
 
@@ -73,7 +73,7 @@ def main():
         parser.error('Release catalogs require --host-apk, --aapt and --apksigner for identity checks')
     host_certificate = certificate(args.host_apk) if args.apksigner and args.host_apk else None
     modules = []
-    for name in ['python', 'quickjs', 'thunder', 'nodejs', 'bdj']:
+    for name in ['python', 'quickjs', 'thunder', 'nodejs', 'bdj', 'mpv']:
         version_code, version_name = module_version(root, name)
         candidates = list((root / 'runtime' / name / 'build/outputs/apk' / args.variant).glob('*.apk'))
         if len(candidates) != 1:

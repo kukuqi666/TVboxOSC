@@ -50,7 +50,11 @@ tasks.register('preparePayload', Exec) {
     workingDir rootProject.projectDir
     commandLine(System.getenv('TVBOX_TOOLS_PYTHON') ?: 'python3', 'scripts/prepare_optional_runtimes.py', project.name.substring(8))
     inputs.file(rootProject.file('scripts/prepare_optional_runtimes.py'))
-    inputs.dir(project.file('src/main/cpp'))
+    if (project.name == 'runtime-mpv') {
+        inputs.files(rootProject.file('engine/core/libs/lib-mpvplayer-release.aar'), rootProject.file('engine/core/libs/lib-decoder-ffmpeg-release.aar'), rootProject.file('LICENSE'))
+    } else {
+        inputs.dir(project.file('src/main/cpp'))
+    }
     outputs.dir(layout.buildDirectory.dir('payload'))
 }
 tasks.named('preBuild').configure { dependsOn 'preparePayload' }

@@ -6,6 +6,8 @@ import androidx.media3.common.Player;
 import androidx.media3.common.util.Util;
 import androidx.media3.mpvplayer.MpvAndroidOptions;
 import androidx.media3.mpvplayer.MpvPlayer;
+import androidx.media3.mpvplayer.MpvLibrary;
+import com.github.catvod.utils.RuntimeModule;
 import androidx.media3.mpvplayer.MpvPlayerConfig;
 import androidx.media3.mpvplayer.MpvSubtitleOptions;
 
@@ -41,11 +43,31 @@ public final class MpvUtil {
     private static final double MIN_SUB_POS = 0.0;
     private static final double MAX_SUB_POS = 150.0;
 
+    private static boolean externalLibrariesReady;
+    private static String runtimeError;
+
     public static boolean isAvailable() {
-        try {
-            return MpvPlayer.isAvailable();
-        } catch (Throwable e) {
-            return false;
+        synchronized (RuntimeModule.MPV) {
+            try {
+                // 先校验并加载模块，再询问旧版播放器；避免未安装时永久缓存加载失败。
+                RuntimeModule.MPV.load();
+                if (!externalLibrariesReady) {
+                    // 旧版 API 只接受 System.loadLibrary 的短名称；原生库已由宿主按绝对路径加载。
+                    MpvLibrary.setLibraries();
+                    externalLibrariesReady = true;
+                }
+                boolean available = MpvPlayer.isAvailable();
+                if (available) runtimeError = null;
+                return available;
+            } catch (RuntimeException | LinkageError error) {
+                String message = error.getMessage();
+                if (!java.util.Objects.equals(runtimeError, message)) {
+                    android.util.Log.w("MpvRuntime", "MPV 模块不可用，回退 Exo", error);
+                    App.post(() -> android.widget.Toast.makeText(App.get(), "MPV 模块不可用，已切换 Exo，请到模块管理安装配套版本", android.widget.Toast.LENGTH_LONG).show());
+                }
+                runtimeError = message;
+                return false;
+            }
         }
     }
 
@@ -98,7 +120,7 @@ public final class MpvUtil {
         return buildSubtitleOptions(SubtitleSetting.getSecondaryMode());
     }
     private static MpvSubtitleOptions buildSubtitleOptions(int secondary) {
-        // The bundled MPV API predates the default-mode sentinel; retain its disabled default.
+        // 当前配套 MPV API 没有默认模式哨兵值，沿用关闭副字幕的默认行为。
         if (secondary == SubtitleSetting.SECONDARY_MODE_DEFAULT) secondary = SubtitleSetting.SECONDARY_MODE_OFF;
         MpvSubtitleOptions.Builder builder = new MpvSubtitleOptions.Builder().setPosition(getSubtitlePosition()).setScale(getSubtitleScale()).setSecondarySubtitle(secondary, SubtitleSetting.getSecondaryPosition(), SubtitleSetting.isStyleForced());
         if (SubtitleSetting.isCustomStyle()) builder.setCustomStyle(SubtitleSetting.getTextColor(), SubtitleSetting.getBackgroundColor(), SubtitleSetting.getEdgeType(), SubtitleSetting.getEdgeColor(), SubtitleSetting.getEdgeWidth(), SubtitleSetting.getShadow());

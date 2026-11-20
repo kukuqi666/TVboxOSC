@@ -22,6 +22,8 @@ project(':runtime-quickjs').projectDir = file('runtime/quickjs')
 
 include ':runtime-thunder'
 project(':runtime-thunder').projectDir = file('runtime/thunder')
+include ':runtime-mpv'
+project(':runtime-mpv').projectDir = file('runtime/mpv')
 include ':runtime-nodejs', ':runtime-bdj'
 project(':runtime-nodejs').projectDir = file('runtime/nodejs')
 project(':runtime-bdj').projectDir = file('runtime/bdj')

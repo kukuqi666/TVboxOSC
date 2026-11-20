@@ -6,7 +6,7 @@ import { withBase } from '@rspress/core/runtime';
 
 # 安装执行模块
 
-在“我的 → 模块管理”安装 Python、QuickJS、Node.js、Thunder 或 BD-J。当前界面和订阅数据库沿用 TVboxOSC，运行模块与主包分别安装。
+在“我的 → 模块管理”安装 Python、QuickJS、Node.js、Thunder、MPV 或 BD-J。当前界面和订阅数据库沿用 TVboxOSC，运行模块与主包分别安装。
 
 ## 安装与更新
 
@@ -18,6 +18,7 @@ import { withBase } from '@rspress/core/runtime';
 | Python | 1.1.0 / code 4 | `tvbox-python-v2` | 继承 `base.spider.Spider` |
 | Node.js | 1.1.0 / code 4 | `tvbox-nodejs-v2` | `index.js.md5` bundle |
 | Thunder | 沿用现有版本 | `tvbox-thunder-v1` | 下载与磁力解析 |
+| MPV | 1.0.0 / code 1 | `tvbox-mpv-split-ffmpeg-v1` | 配套 MPV 原生播放器 |
 | BD-J | 沿用现有版本 | `tvbox-bdj-v1` | Java 运行环境 |
 
 主包及模块的自有包名使用 `com.kukuqi`。共享 Spider 协议仍保留 `com.github.catvod`，以兼容现有 JAR。QuickJS 的 Java 包和 JNI 从固定源码配套重建，不能只改 Java 包名后继续使用旧原生库。
@@ -37,9 +38,21 @@ import { withBase } from '@rspress/core/runtime';
 | Node 宿主消息 | 网页、提示、Cookie/UA、播放信息已连接 | 完整播放场景及第三方交互需设备验证 |
 | 来源生命周期与测试台 | JAR/JS/Python/Node 共用 FutureTask 并发去重；取消加载、初始化失败释放、关闭与销毁串行；旧代后台销毁 | 外部 JAR 自身的 close/destroy 行为仍由其实现负责 |
 | 配置 | 普通配置、urls/storeHouse 仓库、zyplayer data 结构；本地 JS 文件与相对模块导入；旧 QuickJS 引用列为审计错误 | 35 条历史警告已设备核对，24 条修正 JAR 引用、11 条失效或占位条目移出；外网站点结果单独记录 |
-| 播放与 UI | 保留现有 UI、Media3/MPV 适配和软硬解设置；清除不再实例化的 IJK 源码、JNI 调用及演示资源 | 尚未分发独立 MPV APK，BD-J 仍不等于完整交互式蓝光菜单 |
+| 播放与 UI | 保留现有 UI、Media3/MPV 适配和软硬解设置；清除不再实例化的 IJK 源码、JNI 调用及演示资源 | 开发构建已接入独立 MPV APK，模块加载与回退待设备实测；BD-J 仍不等于完整交互式蓝光菜单 |
 
 JAR 中的加密资源不能仅靠静态 DEX 判断可用性。历史 35 条警告已在设备核对，全部确认为对应类不存在。修复和下架原因记录在配置发布目录 `catalog.json` 的 `config_repairs` 中；类能加载不代表站点已经播放通过。
+
+## MPV 独立模块与回退
+
+2026-11-20 的开发构建把 `libmpv.so`、`libplayer.so` 移入独立 MPV APK，模块管理、Debug/Release 构建和下载目录生成均已接入。宿主继续携带 Exo 所需的拆分 FFmpeg 和共享 C++ 库。已发布的 3.1.1 附件保持原状，本次没有发布新版本；旧版目录中没有新 MPV 模块，不能直接用于本轮开发主包。
+
+当前配套 AAR 的 MPV Java API 与参考仓库新版不同，不能直接混装新版统一 `libffmpeg.so`。宿主和模块记录同一组 MPV、FFmpeg 原始 AAR 的 SHA256 指纹，在加载前校验包名、签名、ABI、接口和配套指纹；不匹配时拒绝加载。生成模块前先校验全部 ARM64 ELF，再清理生成目录，避免残留原生库混入 APK。
+
+播放器先尝试加载配套模块，再查询旧版 MPV 加载器，避免首次未安装时缓存不可用状态；缺失或不兼容时回退 Exo，并提示安装配套版本。字幕显示和样式依据实际运行的引擎，修复选择 MPV、实际回退 Exo 后字幕仍按 MPV 处理的问题。以上加载、恢复和回退路径已编写设备回归，尚未取得本轮设备通过结果。
+
+本轮 107 项 JVM 单测、49 项脚本测试通过；Debug 主包、测试 APK、MPV Debug/Release 模块及启用 R8 的验证主包构建通过。MPV Release 模块为本地未签名产物，正式签名主包因本机没有发布密钥而未构建。MuMu 主程序启动崩溃，绕过管理器启动原实例后 ADB 仍离线，阻断了本轮设备回归及失败来源定向复测。不能把构建成功计作原生加载、解码或播放成功。
+
+恢复可用设备后，先在新进程单独运行 `MpvRuntimeRegressionTest#testMissingModuleDoesNotPoisonFirstLoadAndKeepsExoSubtitles`，再运行该类其余用例，以及 `CoreEngineRegressionTest` 的 MPV/Exo 播放、音轨与外挂字幕用例。普通和 R8 主包都需验证；模块素材放在 `/sdcard/Download/tvbox-runtime-fixtures/mpv.apk`。下文逐站结果仍来自上一轮，没有用本轮构建覆盖它们。
 
 ## 配置 JAR 与依赖清理
 

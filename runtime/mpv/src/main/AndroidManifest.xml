@@ -1,0 +1,7 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application android:icon="@drawable/runtime_icon_mpv" android:roundIcon="@drawable/runtime_icon_mpv" android:label="TVbox MPV 模块" android:allowBackup="false" android:extractNativeLibs="true">
+        <meta-data android:name="tvbox.runtime.contract" android:value="tvbox-mpv-split-ffmpeg-v1" />
+        <meta-data android:name="tvbox.runtime.abi" android:value="arm64-v8a" />
+        <meta-data android:name="tvbox.runtime.payload" android:value="${mpvRuntimeId}" />
+    </application>
+</manifest>
