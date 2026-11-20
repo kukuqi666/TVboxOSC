@@ -14,7 +14,7 @@ import { withBase } from '@rspress/core/runtime';
 
 | 模块 | 开发版本 | 接口 | 执行入口 |
 | --- | --- | --- | --- |
-| QuickJS | 1.1.0 / code 5 | `tvbox-quickjs-v2` | 普通 JS / ES module |
+| QuickJS | 1.1.1 / code 6 | `tvbox-quickjs-v2` | 普通 JS / ES module |
 | Python | 1.1.0 / code 4 | `tvbox-python-v2` | 继承 `base.spider.Spider` |
 | Node.js | 1.1.0 / code 4 | `tvbox-nodejs-v2` | `index.js.md5` bundle |
 | Thunder | 沿用现有版本 | `tvbox-thunder-v1` | 下载与磁力解析 |
@@ -38,21 +38,33 @@ import { withBase } from '@rspress/core/runtime';
 | Node 宿主消息 | 网页、提示、Cookie/UA、播放信息已连接 | 完整播放场景及第三方交互需设备验证 |
 | 来源生命周期与测试台 | JAR/JS/Python/Node 共用 FutureTask 并发去重；取消加载、初始化失败释放、关闭与销毁串行；旧代后台销毁 | 外部 JAR 自身的 close/destroy 行为仍由其实现负责 |
 | 配置 | 普通配置、urls/storeHouse 仓库、zyplayer data 结构；本地 JS 文件与相对模块导入；旧 QuickJS 引用列为审计错误 | 35 条历史警告已设备核对，24 条修正 JAR 引用、11 条失效或占位条目移出；外网站点结果单独记录 |
-| 播放与 UI | 保留现有 UI、Media3/MPV 适配和软硬解设置；清除不再实例化的 IJK 源码、JNI 调用及演示资源 | 开发构建已接入独立 MPV APK，模块加载与回退待设备实测；BD-J 仍不等于完整交互式蓝光菜单 |
+| 播放与 UI | 保留现有 UI、Media3/MPV 适配和软硬解设置；清除不再实例化的 IJK 源码、JNI 调用及演示资源 | 3.1.2 已在模拟器验证独立 MPV 加载、缺失回退和安装后恢复；BD-J 仍不等于完整交互式蓝光菜单 |
 
 JAR 中的加密资源不能仅靠静态 DEX 判断可用性。历史 35 条警告已在设备核对，全部确认为对应类不存在。修复和下架原因记录在配置发布目录 `catalog.json` 的 `config_repairs` 中；类能加载不代表站点已经播放通过。
 
 ## MPV 独立模块与回退
 
-2026-11-20 的开发构建把 `libmpv.so`、`libplayer.so` 移入独立 MPV APK，模块管理、Debug/Release 构建和下载目录生成均已接入。宿主继续携带 Exo 所需的拆分 FFmpeg 和共享 C++ 库。已发布的 3.1.1 附件保持原状，本次没有发布新版本；旧版目录中没有新 MPV 模块，不能直接用于本轮开发主包。
+3.1.2 把 `libmpv.so`、`libplayer.so` 移入独立 MPV APK，模块管理、Debug/Release 构建和下载目录生成均已接入。宿主继续携带 Exo 所需的拆分 FFmpeg 和共享 C++ 库。3.1.1 附件保持原状，升级主包后请使用 3.1.2 配套模块。
 
 当前配套 AAR 的 MPV Java API 与参考仓库新版不同，不能直接混装新版统一 `libffmpeg.so`。宿主和模块记录同一组 MPV、FFmpeg 原始 AAR 的 SHA256 指纹，在加载前校验包名、签名、ABI、接口和配套指纹；不匹配时拒绝加载。生成模块前先校验全部 ARM64 ELF，再清理生成目录，避免残留原生库混入 APK。
 
-播放器先尝试加载配套模块，再查询旧版 MPV 加载器，避免首次未安装时缓存不可用状态；缺失或不兼容时回退 Exo，并提示安装配套版本。字幕显示和样式依据实际运行的引擎，修复选择 MPV、实际回退 Exo 后字幕仍按 MPV 处理的问题。以上加载、恢复和回退路径已编写设备回归，尚未取得本轮设备通过结果。
+播放器先加载配套模块，再查询旧版 MPV 加载器，避免首次未安装时缓存不可用状态。缺失或不兼容时回退 Exo，字幕显示和样式依据实际运行引擎。Exo 的 ASS 渲染也使用共享模块加载器，首次缺失后可以在安装模块后重试；缺少模块时沿用默认 SSA 字幕解码。
 
-本轮 107 项 JVM 单测、49 项脚本测试通过；Debug 主包、测试 APK、MPV Debug/Release 模块及启用 R8 的验证主包构建通过。MPV Release 模块为本地未签名产物，正式签名主包因本机没有发布密钥而未构建。MuMu 主程序启动崩溃，绕过管理器启动原实例后 ADB 仍离线，阻断了本轮设备回归及失败来源定向复测。不能把构建成功计作原生加载、解码或播放成功。
+2026-11-20 在 MuMu Android 15 验证了模块缺失、回退、同进程安装恢复、配套指纹拒绝，以及 MPV/Exo 实际播放、音轨、外挂字幕和 ASS 动画。普通主包 68 项设备回归通过，包含升级断点续传、模块管理界面和订阅保留。混淆主包 18 项关键回归通过，覆盖现有界面的 Exo/MPV 播放、暂停、定位、倍速、ASS 渲染、模块安装恢复、旧 JS 命名导出和脚本 SDK；使用普通测试 APK 通过保留的宿主入口验证，避免测试依赖裁剪冲突。ARM64 库通过模拟器兼容层执行，不能代替 ARM 真机验收。
 
-恢复可用设备后，先在新进程单独运行 `MpvRuntimeRegressionTest#testMissingModuleDoesNotPoisonFirstLoadAndKeepsExoSubtitles`，再运行该类其余用例，以及 `CoreEngineRegressionTest` 的 MPV/Exo 播放、音轨与外挂字幕用例。普通和 R8 主包都需验证；模块素材放在 `/sdcard/Download/tvbox-runtime-fixtures/mpv.apk`。下文逐站结果仍来自上一轮，没有用本轮构建覆盖它们。
+QuickJS 1.1.1 同时支持 `extends Spider`、旧 default 对象和命名导出；旧 `detail` 接收单个 ID，新 `detailContent` 保持数组。旧方法返回 JSON 字符串时先解析，防止双重编码，并保持默认方法和 `this` 绑定。
+
+## 风险资源清理
+
+2026-11-19 和 2026-11-20 的防护告警域名在第三方配置中确有引用，用途包括 JAR 下载、JS 导入和 Python 跳转内容。现已移除相关引用；JS 和可配套的 JAR 改用本仓资源，两个 Python 脚本直接提取站点剧集。`X.json` 中三个没有本地 `MiTuApp` 实现的来源，以及 `tv.json` 中没有本地 `csp_fan` 实现的一项已隔离，原因写入配置索引。
+
+共享 HTTP 请求、代理跳转和 DNS/hosts 映射路径会拒绝该风险域名及其子域名，配置审计也阻止重新引入。离线回归覆盖初始请求、代理跳转、大小写、尾点和 hosts 映射，测试不会访问被拦截域名。该措施针对宿主共享网络入口，不能代替系统防护，也不能据告警认定设备已经感染。原始完整请求未保留，无法逐一归因到历史告警。
+
+## 3.1.2 定向来源复测
+
+2026-11-20 对 3 个历史 JAR 条目、2 个 Python 来源和两个内置订阅定向复测。饭太硬读到 49 个来源，厂长、立播、比特均完成首帧并推进播放；王二小本次返回 HTML，独立检查为 HTTP 504、HTTPS 证书验证失败，保留用户指定地址并记录外部异常。
+
+米搜完成类解析、初始化和首页，搜索无内容；苹果取得播放地址但未在 15 秒内得到首帧；AList 取得的内容未被解码器识别。Python AList 在分类阶段出现空响应业务错误，小猫咪在首页推荐阶段连接失败。以上均未计为播放通过；下方全量来源结果仍为 11 月 19 日记录，没有用本次子集覆盖。
 
 ## 配置 JAR 与依赖清理
 

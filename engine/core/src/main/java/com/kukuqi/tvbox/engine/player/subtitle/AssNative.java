@@ -1,13 +1,17 @@
 package com.kukuqi.tvbox.engine.player.subtitle;
 
-/** Small JNI adapter using the libass already exported by the bundled player. */
+/** 复用配套 MPV 模块导出的 libass，首次缺失后允许安装模块再重试。 */
 final class AssNative {
-    static final boolean AVAILABLE;
-    static {
-        boolean loaded;
-        try { System.loadLibrary("mpv"); System.loadLibrary("tvbox_ass"); loaded = available(); }
-        catch (LinkageError unavailable) { loaded = false; }
-        AVAILABLE = loaded;
+    static boolean isAvailable() {
+        synchronized (com.github.catvod.utils.RuntimeModule.MPV) {
+            try {
+                com.github.catvod.utils.RuntimeModule.MPV.load();
+                System.loadLibrary("tvbox_ass");
+                return available();
+            } catch (RuntimeException | LinkageError unavailable) {
+                return false;
+            }
+        }
     }
     static native boolean available();
     static native long open(String config, String fonts, String family);

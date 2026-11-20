@@ -60,6 +60,11 @@ public class ScriptSdkRegressionTest extends InstrumentationTestCase {
                     finally { active.decrementAndGet(); }
                     return newFixedLengthResponse(request.getQueryParameterString());
                 }
+                if (path.equals("/named.js")) return newFixedLengthResponse(Response.Status.OK, "text/javascript",
+                    "export function home(){return JSON.stringify({class:[{type_id:'1',type_name:'旧接口'}]})};"
+                    + "export function detail(id){return JSON.stringify({list:[{vod_id:id,vod_name:'旧详情'}]})};"
+                    + "export function proxy(){return JSON.stringify([200,'text/plain','legacy-body'])};"
+                    + "export function sniffer(){return true};export function isVideo(url){return url.endsWith('.mp4')};");
                 if (path.equals("/source.js")) return newFixedLengthResponse(js());
                 if (path.equals("/source.py")) return newFixedLengthResponse(py());
                 hits.incrementAndGet(); return newFixedLengthResponse("{\"title\":\"sdk\"}");
@@ -70,6 +75,21 @@ public class ScriptSdkRegressionTest extends InstrumentationTestCase {
     @Override protected void tearDown() throws Exception {
         com.kukuqi.tvbox.engine.api.loader.BaseLoader.get().clear();
         server.stop(); super.tearDown();
+    }
+    public void testLegacyNamedJavascriptExportsPreserveArgumentsAndDefaults() throws Exception {
+        com.kukuqi.tvbox.engine.api.loader.BaseLoader loader = new com.kukuqi.tvbox.engine.api.loader.BaseLoader();
+        try {
+            com.github.catvod.crawler.Spider spider = loader.getSpider("legacy-named", base + "/named.js", "", "");
+            assertTrue(spider.homeContent(false).contains("旧接口"));
+            assertTrue(spider.homeVideoContent().contains("list"));
+            assertEquals("first", new org.json.JSONObject(spider.detailContent(java.util.List.of("first", "second")))
+                    .getJSONArray("list").getJSONObject(0).getString("vod_id"));
+            assertTrue(spider.manualVideoCheck());
+            assertTrue(spider.isVideoFormat("https://example.org/video.mp4"));
+            Object[] response = spider.proxy(java.util.Collections.emptyMap());
+            assertEquals(200, ((Number) response[0]).intValue());
+            assertEquals("legacy-body", new String(((java.io.InputStream) response[2]).readAllBytes(), java.nio.charset.StandardCharsets.UTF_8));
+        } finally { loader.destroy(); }
     }
     public void testJavaHttpErrorsJsonAndDownload() throws Exception {
         File target = new File(getInstrumentation().getTargetContext().getCacheDir(), "sdk-download.json");

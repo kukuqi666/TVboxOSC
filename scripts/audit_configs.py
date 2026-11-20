@@ -181,6 +181,8 @@ def audit(write=False, return_result=False):
             text = content.decode('utf-8-sig') if path.suffix.lower() in TEXT else ''
         except UnicodeDecodeError:
             text = ''
+        if re.search(r'fs-im-kefu\.7moor-fs1\.com', text, re.I):
+            raise ValueError('配置含已隔离的风险资源域名：' + rel)
         record = {'path': rel, 'kind': file_kind(path, text), 'size': len(content),
                   'sha256': hashlib.sha256(content).hexdigest(),
                   'md5': hashlib.md5(content).hexdigest(), 'references': [], 'used_by': []}

@@ -32,6 +32,7 @@ final class ProxyRedirectInterceptor implements Interceptor {
         Response previousResponse = null;
         int followUpCount = 0;
         while (true) {
+            OkDns.checkHost(request.url().host());
             OkProxySelector.Policy policy = selectPolicy(chain, request, previousPolicy);
             request = withPolicy(request, policy, previousPolicy);
             Chain routed = policy == null ? chain : chain.withProxySelector(policy);

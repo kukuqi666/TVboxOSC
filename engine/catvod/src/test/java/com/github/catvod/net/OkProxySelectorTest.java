@@ -43,12 +43,52 @@ public class OkProxySelectorTest {
     }
 
     @Test
+    public void proxyRedirectToRiskHostIsStoppedBeforeForwarding() throws Exception {
+        try (ProxyServer server = new ProxyServer("HTTP/1.1 302 Found\r\nLocation: http://fs-im-kefu.7moor-fs1.com/code.jar\r\n")) {
+            addRule("ott.example.com", server.proxy());
+            try (Response ignored = client().newCall(new Request.Builder().url("http://ott.example.com/live").build()).execute()) {
+                org.junit.Assert.fail("跳转访问了风险域名");
+            } catch (java.net.UnknownHostException expected) {
+                assertTrue(expected.getMessage().contains("已阻止风险资源域名"));
+            }
+            assertEquals(List.of("GET http://ott.example.com/live HTTP/1.1"), server.requests());
+        }
+    }
+
+    @Test
+    public void riskHostIsRejectedBeforeDnsOrProxy() throws Exception {
+        java.util.concurrent.atomic.AtomicInteger connections = new java.util.concurrent.atomic.AtomicInteger();
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(new com.github.catvod.net.interceptor.RequestInterceptor())
+                .dns(host -> { connections.incrementAndGet(); throw new java.net.UnknownHostException(host); })
+                .build();
+        for (String host : List.of("fs-im-kefu.7moor-fs1.com", "FS-IM-KEFU.7MOOR-FS1.COM.", "child.fs-im-kefu.7moor-fs1.com")) {
+            try (Response ignored = client.newCall(new Request.Builder().url("https://" + host + "/code.jar").build()).execute()) {
+                org.junit.Assert.fail("风险域名未被阻止");
+            } catch (java.net.UnknownHostException expected) {
+                assertTrue(expected.getMessage().contains("已阻止风险资源域名"));
+            }
+        }
+        assertEquals(0, connections.get());
+        OkDns.checkHost("example.com");
+        OkDns.checkHost("fs-im-kefu.7moor-fs1.com.example.com");
+    }
+
+    @Test
+    public void hostsMappingCannotReachRiskHost() throws Exception {
+        OkDns dns = new OkDns();
+        dns.addAll(List.of("safe.example=fs-im-kefu.7moor-fs1.com"));
+        try { dns.lookup("safe.example"); org.junit.Assert.fail("hosts 绕过了拦截"); }
+        catch (java.net.UnknownHostException expected) { assertTrue(expected.getMessage().contains("已阻止风险资源域名")); }
+    }
+
+    @Test
     public void redirectChainCarriesProxyAcrossIpTargets() throws Exception {
         java.net.Proxy proxy = proxy(java.net.Proxy.Type.HTTP, 8080);
         addRule("ott.example.com", proxy);
-        OkProxySelector.Policy source = selector.policy(new URI("http://ott.example.com/live"), null);
-        OkProxySelector.Policy first = selector.policy(new URI("http://233.1.2.3/stream"), source);
-        OkProxySelector.Policy second = selector.policy(new URI("http://233.1.2.4/stream"), first);
+        OkProxySelector.Policy source = selector.policy(okhttp3.HttpUrl.get("http://ott.example.com/live"), null);
+        OkProxySelector.Policy first = selector.policy(okhttp3.HttpUrl.get("http://233.1.2.3/stream"), source);
+        OkProxySelector.Policy second = selector.policy(okhttp3.HttpUrl.get("http://233.1.2.4/stream"), first);
 
         assertEquals(List.of(proxy), first.select(new URI("http://233.1.2.3/stream")));
         assertEquals(List.of(proxy), second.select(new URI("http://233.1.2.4/stream")));
@@ -61,9 +101,9 @@ public class OkProxySelectorTest {
         java.net.Proxy targetProxy = proxy(java.net.Proxy.Type.SOCKS, 1080);
         addRule("ott.example.com", sourceProxy);
         addRule("cdn.example.com", targetProxy);
-        OkProxySelector.Policy source = selector.policy(new URI("http://ott.example.com/live"), null);
-        OkProxySelector.Policy target = selector.policy(new URI("http://cdn.example.com/stream"), source);
-        OkProxySelector.Policy next = selector.policy(new URI("http://233.1.2.3/stream"), target);
+        OkProxySelector.Policy source = selector.policy(okhttp3.HttpUrl.get("http://ott.example.com/live"), null);
+        OkProxySelector.Policy target = selector.policy(okhttp3.HttpUrl.get("http://cdn.example.com/stream"), source);
+        OkProxySelector.Policy next = selector.policy(okhttp3.HttpUrl.get("http://233.1.2.3/stream"), target);
 
         assertEquals(List.of(targetProxy), target.select(new URI("http://cdn.example.com/stream")));
         assertEquals(List.of(targetProxy), next.select(new URI("http://233.1.2.3/stream")));
@@ -77,8 +117,8 @@ public class OkProxySelectorTest {
         addRule("first.example.com", firstProxy);
         addRule("second.example.com", secondProxy);
         URI target = new URI("http://233.1.2.3/stream");
-        OkProxySelector.Policy first = selector.policy(target, selector.policy(new URI("http://first.example.com/live"), null));
-        OkProxySelector.Policy second = selector.policy(target, selector.policy(new URI("http://second.example.com/live"), null));
+        OkProxySelector.Policy first = selector.policy(okhttp3.HttpUrl.get(target.toString()), selector.policy(okhttp3.HttpUrl.get("http://first.example.com/live"), null));
+        OkProxySelector.Policy second = selector.policy(okhttp3.HttpUrl.get(target.toString()), selector.policy(okhttp3.HttpUrl.get("http://second.example.com/live"), null));
 
         assertEquals(List.of(firstProxy), first.select(target));
         assertEquals(List.of(secondProxy), second.select(target));
@@ -89,8 +129,8 @@ public class OkProxySelectorTest {
     public void redirectDoesNotProxyLoopbackTarget() throws Exception {
         java.net.Proxy proxy = proxy(java.net.Proxy.Type.HTTP, 8080);
         addRule("ott.example.com", proxy);
-        OkProxySelector.Policy source = selector.policy(new URI("http://ott.example.com/live"), null);
-        OkProxySelector.Policy target = selector.policy(new URI("http://127.0.0.1/stream"), source);
+        OkProxySelector.Policy source = selector.policy(okhttp3.HttpUrl.get("http://ott.example.com/live"), null);
+        OkProxySelector.Policy target = selector.policy(okhttp3.HttpUrl.get("http://127.0.0.1/stream"), source);
 
         assertNull(target.rule());
         assertNotEquals(List.of(proxy), target.select(new URI("http://127.0.0.1/stream")));
@@ -100,13 +140,13 @@ public class OkProxySelectorTest {
     public void clearOnAnotherThreadInvalidatesInheritedRule() throws Exception {
         java.net.Proxy proxy = proxy(java.net.Proxy.Type.HTTP, 8080);
         addRule("ott.example.com", proxy);
-        OkProxySelector.Policy source = selector.policy(new URI("http://ott.example.com/live"), null);
+        OkProxySelector.Policy source = selector.policy(okhttp3.HttpUrl.get("http://ott.example.com/live"), null);
         Thread thread = new Thread(selector::clear);
         thread.start();
         thread.join();
         addRule("other.example.com", proxy);
 
-        assertNull(selector.policy(new URI("http://233.1.2.3/stream"), source).rule());
+        assertNull(selector.policy(okhttp3.HttpUrl.get("http://233.1.2.3/stream"), source).rule());
     }
 
     @Test

@@ -19,7 +19,7 @@ public final class AssSubtitleDecoder extends SimpleDecoder<SubtitleInputBuffer,
     public static final SubtitleDecoderFactory FACTORY = new SubtitleDecoderFactory() {
         @Override public boolean supportsFormat(Format format) { return SubtitleDecoderFactory.DEFAULT.supportsFormat(format); }
         @Override public SubtitleDecoder createDecoder(Format format) {
-            return MimeTypes.TEXT_SSA.equals(format.sampleMimeType) && PlayerSetting.isLibass() && AssNative.AVAILABLE
+            return MimeTypes.TEXT_SSA.equals(format.sampleMimeType) && PlayerSetting.isLibass() && AssNative.isAvailable()
                     ? new AssSubtitleDecoder(format) : SubtitleDecoderFactory.DEFAULT.createDecoder(format);
         }
     };
@@ -37,7 +37,7 @@ public final class AssSubtitleDecoder extends SimpleDecoder<SubtitleInputBuffer,
         context = AssNative.open(config == null ? null : config.getAbsolutePath(), ExternalFont.getDirectory().getAbsolutePath(), SubtitleSetting.getFontFamily());
         setInitialInputBufferSize(1024);
     }
-    public static boolean isAvailable() { return AssNative.AVAILABLE; }
+    public static boolean isAvailable() { return AssNative.isAvailable(); }
     @Override public String getName() { return "TVbox ASS"; }
     @Override public void setPositionUs(long positionUs) {}
     @Override protected SubtitleInputBuffer createInputBuffer() { return new SubtitleInputBuffer(); }

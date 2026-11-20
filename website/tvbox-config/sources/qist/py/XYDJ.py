@@ -239,13 +239,6 @@ class Spider(Spider):
         if detail.status_code == 200:
             data = detail.json()
 
-        url = 'https://fs-im-kefu.7moor-fs1.com/ly/4d2c3f00-7d4c-11e5-af15-41bf63ae4ea0/1732707176882/jiduo.txt'
-        response = requests.get(url)
-        response.encoding = 'utf-8'
-        code = response.text
-        name = self.extract_middle_text(code, "s1='", "'", 0)
-        Jumps = self.extract_middle_text(code, "s2='", "'", 0)
-
         content = '剧情：' + data['data']['introduction']
 
         area = data['data']['desc_tags'][0]
@@ -267,8 +260,7 @@ class Spider(Spider):
                 bofang = '1$' + data['data']['video_url']
                 xianlu = '星芽'
             else:
-                bofang = Jumps
-                xianlu = '1'
+                raise ValueError('站点详情没有可播放剧集')
 
         videos.append({
             "vod_id": did,

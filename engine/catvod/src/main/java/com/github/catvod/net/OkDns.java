@@ -54,9 +54,19 @@ public class OkDns implements Dns {
         return hostname;
     }
 
+    /** 在代理转发、DNS 和 hosts 映射前拒绝已发现的危险资源域名。 */
+    public static void checkHost(String hostname) throws UnknownHostException {
+        String host = hostname.toLowerCase(java.util.Locale.ROOT).replaceAll("\\.+$", "");
+        String blocked = "fs-im-kefu.7moor-fs1.com";
+        if (host.equals(blocked) || host.endsWith("." + blocked))
+            throw new UnknownHostException("已阻止风险资源域名：" + host);
+    }
+
     @NonNull
     @Override
     public List<InetAddress> lookup(@NonNull String hostname) throws UnknownHostException {
+        checkHost(hostname);
+        checkHost(get(hostname));
         Supplier<Doh> supplier = this.supplier;
         if (supplier != null) initDoh(supplier);
         return (doh != null ? doh : Dns.SYSTEM).lookup(get(hostname));

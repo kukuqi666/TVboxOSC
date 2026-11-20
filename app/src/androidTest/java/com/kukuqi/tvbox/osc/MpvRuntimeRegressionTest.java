@@ -49,6 +49,7 @@ public class MpvRuntimeRegressionTest extends InstrumentationTestCase {
         assertNull("请独立运行此用例，先结束验证版进程", com.github.catvod.utils.RuntimeModule.MPV.getLoadedFile());
         shell("pm uninstall " + RuntimeModule.MPV.packageName(host));
         assertFalse(MpvUtil.isAvailable());
+        assertFalse(com.kukuqi.tvbox.engine.player.subtitle.AssSubtitleDecoder.isAvailable());
         int previous = PlayerSetting.getEngine();
         CorePlayer[] player = {null};
         try {
@@ -67,6 +68,7 @@ public class MpvRuntimeRegressionTest extends InstrumentationTestCase {
         }
         install();
         assertTrue("首次缺失不能让播放器永久缓存失败", MpvUtil.isAvailable());
+        assertTrue("ASS 字幕也必须在安装后恢复", com.kukuqi.tvbox.engine.player.subtitle.AssSubtitleDecoder.isAvailable());
         assertNotNull(com.github.catvod.utils.RuntimeModule.MPV.getLoadedFile());
         assertTrue(MpvUtil.isAvailable());
     }

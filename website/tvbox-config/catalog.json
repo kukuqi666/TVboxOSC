@@ -2082,6 +2082,41 @@
       "original_jar": "jar/spider.jar",
       "action": "remove_source",
       "reason": "导航或广告提示占位行，没有来源参数，移出点播列表"
+    },
+    {
+      "file": "sources/tvbox18/tv.json",
+      "removed_keys": [
+        "cc"
+      ],
+      "target": "jar/fan.jar",
+      "reason": "隔离风险下载域名，改用本仓配套 JAR；移除本地没有对应实现的 csp_fan"
+    },
+    {
+      "file": "sources/zyjk/py.json",
+      "target": "jar/fan-170b3430a9.jar",
+      "reason": "移除风险域名依赖，使用本配置包已有的本地 JAR"
+    },
+    {
+      "file": "sources/xiongjian83/X.json",
+      "removed_keys": [
+        "csp_MiTuApp",
+        "csp_电影",
+        "csp_悠悠"
+      ],
+      "reason": "原 JAR 依赖风险下载域名，本地无 MiTuApp 实现，隔离三个来源"
+    },
+    {
+      "file": "sources/zyjk/JS/lib/drpy.min.js",
+      "target": "sources/zyjk/JS/lib/模板.js, js/gbk.js",
+      "reason": "远程可执行模块改为仓库已有模块"
+    },
+    {
+      "file": "sources/qist/py/XYDJ.py",
+      "reason": "移除远程跳转配置，直接使用站点详情的真实剧集，无内容时明确报错"
+    },
+    {
+      "file": "sources/qist/py/剧王短剧.py",
+      "reason": "移除远程跳转门控，直接提取站点剧集，无内容时明确报错"
     }
   ],
   "removed_configs": [
@@ -3723,7 +3758,7 @@
   "summary": {
     "files": 2301,
     "jars": 32,
-    "local_edges": 2381,
+    "local_edges": 2385,
     "duplicate_groups": 0,
     "repository_missing": 0,
     "upstream_missing": 0,
@@ -20986,6 +21021,7 @@
         "jhkx-full.json",
         "sources/qist/0821.json",
         "sources/qist/0826.json",
+        "sources/zyjk/py.json",
         "sources/zyjk/tvbox2.json",
         "tvbox.json"
       ],
@@ -22043,7 +22079,8 @@
       "used_by": [
         "sources/qist/0821.json",
         "sources/qist/0826.json",
-        "sources/tvbox18/XYQTVBox/fty/fty.json"
+        "sources/tvbox18/XYQTVBox/fty/fty.json",
+        "sources/tvbox18/tv.json"
       ],
       "incompatible_sdk_references": [],
       "spider_classes": [
@@ -32257,6 +32294,7 @@
         "sources/tvbox18/XYQTVBox/drpy_js/libs/drpy2.min.js",
         "sources/tvbox18/ok/drpy2.min.js",
         "sources/tvbox18/pg/lib/drpy2.min.js",
+        "sources/zyjk/JS/lib/drpy.min.js",
         "sources/zyjk/JS/lib/drpy1.min.js"
       ]
     },
@@ -41525,9 +41563,9 @@
     {
       "path": "sources/qist/py/XYDJ.py",
       "kind": "python",
-      "size": 10591,
-      "sha256": "78e9fb58631cdcf0d89ae49278c269caba86f4f1b838453c1f37c8b0eadfffb1",
-      "md5": "f4f2d268e3e701b7c2a8702b3afe226e",
+      "size": 10260,
+      "sha256": "84008b54495fddf8feb6e96bdd08d1ecf588fdae6a0d0cd963be9631342b6efe",
+      "md5": "4c7295a66a5cc6b64a96ac503f32d567",
       "references": [],
       "used_by": []
     },
@@ -41556,9 +41594,9 @@
     {
       "path": "sources/qist/py/剧王短剧.py",
       "kind": "python",
-      "size": 9287,
-      "sha256": "607770e0a23b7363ea04000c4012b0d5a747a50e9c7f33bdda7bb8e429485ac4",
-      "md5": "8af6c180bdd00ae6599b1a02032a020b",
+      "size": 8957,
+      "sha256": "1e3901e50967db3b319782a2df91a6ff295db17ed4bbaf8c73e9116617af11da",
+      "md5": "bde0f946143661d7b1309af278f28679",
       "references": [],
       "used_by": []
     },
@@ -47703,10 +47741,11 @@
     {
       "path": "sources/tvbox18/tv.json",
       "kind": "config",
-      "size": 9950,
-      "sha256": "4897b70ca67b9add15dfffe8ac608ee40b2f0fd9b09e02cba07c971820a23ec7",
-      "md5": "90f130ee300b53dc010e643a2ed4a58c",
+      "size": 9744,
+      "sha256": "8520a55c00cb07d9f6510e1ac1d0cb1ccc0c7dcc8b9e3395f5aed2730a33d5d8",
+      "md5": "e6d03ddde63a60b5c5af131725701e08",
       "references": [
+        "jar/fan.jar",
         "jar/pg-16c7e5e159.jar",
         "sources/tvbox18/json/adult.txt",
         "sources/tvbox18/pg/lib/tokenm.json"
@@ -47938,9 +47977,9 @@
     {
       "path": "sources/xiongjian83/X.json",
       "kind": "config",
-      "size": 226621,
-      "sha256": "47d774ae9b3bf2fec3de1f40cc21615de989ade53b4e8120c6fcce1729850c3a",
-      "md5": "e9f3d8701cdb9f5fa24e64e0a877d70b",
+      "size": 224962,
+      "sha256": "e09df9c9401e4f54b45d0565dce05df073504068bb4f31437d751a5f18f0d5e6",
+      "md5": "ed4884cff2018e31a4c8316df8f40b51",
       "references": [
         "jar/6b727c38e839f6f31a1229c1-HeChengChaXiu.jar",
         "jar/XYQH.jar"
@@ -53065,10 +53104,13 @@
     {
       "path": "sources/zyjk/JS/lib/drpy.min.js",
       "kind": "javascript",
-      "size": 37227,
-      "sha256": "f51d3a1802a70d4c337f843fe7c702aa5632aa27e59d5ca6b8d04698950e83f1",
-      "md5": "b634f0507d0854e467f33f0b330d1f7c",
-      "references": [],
+      "size": 37123,
+      "sha256": "e6f7d9932156f3cd7504bd10e4856c22dc37718277f78d1164b10462b7b876b3",
+      "md5": "99ebefc6655451e829246f7143100f1f",
+      "references": [
+        "js/gbk.js",
+        "sources/zyjk/JS/lib/模板.js"
+      ],
       "used_by": [
         "sources/zyjk/18.json",
         "sources/zyjk/19.json",
@@ -53107,6 +53149,7 @@
       "used_by": [
         "sources/qist/lib/quark.min.js",
         "sources/tvbox18/pg/lib/drpy2.min.js",
+        "sources/zyjk/JS/lib/drpy.min.js",
         "sources/zyjk/JS/lib/drpy1.min.js"
       ]
     },
@@ -55925,10 +55968,11 @@
     {
       "path": "sources/zyjk/py.json",
       "kind": "config",
-      "size": 20202,
-      "sha256": "ca91464568902ee0e4f7cf9dbf7b1392248a216fcd1a4340222c76c5259ebcc0",
-      "md5": "0d15b2868a21a06040c6998e5eaf8cf4",
+      "size": 20240,
+      "sha256": "ce71442a7b6d0a37a977075616ec1beb7ac8ae719c27a7f37091650b70a4d721",
+      "md5": "afcf644ed27e3be89bb52b7e3e4be9e6",
       "references": [
+        "jar/fan-170b3430a9.jar",
         "sources/zyjk/plugin/py_czspp.py",
         "sources/zyjk/py/py_3qu.py",
         "sources/zyjk/py/py_ali.py",
@@ -58754,7 +58798,6 @@
     "https://fm.t4tv.hz.cz/jar/custom_spider.jar;md5;6bf74e9b02f310ddcab9c460b7e0983c",
     "https://fm.t4tv.hz.cz/jar/custom_spider.jar;md5;f4fa24d313b7290001db8ef49bd8ae0b",
     "https://fm.t4tv.hz.cz/jar/fm.jar;md5;55c157414346e3ff571baad0a223bf15",
-    "https://fs-im-kefu.7moor-fs1.com/ly/4d2c3f00-7d4c-11e5-af15-41bf63ae4ea0/1734861856358/XMKY.jar;md5;0a762b54cf53124bc90868821a884d43",
     "https://ghproxy.com/https://github.com/c120487/00/raw/main/jar/pc0330.jar",
     "https://ghproxy.com/https://raw.githubusercontent.com/FongMi/CatVodSpider/main/jar/custom_spider.jar",
     "https://ghproxy.com/https://raw.githubusercontent.com/c120487/00/main/jar/xc0126.jar",

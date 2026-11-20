@@ -29,6 +29,7 @@ public class RequestInterceptor implements Interceptor {
     @Override
     public Response intercept(@NonNull Chain chain) throws IOException {
         Request request = chain.request();
+        com.github.catvod.net.OkDns.checkHost(request.url().host());
         if (request.tag(Auth.Context.class) != null || request.header(HttpHeaders.AUTHORIZATION) != null || request.url().uri().getUserInfo() != null) return chain.proceed(request);
         Request.Builder builder = request.newBuilder();
         HttpUrl url = request.url();

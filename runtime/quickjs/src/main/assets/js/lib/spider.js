@@ -4,8 +4,40 @@ import {Spider} from 'catvod';
 import {stringify} from 'assets://js/lib/net.js';
 import {dialogActions} from 'assets://js/lib/dialog.js';
 
-if (typeof entry.default !== 'function' || !(entry.default.prototype instanceof Spider)) throw new TypeError('Spider requires a default class extending Spider');
-host.attach(createSpider(new entry.default()), dialogActions);
+// 同时接受新版 Spider 类，以及旧版默认对象和命名导出；来源状态仍归属当前实例。
+const api = typeof entry.default === 'function' && entry.default.prototype instanceof Spider
+    ? new entry.default() : legacySpider(entry.default ?? entry);
+host.attach(createSpider(api), dialogActions);
+
+function legacySpider(source) {
+    const aliases = {
+        init: 'init', homeContent: 'home', homeVideoContent: 'homeVod', categoryContent: 'category',
+        detailContent: 'detail', searchContent: 'search', playerContent: 'play', liveContent: 'live',
+        manualVideoCheck: 'sniffer', isVideoFormat: 'isVideo', proxy: 'proxy', action: 'action', destroy: 'destroy'
+    };
+    if (!source || typeof source !== 'object' || !Object.entries(aliases).some(([name, alias]) =>
+        typeof source[name] === 'function' || typeof source[alias] === 'function')) {
+        throw new TypeError('Spider requires a Spider class or an object exporting source methods');
+    }
+    const adapter = new Spider();
+    for (const [name, alias] of Object.entries(aliases)) {
+        const modern = typeof source[name] === 'function';
+        const method = modern ? source[name] : source[alias];
+        if (typeof method !== 'function') continue;
+        Object.defineProperty(adapter, name, {
+            value: async function(...args) {
+                // 旧 detail 接受单个 ID，新接口仍保留完整 ID 列表。
+                if (name === 'detailContent' && !modern) args[0] = args[0][0] ?? '';
+                let value = await method.apply(source, args);
+                // 旧接口常返回 JSON 字符串，先解析再交给统一的结果校验，避免双重编码。
+                if (typeof value === 'string' && name !== 'liveContent' && name !== 'init' && name !== 'destroy'
+                    && name !== 'manualVideoCheck' && name !== 'isVideoFormat') value = JSON.parse(value);
+                return value;
+            }, writable: true, configurable: true
+        });
+    }
+    return adapter;
+}
 
 function createSpider(api) {
     const wrapped = Object.create(api);

@@ -6,7 +6,7 @@ import java.nio.charset.StandardCharsets;
 /** Exercises the same layered Matroska chunk protocol used by the subtitle decoder. */
 public class AssNativeRegressionTest extends InstrumentationTestCase {
     public void testLayeredChunksRenderAndFlush() throws Exception {
-        assertTrue(AssNative.AVAILABLE);
+        assertTrue(AssNative.isAvailable());
         java.io.ByteArrayOutputStream bytes = new java.io.ByteArrayOutputStream();
         try (java.io.InputStream input = new java.io.FileInputStream("/sdcard/TVboxOSC-regression/core-effects.ass")) {
             byte[] buffer = new byte[4096]; int length;
